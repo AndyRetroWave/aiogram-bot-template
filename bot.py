@@ -14,9 +14,14 @@ logger = logging.getLogger(__name__)
 async def main():
     # Настройка журналирования для вывода информации о работе бота
     logging.basicConfig(
+        level=logging.DEBUG,
+        format='[%(asctime)s] #%(levelname)-8s %(filename)s:'
+        '%(lineno)d - %(name)s - %(message)s'
+    )
+    logging.basicConfig(
         level=logging.INFO,
-        format="%(filename)s:%(lineno)d #%(levelname)-8s "
-        "[%(asctime)s] - %(name)s - %(message)s",
+        format='[%(asctime)s] #%(levelname)-8s %(filename)s:'
+        '%(lineno)d - %(name)s - %(message)s'
     )
 
     # Логгирование о начале работы бота

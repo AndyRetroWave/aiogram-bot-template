@@ -1,6 +1,7 @@
 from aiogram import Bot, Router, types
 from aiogram.types import Message, InputFile
 from config.config import settings
+from src.lexicon.lexicon_ru import LEXICON_RU
 from src.filters.filters import *
 from src.models.users.dao import add_user
 from src.keyboards.keyboards import meny, calculator_rate
@@ -13,6 +14,7 @@ from aiogram.types import CallbackQuery
 bot = Bot(token=settings.BOT_TOKEN)
 router = Router()
 
+
 @router.message(my_start_filter)
 async def start(message: types.Message):
     first_name = message.from_user.first_name
@@ -21,28 +23,14 @@ async def start(message: types.Message):
     user_id = message.from_user.id
     await add_user(first_name, last_name, username, user_id)
     photo_url = 'https://bytepix.ru/ib/Bqs4K601d2.png'  # URL-адрес вашей фотографии
-    photo = URLInputFile(photo_url)  # создаем объект InputFile из URL-адреса фотографии
+    # создаем объект InputFile из URL-адреса фотографии
+    photo = URLInputFile(photo_url)
     await bot.send_photo(
         chat_id=message.chat.id,
         photo=photo,
-        caption="Приветствую тут ты можешь заказать товары из китая!",
+        caption=LEXICON_RU["/start"],
+        parse_mode='MarkdownV2'
     )
-    await message.answer(text="Посчитай цену в калькуляторе!",
-                        reply_markup=meny)
-
-@router.callback_query(F.data == 'big_button_1_pressed')
-async def process_button_1_press(callback: CallbackQuery):
-    await callback.message.edit_text(
-        text='Выбери категория товара',
-        reply_markup=calculator_rate 
-    )
-    await callback.answer(show_alert=True)
-
-
-@router.callback_query(F.data == 'Кросовки')
-async def process_button_1_press(callback: CallbackQuery):
-    await callback.message.edit_text(
-        text="Введи стоимость товара в юанях",
-        reply_markup=None
-    )
-    await callback.answer(show_alert=True)
+    await message.answer(text=LEXICON_RU["Привет"],
+                        reply_markup=meny,
+                        parse_mode='MarkdownV2')
