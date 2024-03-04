@@ -1,14 +1,10 @@
 from aiogram import Bot, Router, types
-from aiogram.types import Message, InputFile
 from config.config import settings
 from src.lexicon.lexicon_ru import LEXICON_RU
-from src.filters.filters import *
+from src.filters.filters import my_start_filter
 from src.models.users.dao import add_user
-from src.keyboards.keyboards import meny, calculator_rate
+from src.keyboards.keyboards import meny
 from aiogram.types import URLInputFile
-
-from aiogram import F
-from aiogram.types import CallbackQuery
 
 
 bot = Bot(token=settings.BOT_TOKEN)
@@ -22,8 +18,7 @@ async def start(message: types.Message):
     username = message.from_user.username
     user_id = message.from_user.id
     await add_user(first_name, last_name, username, user_id)
-    photo_url = 'https://bytepix.ru/ib/Bqs4K601d2.png'  # URL-адрес вашей фотографии
-    # создаем объект InputFile из URL-адреса фотографии
+    photo_url = 'https://bytepix.ru/ib/Bqs4K601d2.png'
     photo = URLInputFile(photo_url)
     await bot.send_photo(
         chat_id=message.chat.id,

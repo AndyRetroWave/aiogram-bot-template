@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from config import Config, load_config
 from src.handlers import user, rate
 from config.config import settings
+from aiogram.fsm.storage.memory import MemoryStorage
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,8 @@ async def main():
     # Инициализация объекта бота
     bot: Bot = Bot(token=settings.BOT_TOKEN)
     # Создание диспетчера для обработки входящих запросов
-    dp: Dispatcher = Dispatcher()
+    storage = MemoryStorage()
+    dp: Dispatcher = Dispatcher(storage=storage)
 
     # Включаем маршрутизаторы
     dp.include_router(user.router)
