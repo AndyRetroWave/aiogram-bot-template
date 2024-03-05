@@ -9,6 +9,10 @@ kb_builder = InlineKeyboardBuilder()
     text='👜Калькулятор цены',
     callback_data='big_button_1_pressed'
 )
+update_count = InlineKeyboardButton(
+    text='🔄Посчитать повторно',
+    callback_data='big_button_1_pressed'
+)
 
 skam = InlineKeyboardButton(
     text='☠Про скам',
@@ -36,27 +40,34 @@ question = InlineKeyboardButton(
 )
 
 big_button_2 = InlineKeyboardButton(
-    text='Кросовки',
-    callback_data='Кросовки'
+    text='Кросовки👟',
+    callback_data='button_snecers'
 )
-big_button_3 = InlineKeyboardButton(
-    text='Одежда',
-    callback_data='Одежда'
+button_clothes = InlineKeyboardButton(
+    text='Одежда🩳',
+    callback_data='button_clothes'
 )
-big_button_4 = InlineKeyboardButton(
-    text='Уход',
-    callback_data='Уход'
+button_care = InlineKeyboardButton(
+    text='Уход💄',
+    callback_data='button_care'
 )
-big_button_5 = InlineKeyboardButton(
+counting = InlineKeyboardButton(
     text='Повтор подсчета стоимости товара',
     callback_data='Подсчет'
 )
 meny = InlineKeyboardMarkup(
-    inline_keyboard=[[сalculator], [skam, rate], [feedback,instruction], [question]]
+    inline_keyboard=[[сalculator], [skam, rate],
+                    [feedback, instruction], [question]]
 )
 calculator_rate = InlineKeyboardMarkup(
-    inline_keyboard=[[big_button_2, big_button_3, big_button_4]]
+    inline_keyboard=[[big_button_2, button_clothes, button_care]]
+)
+calculator_update =InlineKeyboardMarkup(
+    inline_keyboard=[[сalculator]]
+)
+update_calculator = InlineKeyboardMarkup(
+    inline_keyboard=[[update_count]]
 )
 upgrate_rate = InlineKeyboardMarkup(
-    inline_keyboard=[[big_button_5]]
+    inline_keyboard=[[counting]]
 )

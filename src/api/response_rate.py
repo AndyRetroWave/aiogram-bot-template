@@ -13,4 +13,7 @@ for valute in tree.findall('.//Valute'):
     if char_code == 'CNY':
         # Extract the exchange rate of the Chinese Yuan
         value = float(valute.find('Value').text.replace(',', '.'))
+        yuan_rate = value + value * 0.1
+        formatted_num = "{}\\.{}".format(
+                int(yuan_rate), int(yuan_rate * 100) % 100)
         break  # Exit the loop once the value is found

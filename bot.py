@@ -4,9 +4,10 @@ import logging
 from aiogram import Bot, Dispatcher
 
 from config import Config, load_config
-from src.handlers import user, rate
+from src.handlers import user, rate, info_rate, skam, feedback
 from config.config import settings
 from aiogram.fsm.storage.memory import MemoryStorage
+from src.keyboards.set_menu import set_main_menu
 
 
 logger = logging.getLogger(__name__)
@@ -30,16 +31,19 @@ async def main():
 
     # Загрузка конфигурации бота
     config: Config = load_config()
-
     # Инициализация объекта бота
     bot: Bot = Bot(token=settings.BOT_TOKEN)
     # Создание диспетчера для обработки входящих запросов
     storage = MemoryStorage()
     dp: Dispatcher = Dispatcher(storage=storage)
+    await set_main_menu(bot)
 
     # Включаем маршрутизаторы
     dp.include_router(user.router)
     dp.include_router(rate.router)
+    dp.include_router(info_rate.router)
+    dp.include_router(skam.router)
+    dp.include_router(feedback.router)
 
     # Удаление вебхука и запуск бота с использованием лонг-поллинга
     await bot.delete_webhook(drop_pending_updates=True)
