@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED 1
 COPY requirements/ requirements/
 
 RUN pip install --upgrade pip \
-        && pip install -r requirements/production.txt \
+        && pip install -r requirements \
         && rm -rf requirements
 
 COPY . .
