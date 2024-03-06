@@ -9,7 +9,7 @@ from alembic import context
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
-from src.models.users.models import UserModel
+from app.models.users.models import UserModel
 
 from config.database import Base, DATABASE_URL
 

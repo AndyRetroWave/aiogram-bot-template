@@ -4,10 +4,10 @@ import logging
 from aiogram import Bot, Dispatcher
 
 from config import Config, load_config
-from src.handlers import user, rate, info_rate, skam, feedback
+from app.handlers import user, rate, info_rate, skam, feedback
 from config.config import settings
 from aiogram.fsm.storage.memory import MemoryStorage
-from src.keyboards.set_menu import set_main_menu
+from app.keyboards.set_menu import set_main_menu
 
 
 logger = logging.getLogger(__name__)

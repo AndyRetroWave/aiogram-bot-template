@@ -1,10 +1,10 @@
 import logging
 from aiogram import Bot, Router, types
 from config.config import settings
-from src.lexicon.lexicon_ru import LEXICON_RU
-from src.filters.filters import my_start_filter
-from src.models.users.dao import add_user
-from src.keyboards.keyboards import meny
+from app.lexicon.lexicon_ru import LEXICON_RU
+from app.filters.filters import my_start_filter
+from app.models.users.dao import add_user
+from app.keyboards.keyboards import meny
 from aiogram.types import URLInputFile
 from aiogram.fsm.state import default_state, State, StatesGroup
 from aiogram.fsm.context import FSMContext
@@ -15,6 +15,8 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 # Старт нашего проекта
+
+
 @router.message(my_start_filter)
 async def start(message: types.Message, state: FSMContext):
     logger.debug('Вошли в меню')
@@ -32,7 +34,7 @@ async def start(message: types.Message, state: FSMContext):
         parse_mode='MarkdownV2'
     )
     await message.answer(text=LEXICON_RU["Привет"],
-                        reply_markup=meny,
-                        parse_mode='MarkdownV2')
+                         reply_markup=meny,
+                         parse_mode='MarkdownV2')
     await state.clear()
     logger.debug('Вышли из меню')

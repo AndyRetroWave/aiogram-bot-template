@@ -1,9 +1,9 @@
 import logging
 from aiogram import F, types, Router, Bot
 from aiogram.types import Message, CallbackQuery
-from src.lexicon.lexicon_ru import LEXICON_RU
-from src.keyboards.keyboards import calculator_rate, update_calculator, meny
-from src.api.response_rate import value, formatted_num
+from app.lexicon.lexicon_ru import LEXICON_RU
+from app.keyboards.keyboards import calculator_rate, update_calculator, meny
+from app.api.response_rate import value, formatted_num
 from aiogram.fsm.state import default_state, State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter

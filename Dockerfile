@@ -2,13 +2,12 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+COPY requirements.txt .
 
-COPY requirements/ requirements/
+RUN python -m venv venv
 
 RUN pip install --upgrade pip \
-        && pip install -r requirements \
+        && pip install -r requirements.txt \
         && rm -rf requirements
 
 COPY . .

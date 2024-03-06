@@ -1,4 +1,4 @@
-from src.api.response_rate import formatted_num
+from app.api.response_rate import formatted_num
 
 LEXICON_RU: dict[str, str] = {
     # Commands
