@@ -1,6 +1,6 @@
 import logging
 from aiogram import F, types, Router, Bot
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import calculator_update
 from config.config import settings
@@ -15,11 +15,13 @@ logger = logging.getLogger(__name__)
 
 @router.callback_query(F.data == 'button_skam')
 async def process_button_1_press(callback: CallbackQuery):
-    logger.debug('Вошли в скам')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Скам"],
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
-    await callback.answer(show_alert=True)
-    logger.debug('Вышли из скама')
+    async def process_button_1_press_message(message:Message):
+        first_name=message.from_user.first_name
+        logger.debug(f'{first_name}Пользователь Вошли в скам')
+        await callback.message.edit_text(
+            text=LEXICON_RU["Скам"],
+            reply_markup=calculator_update,
+            parse_mode='MarkdownV2'
+        )
+        await callback.answer(show_alert=True)
+        logger.debug('Вышли из скама')
