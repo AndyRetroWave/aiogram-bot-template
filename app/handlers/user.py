@@ -19,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 @router.message(my_start_filter)
 async def start(message: types.Message, state: FSMContext):
-    # first_name = message.from_user.first_name
-    # last_name = message.from_user.last_name
-    # username = message.from_user.username
-    # user_id = message.from_user.id
-    # logger.debug(f'Пользователь {first_name } {last_name} Вошёл в меню')
-    # await add_user(first_name, last_name, username, user_id)
-    photo_url = 'https://bytepix.ru/ib/Bqs4K601d2.png'
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
+    username = message.from_user.username
+    user_id = message.from_user.id
+    logger.debug(f'Пользователь {first_name } {last_name} Вошёл в меню')
+    await add_user(first_name, last_name, username, user_id)
+    photo_url = 'https://bytepix.ru/ib/0FI3ttLrBq.jpg'
     photo = URLInputFile(photo_url)
     await bot.send_photo(
         chat_id=message.chat.id,
@@ -37,4 +37,4 @@ async def start(message: types.Message, state: FSMContext):
                         reply_markup=meny,
                         parse_mode='MarkdownV2')
     await state.clear()
-    # logger.debug(f'Пользователь {first_name } {last_name} вышел из меню')
+    logger.debug(f'Пользователь {first_name } {last_name} вышел из меню')
