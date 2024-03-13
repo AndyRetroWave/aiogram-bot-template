@@ -1,9 +1,13 @@
 from dataclasses import dataclass
+import logging
 
 from dotenv import load_dotenv
 
 from config.base import getenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from aiogram import F, types, Router, Bot
+
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
@@ -13,9 +17,13 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
     BOT_TOKEN: str
+    ADMIN_ID: int
 
 settings = Settings()
 
+bot = Bot(token=settings.BOT_TOKEN)
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class TelegramBotConfig:

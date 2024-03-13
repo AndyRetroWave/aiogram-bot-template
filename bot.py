@@ -2,9 +2,9 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-
+from aiogram import F, types, Router, Bot
 from config import Config, load_config
-from app.handlers import user, rate, info_rate, skam, feedback
+from app.handlers import user, rate, feedback
 from config.config import settings
 from aiogram.fsm.storage.memory import MemoryStorage
 from app.keyboards.set_menu import set_main_menu
@@ -41,8 +41,6 @@ async def main():
     # Включаем маршрутизаторы
     dp.include_router(user.router)
     dp.include_router(rate.router)
-    dp.include_router(info_rate.router)
-    dp.include_router(skam.router)
     dp.include_router(feedback.router)
 
     # Удаление вебхука и запуск бота с использованием лонг-поллинга

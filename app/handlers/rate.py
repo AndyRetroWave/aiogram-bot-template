@@ -1,35 +1,18 @@
 import logging
-from aiogram import F, types, Router, Bot
+from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import calculator_rate, update_calculator, meny
-from app.api.response_rate import value, formatted_num
-from aiogram.fsm.state import default_state, State, StatesGroup
+from app.api.response_rate import formatted_num
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
-from aiogram.types import URLInputFile
-from config.config import settings
-
-
-bot = Bot(token=settings.BOT_TOKEN)
+from app.models.course.dao import course_today
+from app.states.states import FSMCare, FSMClothes, FSMSneakers, FSMDownJacket
+from app.static.images import photo_rate_1, photo_rate_2
+from aiogram.fsm.state import default_state
+from config.config import bot, logger
 
 router = Router()
-logger = logging.getLogger(__name__)
-
-
-# Состояние кросовок
-class FSMSneakers(StatesGroup):
-    rate_sneakers = State()
-
-
-# Состояние одежды
-class FSMClothes(StatesGroup):
-    rate_clothes = State()
-
-
-# Состояние уход
-class FSMCare(StatesGroup):
-    rate_сare = State()
 
 
 # Кнопка категория
@@ -62,20 +45,17 @@ async def process_button_1_press(callback: CallbackQuery):
 @router.callback_query(F.data == 'button_snecers', StateFilter(default_state))
 async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку кросовки')
-    photo_url_1 = 'https://bytepix.ru/ib/OghwDLiWhu.jpg'
-    photo_1 = URLInputFile(photo_url_1)
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Ввести стоимость"],
-        photo=photo_1,
+        photo=photo_rate_1,
         parse_mode='MarkdownV2'
     )
-    photo_url_2 = 'https://bytepix.ru/ib/AHeko931wt.jpg'
-    photo_2 = URLInputFile(photo_url_2)
+
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Выкуп"],
-        photo=photo_2,
+        photo=photo_rate_2,
         parse_mode='MarkdownV2',
         allow_sending_without_reply=True
     )
@@ -90,9 +70,12 @@ async def calculator_rate_value(message: Message, state: FSMContext):
     logger.debug('Вошли в ценовой-хэндлер кросовок')
     try:
         text = float(message.text)
+        value = await course_today()
         if value is not None:
-            value_markup = text * (value + value * 0.1) + 1200
+            value_markup = text * value + 1200
             round_value = round(value_markup)
+            formatted_num = "{}\\.{}".format(
+                int(value), int(value * 100) % 100)
             await message.answer(text=str(
                 f"""Итого *{round_value}* руб\. с учетом всех расходов до Пензы❤️\n\nДля информации\:\nСтоимость доставки составила\: *1200 рублей\! \(уже учтено в цене\)*\nКурс юаня *{formatted_num}*\nКатегория\: Кросовки👟"""),
                 parse_mode='MarkdownV2',
@@ -100,30 +83,76 @@ async def calculator_rate_value(message: Message, state: FSMContext):
             )
             await state.clear()
         else:
-            await message.reply(text="Извините, не удалось получить данные о валюте")
+            await message.reply(text=LEXICON_RU["Данные о валюте"])
     except ValueError:
-        await message.answer(text="Пожалуйста, введите стоимость в *Юанях*\.", parse_mode='MarkdownV2')
+        await message.answer(text=LEXICON_RU["Стоимость в юанях"],
+                            parse_mode='MarkdownV2')
     logger.debug('Вышли из ценового-хэндлера кросовок')
+
+
+# Кнопка пузовики
+@router.callback_query(F.data == 'button_down_jacket', StateFilter(default_state))
+async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
+    logger.debug('Вошли в кнопку пуховики')
+    await bot.send_photo(
+        chat_id=callback.message.chat.id,
+        caption=LEXICON_RU["Ввести стоимость"],
+        photo=photo_rate_1,
+        parse_mode='MarkdownV2'
+    )
+
+    await bot.send_photo(
+        chat_id=callback.message.chat.id,
+        caption=LEXICON_RU["Выкуп"],
+        photo=photo_rate_2,
+        parse_mode='MarkdownV2',
+        allow_sending_without_reply=True
+    )
+    await callback.answer(show_alert=True)
+    await state.set_state(FSMDownJacket.rate_down_jacket)
+    logger.debug('Вышли из кнопки пуховики')
+
+
+# Хендлер по цене пуховики
+@router.message(StateFilter(FSMDownJacket.rate_down_jacket))
+async def calculator_rate_value(message: Message, state: FSMContext):
+    logger.debug('Вошли в ценовой-хэндлер пуховиков')
+    try:
+        text = float(message.text)
+        value = await course_today()
+        if value is not None:
+            value_markup = text * value + 1200
+            round_value = round(value_markup)
+            formatted_num = "{}\\.{}".format(
+                int(value), int(value * 100) % 100)
+            await message.answer(text=str(
+                f"""Итого *{round_value}* руб\. с учетом всех расходов до Пензы❤️\n\nДля информации\:\nСтоимость доставки составила\: *1200 рублей\! \(уже учтено в цене\)*\nКурс юаня *{formatted_num}*\nКатегория\: Пуховики🥼"""),
+                parse_mode='MarkdownV2',
+                reply_markup=update_calculator
+            )
+            await state.clear()
+        else:
+            await message.reply(text=LEXICON_RU["Данные о валюте"])
+    except ValueError:
+        await message.answer(text=LEXICON_RU["Стоимость в юанях"],
+                            parse_mode='MarkdownV2')
+    logger.debug('Вышли из ценового-хэндлера пуховиков')
 
 
 # Кнопка Одежды
 @router.callback_query(F.data == 'button_clothes', StateFilter(default_state))
 async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку кросовки')
-    photo_url_1 = 'https://bytepix.ru/ib/OghwDLiWhu.jpg'
-    photo_1 = URLInputFile(photo_url_1)
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Ввести стоимость"],
-        photo=photo_1,
+        photo=photo_rate_1,
         parse_mode='MarkdownV2'
     )
-    photo_url_2 = 'https://bytepix.ru/ib/AHeko931wt.jpg'
-    photo_2 = URLInputFile(photo_url_2)
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Выкуп"],
-        photo=photo_2,
+        photo=photo_rate_2,
         parse_mode='MarkdownV2',
         allow_sending_without_reply=True
     )
@@ -138,9 +167,12 @@ async def calculator_rate_value(message: Message, state: FSMContext):
     logger.debug('Вошли в ценовой-хэндлер одежды')
     try:
         text = float(message.text)
+        value = await course_today()
         if value is not None:
-            value_markup = text * (value + value * 0.1) + 1000
+            value_markup = text * value + 1000
             round_value = round(value_markup)
+            formatted_num = "{}\\.{}".format(
+                int(value), int(value * 100) % 100)
             await message.answer(text=str(
                 f"""Итого *{round_value}* руб\. с учетом всех расходов до Пензы❤️\n\nДля информации\:\nСтоимость доставки составила\: *1000 рублей\! \(уже учтено в цене\)*\nКурс юаня *{formatted_num}*\nКатегория\: Одежда🩳"""),
                 parse_mode='MarkdownV2',
@@ -148,54 +180,56 @@ async def calculator_rate_value(message: Message, state: FSMContext):
             )
             await state.clear()
         else:
-            await message.reply(text="Извините, не удалось получить данные о валюте")
+            await message.reply(text=LEXICON_RU["Данные о валюте"])
     except ValueError:
-        await message.answer(text="Пожалуйста, введите стоимость в *Юанях*\.", parse_mode='MarkdownV2')
+        await message.answer(text=LEXICON_RU["Стоимость в юанях"],
+                            parse_mode='MarkdownV2')
     logger.debug('Вышли из ценового-хэндлера одежды')
 
 
-# Кнопка Уход
+# Кнопка Украшения/духи/ковры
 @router.callback_query(F.data == 'button_care', StateFilter(default_state))
 async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
-    logger.debug('Вошли в кнопку уход')
-    photo_url_1 = 'https://bytepix.ru/ib/OghwDLiWhu.jpg'
-    photo_1 = URLInputFile(photo_url_1)
+    logger.debug('Вошли в кнопку Украшения/духи/ковры')
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Ввести стоимость"],
-        photo=photo_1,
+        photo=photo_rate_1,
         parse_mode='MarkdownV2'
     )
-    photo_url_2 = 'https://bytepix.ru/ib/AHeko931wt.jpg'
-    photo_2 = URLInputFile(photo_url_2)
     await bot.send_photo(
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Выкуп"],
-        photo=photo_2,
+        photo=photo_rate_2,
         parse_mode='MarkdownV2',
         allow_sending_without_reply=True
     )
     await callback.answer(show_alert=True)
     await state.set_state(FSMCare.rate_сare)
-    logger.debug('Вышли из кнопки уход')
+    logger.debug('Вышли из кнопки Украшения/духи/ковры')
 
 
-# Хендлер по цене уход
+# Хендлер по цене Украшения/духи/ковры
 @router.message(StateFilter(FSMCare.rate_сare))
 async def calculator_rate_value(message: Message, state: FSMContext):
-    logger.debug('Вошли в ценовой-хэндлер уход')
+    logger.debug('Вошли в ценовой-хэндлер Украшения/духи/ковры')
     try:
         text = float(message.text)
+        value = await course_today()
+        print(value)
         if value is not None:
-            value_markup = text * (value + value * 0.1) + 700
+            value_markup = text * value + 1000
             round_value = round(value_markup)
+            formatted_num = "{}\\.{}".format(
+                int(value), int(value * 100) % 100)
             await message.answer(text=str(
-                f"""Итого *{round_value}* руб\. с учетом всех расходов до Пензы❤️\n\nДля информации\:\nСтоимость доставки составила\: *700 рублей\! \(уже учтено в цене\)*\nКурс юаня *{formatted_num}*\nКатегория\: Одежда🩳"""),
+                f"""Итого *{round_value}* руб\. с учетом всех расходов до Пензы❤️\n\nДля информации\:\nСтоимость доставки составила\: *1000 рублей\! \(уже учтено в цене\)*\nКурс юаня *{formatted_num}*\nКатегория\: Украшения/духи/ковры💍"""),
                 parse_mode='MarkdownV2',
                 reply_markup=update_calculator,)
             await state.clear()
         else:
-            await message.reply(text="Извините, не удалось получить данные о валюте")
+            await message.reply(text=LEXICON_RU["Данные о валюте"])
     except ValueError:
-        await message.answer(text="Пожалуйста, введите стоимость в *Юанях*\.", parse_mode='MarkdownV2')
-    logger.debug('Вышли из ценового-хэндлера уход')
+        await message.answer(text=LEXICON_RU["Стоимость в юанях"],
+                            parse_mode='MarkdownV2')
+    logger.debug('Вышли из ценового-хэндлера Украшения/духи/ковры')
