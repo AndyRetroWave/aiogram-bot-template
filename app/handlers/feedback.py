@@ -18,9 +18,9 @@ router = Router()
 @router.callback_query(F.data == 'add_course_botton', StateFilter(default_state))
 async def add_course_yan(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку добавления курса юаня')
-    value = await course_today()
-    formatted_num = "{}\\.{}".format(
-        int(value), int(value * 100) % 100)
+    # value = await course_today()
+    # formatted_num = "{}\\.{}".format(
+    #     int(value), int(value * 100) % 100)
     await callback.message.edit_text(
         text=f"""Привет хозяин\!\nВведи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!\nНапример: 12\.34\n12,32 такое значение не принимаеться\!\n\nКурс на данный момент: """,
         parse_mode='MarkdownV2')
