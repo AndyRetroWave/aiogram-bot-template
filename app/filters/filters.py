@@ -4,10 +4,13 @@ from aiogram.types import Message, CallbackQuery
 def my_start_filter(message: Message) -> bool:
     return message.text == '/start'
 
-def calculator(message: Message) -> bool:
-    return message.text == 'Калькулятор цены'
+
+def file(message: Message) -> bool:
+    return message.text == 'Файл'
 
 
-def calculator_2(message: Message) -> bool:
-    return message.text == 'Калькулятор'
+def photo(message: Message) -> bool:
+    return message.text == 'Фото'
+
+
 

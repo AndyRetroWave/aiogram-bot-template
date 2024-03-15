@@ -1,17 +1,17 @@
 import logging
 import os
 from aiogram import F, types, Router
-from aiogram.types import CallbackQuery, Message, InputFile, InputMediaPhoto
+from aiogram.types import CallbackQuery, Message
+from app.filters.filters import photo, file
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import calculator_update, frequent_questions, meny_admin, menu_rare, android
 from app.models.course.dao import add_course, course_today
 from config.config import logger
-from app.states.states import FSMCourse, FSMFile
+from app.states.states import FSMCourse, FSMFile, FSMPhoto
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from config.config import bot
-from aiogram.methods.send_media_group import SendMediaGroup
 from aiogram.utils.media_group import MediaGroupBuilder
 
 router = Router()
@@ -191,8 +191,30 @@ async def calculator_rate_value(callback: CallbackQuery):
     logger.debug('Вышли из хендлера добавления курса юаня')
 
 
-# # ехо
-@router.message()
+# # ехо файл
+@router.message(file, StateFilter(default_state))
+async def calculator_rate_value(message: Message, state: FSMContext):
+    await message.answer(
+        text="Пришли мне файл"
+    )
+    await state.set_state(FSMFile.file)
+@router.message(FSMFile.file)
+async def calculator_rate_value(message: Message, state: FSMContext):
+    logger.debug('Вошли в хендлер добавления курса юаня')
+    file_id = message.document.file_id
+    await message.answer(
+        text=file_id
+    )
+
+
+# # ехо фото
+@router.message(photo, StateFilter(default_state))
+async def calculator_rate_value(message: Message, state: FSMContext):
+    await message.answer(
+        text="Пришли мне фото"
+    )
+    await state.set_state(FSMPhoto.photo)
+@router.message(FSMPhoto.photo)
 async def calculator_rate_value(message: Message):
     logger.debug('Вошли в хендлер добавления курса юаня')
     # Get the file ID of the largest version of the photo
@@ -201,5 +223,4 @@ async def calculator_rate_value(message: Message):
     await message.answer(
         text=file_id
     )
-    logger.debug('Не получилось добавить курс')
     logger.debug('Вышли из хендлера добавления курса юаня')

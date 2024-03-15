@@ -28,3 +28,7 @@ class FSMCourse(StatesGroup):
 class FSMFile(StatesGroup):
     file = State()
 
+# Состояние ФОТКИ 
+class FSMPhoto(StatesGroup):
+    photo = State()
+
