@@ -139,23 +139,23 @@ async def poizon(callback: CallbackQuery):
     logger.debug(f'Пользователь {user_name} - вошел в частые вопросы')
     media_group = MediaGroupBuilder()
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICRWXy-5i2RyVMkKWrniW-Ge89sB7gAALU0jEb7xuYS5dOPYFLthdIAQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII1GX0MesrJHO8mL_H-QSrfc0RwXYKAAIH2DEbvlagS0qUe8WK0MttAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICR2XzAbLf04aYGif1yUwXoolnnjliAAL90jEb7xuYSxJRHiXAevG6AQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII1mX0MfLvXlMQEn75grUDSRHxkQ9kAAId2DEbvlagS23cyonH1o8pAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICSWXzAcG7HcYQe67LGzIHzNxxosDWAAL-0jEb7xuYSyeLFPk1TXDfAQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII2GX0MfbeifqYKj15dWWPK9jcmJdLAAIe2DEbvlagS6l_SugOyr5LAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICS2XzAc1jlyfzZA1-RH2Ed9_MNXimAAL_0jEb7xuYS4b2i6RfVtVxAQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII2mX0Mfxy_BIp2mTs7ldfX6XJvXbUAAIf2DEbvlagS57cStXrdazOAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICTWXzAdrJusDw8cEGdA0n0TTumMmPAAPTMRvvG5hL8qzvboeF9nIBAAMCAAN4AAM0BA")
+        media="AgACAgIAAxkBAAII3GX0MgABBGw_2bmXv-zh15R1_ranaQACINgxG75WoEuVE2MQAAGt-PcBAAMCAAN4AAM0BA")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICT2XzAe5MvhpaoYhJbcgwbYwDVXWxAAIB0zEb7xuYS-loirQgHqi7AQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII3mX0MgSY2VPJPKGK1TXdqgcvsLU9AAIh2DEbvlagS2skqmQ3bWjbAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICUWXzAgJ06xFCJSlHSYtJa_Vci8nWAAIC0zEb7xuYS_7JRVUtIUn1AQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII4GX0MglNa2FOOOgy1dVyHD7qTB-ZAAIi2DEbvlagS6uux6No-IYTAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICW2Xz1MgPWbQAAXk6ZLxHoTzEIwebqAACyNkxG_9DoEs67Iyi3dKQzQEAAwIAA3gAAzQE")
+        media="AgACAgIAAxkBAAII4mX0Mg2BrpzXQi6laXcKi43HfJyRAAIj2DEbvlagS7tH_qxWmIZpAQADAgADeAADNAQ")
     media_group.add_photo(
-        media="AgACAgIAAxkBAAICXWXz1NhqlXAj5a7ym-mB02oYZGyqAALJ2TEb_0OgS-J4DH_9sVq6AQADAgADeAADNAQ")
+        media="AgACAgIAAxkBAAII5GX0MhE8xZRWYlksMlRjmhkGaQTKAAIk2DEbvlagS_HhVQeHkDiYAQADAgADeAADNAQ")
     await bot.send_media_group(chat_id=callback.message.chat.id, media=media_group.build())
     await bot.send_message(
         chat_id=callback.message.chat.id,
