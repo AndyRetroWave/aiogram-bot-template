@@ -4,7 +4,7 @@ from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.filters.filters import photo, file
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import calculator_update, frequent_questions, meny_admin, menu_rare, android
+from app.keyboards.keyboards import calculator_update, frequent_questions, meny_admin, menu_rare, android_poizon, menu_one
 from app.models.course.dao import add_course, course_today
 from config.config import logger
 from app.states.states import FSMCourse, FSMFile, FSMPhoto
@@ -25,7 +25,7 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
     formatted_num = "{}\\.{}".format(
         int(value), int(value * 100) % 100)
     await callback.message.edit_text(
-        text=f"""Привет хозяин\!\nВведи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!\nНапример: 12\.34\n12,32 такое значение не принимаеться\!\n\nКурс на данный момент: *{formatted_num}* """,
+        text=f"""Введи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!\n\nКурс на данный момент: *{formatted_num}* """,
         parse_mode='MarkdownV2',
     )
     await callback.answer(show_alert=True)
@@ -50,9 +50,8 @@ async def calculator_rate_value(message: Message, state: FSMContext):
         logger.debug('Не получилось добавить курс')
     logger.debug('Вышли из хендлера добавления курса юаня')
 
+
 # Кнопка отзывы
-
-
 @router.callback_query(F.data == 'button_feedback')
 async def recall(callback: CallbackQuery):
     logger.debug('Вошли в отзывы')
@@ -94,9 +93,23 @@ async def ask_a_question(callback: CallbackQuery):
 # Кнопка курска юаня
 @router.callback_query(F.data == 'button_rate')
 async def course_yan(callback: CallbackQuery):
+    value = await course_today()
+    formatted_num = "{}\\.{}".format(
+        int(value), int(value * 100) % 100)
     logger.debug('Вошли в курс юаня')
     await callback.message.edit_text(
-        text=LEXICON_RU["Курс юаня"],
+        text=f"""Курс юаня к рублю на сегодня : *{formatted_num}*\n\n
+*Почему у нас такой большой курс юаня?*🇨🇳 Если вы задались таким вопросом, значит вы зашли на сайт [Центробанка РФ](http://cbr.ru/) и справа снизу посмотрели официальный курс и увидели, что он отличается от нашего примерно на 2 рубля\(специально не приводим точных цифр, т\.к\. ситуация меняется каждый день\)\n\n
+Самый простой ответ на вопрос о высоком курсе:\n
+❗️В текущих реалиях нельзя купить валюту даже близко к курсу ЦБ Например, можно посмотреть по какой цене [Сбербанк](http://www.sberbank.ru/ru/quotes/currencies?currency=CNY) продает *юань*\n\n
+Обычно это плюс 3,5 рубля к официальному курсу ЦБ\n\n
+Но даже если предположить, что у вас есть юань в физическом\(фиатном\) виде \-дальше его нужно отправить в Китай\.Тут также в игру вступают посредники и курс сильно вырастет\. 💴\n\n
+Если у вас есть юань на брокерском счете \(например, тинькоф\) \- попробуйте их вывести без потери хотябы 20%\.📈\n\n
+Мы совершаем деньги с валютой *"день в день"* \- вы перевели нам рубли, мы сразу оплатили заказ в юанях "из своих", сразу же поменяли ваши рубли на юань\. Мы не занимаемся накоплением рублей в ожидании падения курса, чтобы на этом заработать\- это не наш бизнес\. \(темболее, чаще всего происходит обратное\)\n\n
+Мы стараемся закупать валюту максимально дешево и оперативно\.Сверьте наш курс с курсом у конкурентов и вы поймете, что мы молодцы, даже без учета комиссий\n\n
+*Какой будет курс завтра?*💴🇨🇳💴
+Мы не знаем также как и не знаете вы\. Всем клиентам\(хоть на 100юаней, хоть на 100 000 юане\) мы советуем не ждать завтра, потому что завтра в большинстве случаев хуже\. В таком мире живем\.\n\n
+*Мы готовы купить неограниченное количество юаней по курсу ЦБ*""",
         reply_markup=calculator_update,
         parse_mode='MarkdownV2'
     )
@@ -118,7 +131,7 @@ async def skam(callback: CallbackQuery):
     logger.debug(f'Пользователь {user_name} - вышел из скама')
 
 
-# Кнопка ччастые вопросы
+# Кнопка частые вопросы
 @router.callback_query(F.data == 'issue_botton')
 async def issue(callback: CallbackQuery):
     user_name = callback.from_user.first_name
@@ -160,7 +173,7 @@ async def poizon(callback: CallbackQuery):
     await bot.send_message(
         chat_id=callback.message.chat.id,
         text=LEXICON_RU["Скачивание"],
-        reply_markup=android,
+        reply_markup=android_poizon,
         parse_mode='MarkdownV2'
     )
     await callback.answer(show_alert=True)
@@ -180,7 +193,7 @@ async def create_bot(callback: CallbackQuery):
 
 
 # Хендлер по файлу POIZON
-@router.callback_query(F.data == 'android_botton')
+@router.callback_query(F.data == 'android_poizon_botton')
 async def calculator_rate_value(callback: CallbackQuery):
     logger.debug('Вошли в хендлер добавления курса юаня')
     await bot.send_document(
@@ -198,6 +211,8 @@ async def calculator_rate_value(message: Message, state: FSMContext):
         text="Пришли мне файл"
     )
     await state.set_state(FSMFile.file)
+
+
 @router.message(FSMFile.file)
 async def calculator_rate_value(message: Message, state: FSMContext):
     logger.debug('Вошли в хендлер добавления курса юаня')
@@ -214,13 +229,26 @@ async def calculator_rate_value(message: Message, state: FSMContext):
         text="Пришли мне фото"
     )
     await state.set_state(FSMPhoto.photo)
+
+
 @router.message(FSMPhoto.photo)
 async def calculator_rate_value(message: Message):
-    logger.debug('Вошли в хендлер добавления курса юаня')
-    # Get the file ID of the largest version of the photo
+
     file_id = message.photo[-1].file_id
-    # Do something with the file ID, such as sending it to another user
     await message.answer(
         text=file_id
     )
-    logger.debug('Вышли из хендлера добавления курса юаня')
+
+
+# Кнопка по определению наличия модели
+@router.callback_query(F.data == 'availability_botton')
+async def create_bot(callback: CallbackQuery):
+    logger.debug('Вошли в кнопки бота')
+    await bot.send_photo(
+        chat_id=callback.message.chat.id,
+        caption=LEXICON_RU["Модель в налиции"],
+        reply_markup=menu_one,
+        photo="AgACAgIAAxkBAAID_2X0UXRsrf-IL71JGMDL2A2vRNVcAAI94jEb_0OoS7oTjLxKaG-AAQADAgADeQADNAQ",
+        parse_mode='MarkdownV2'
+    )
+    logger.debug('Вышли из кнопки бота')

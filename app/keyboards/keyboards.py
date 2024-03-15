@@ -35,6 +35,7 @@ rate = InlineKeyboardButton(
 )
 feedback = InlineKeyboardButton(
     text='⚡Отзывы',
+    url='https://vk.com/id143809040?w=wall143809040_6977',
     callback_data='button_feedback'
 )
 instruction = InlineKeyboardButton(
@@ -70,23 +71,23 @@ course = InlineKeyboardButton(
     callback_data='add_course_botton'
 )
 availability = InlineKeyboardButton(
-    text='Как определить наличие модели🧧?',
+    text='🧧Как определить наличие модели?',
     callback_data='availability_botton'
 )
 size = InlineKeyboardButton(
-    text='Есть ли мой размер на данную модель📏?',
+    text='📏Есть ли мой размер на данную модель?',
     callback_data='size_botton'
 )
 size_pick_up = InlineKeyboardButton(
-    text='Как подобрать размер📐?',
+    text='📐Как подобрать размер?',
     callback_data='size_pick_up_botton'
 )
 delivery = InlineKeyboardButton(
-    text='Сколько будет стоить товар с доставкой💸?',
+    text='💸Сколько будет стоить товар с доставкой?',
     callback_data='delivery_botton'
 )
 terms = InlineKeyboardButton(
-    text='Сколько доставка займёт по времени🗓?',
+    text='🗓Сколько доставка займёт по времени?',
     callback_data='terms_botton'
 )
 issue = InlineKeyboardButton(
@@ -97,15 +98,15 @@ appendix = InlineKeyboardButton(
     text='Где установить POIZON🕶',
     callback_data='appendix_botton'
 )
-android_botton = InlineKeyboardButton(
+android_poizon_botton = InlineKeyboardButton(
     text='POIZON для Андройд',
-    callback_data='android_botton'
+    callback_data='android_poizon_botton'
 )
 
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[сalculator], [skam, rate],
-                    [feedback, instruction], [issue], [appendix], [course], [bot_botton]]
+                    [feedback, instruction], [issue], [appendix], [bot_botton], [course]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
@@ -127,13 +128,17 @@ update_calculator = InlineKeyboardMarkup(
 )
 # Частые вопросы
 frequent_questions = InlineKeyboardMarkup(
-    inline_keyboard=[[availability], [size], [size_pick_up], [terms], [menu_booton_basic]]
+    inline_keyboard=[[availability], [size], [
+        size_pick_up], [terms], [menu_booton_basic]]
 )
 # Основное меню
 menu_rare = InlineKeyboardMarkup(
     inline_keyboard=[[menu_booton_basic]]
 )
 # Кнопка андройд
-android = InlineKeyboardMarkup(
-    inline_keyboard=[[android_botton], [menu_booton]]
+android_poizon = InlineKeyboardMarkup(
+    inline_keyboard=[[android_poizon_botton], [menu_booton]]
+)
+menu_one = InlineKeyboardMarkup(
+    inline_keyboard=[[menu_booton]]
 )
