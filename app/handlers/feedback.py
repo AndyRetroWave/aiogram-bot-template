@@ -192,14 +192,14 @@ async def calculator_rate_value(callback: CallbackQuery):
 
 
 # # ехо
-# @router.message()
-# async def calculator_rate_value(message: Message):
-#     logger.debug('Вошли в хендлер добавления курса юаня')
-#     # Get the file ID of the largest version of the photo
-#     file_id = message.photo[-1].file_id
-#     # Do something with the file ID, such as sending it to another user
-#     await message.answer(
-#         text=file_id
-#     )
-#     logger.debug('Не получилось добавить курс')
-#     logger.debug('Вышли из хендлера добавления курса юаня')
+@router.message()
+async def calculator_rate_value(message: Message):
+    logger.debug('Вошли в хендлер добавления курса юаня')
+    # Get the file ID of the largest version of the photo
+    file_id = message.photo[-1].file_id
+    # Do something with the file ID, such as sending it to another user
+    await message.answer(
+        text=file_id
+    )
+    logger.debug('Не получилось добавить курс')
+    logger.debug('Вышли из хендлера добавления курса юаня')
