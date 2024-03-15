@@ -248,7 +248,7 @@ async def create_bot(callback: CallbackQuery):
         chat_id=callback.message.chat.id,
         caption=LEXICON_RU["Модель в налиции"],
         reply_markup=menu_one,
-        photo="AgACAgIAAxkBAAID_2X0UXRsrf-IL71JGMDL2A2vRNVcAAI94jEb_0OoS7oTjLxKaG-AAQADAgADeQADNAQ",
+        photo="AgACAgIAAxkBAAIJTWX0U7W8-Uatxu8YK3zKfCEypIHsAAI94jEb_0OoSxyma-WYnDEoAQADAgADeQADNAQ",
         parse_mode='MarkdownV2'
     )
     logger.debug('Вышли из кнопки бота')
