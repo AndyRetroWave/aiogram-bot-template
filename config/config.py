@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     DB_NAME: str
     BOT_TOKEN: str
     ADMIN_ID: int
+    ADMIN_ID2: int
 
 settings = Settings()
 

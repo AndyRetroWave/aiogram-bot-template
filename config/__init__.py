@@ -1,1 +1,2 @@
-from .config import Config, load_config
+from .database import async_session_maker, engine, Base
+base = Base()

@@ -23,3 +23,8 @@ class FSMCare(StatesGroup):
 # Состояние добавления курса юаня
 class FSMCourse(StatesGroup):
     course = State()
+
+# Состояние файла
+class FSMFile(StatesGroup):
+    file = State()
+

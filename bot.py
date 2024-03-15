@@ -3,12 +3,13 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram import F, types, Router, Bot
-from config import Config, load_config
+from config.config import Config, load_config
 from app.handlers import user, rate, feedback
 from config.config import settings
 from aiogram.fsm.storage.memory import MemoryStorage
 from app.keyboards.set_menu import set_main_menu
-
+from sqladmin import Admin, expose
+from config import async_session_maker, engine, base
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ async def main():
     storage = MemoryStorage()
     dp: Dispatcher = Dispatcher(storage=storage)
     await set_main_menu(bot)
+    # admin = Admin(async_session_maker, base, engine)
 
     # Включаем маршрутизаторы
     dp.include_router(user.router)

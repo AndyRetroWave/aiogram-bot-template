@@ -17,7 +17,7 @@ router = Router()
 
 # Кнопка категория
 @router.callback_query(F.data == 'big_button_1_pressed')
-async def process_button_1_press(callback: CallbackQuery):
+async def category_botton(callback: CallbackQuery):
     logger.debug('Вошли в кнопку категория')
     await callback.message.edit_text(
         text=LEXICON_RU["Категория"],
@@ -30,7 +30,7 @@ async def process_button_1_press(callback: CallbackQuery):
 
 # Кнопка повтора
 @router.callback_query(F.data == 'big_button_1_pressed')
-async def process_button_1_press(callback: CallbackQuery):
+async def repetition_buttons(callback: CallbackQuery):
     logger.debug('Вошли в кнопку повтора')
     await callback.message.edit_text(
         text=LEXICON_RU["Категория"],
@@ -43,7 +43,7 @@ async def process_button_1_press(callback: CallbackQuery):
 
 # Кнопка кросовка
 @router.callback_query(F.data == 'button_snecers', StateFilter(default_state))
-async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
+async def sneaks_button(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку кросовки')
     await bot.send_photo(
         chat_id=callback.message.chat.id,
@@ -90,9 +90,9 @@ async def calculator_rate_value(message: Message, state: FSMContext):
     logger.debug('Вышли из ценового-хэндлера кросовок')
 
 
-# Кнопка пузовики
+# Кнопка пу[з]овики
 @router.callback_query(F.data == 'button_down_jacket', StateFilter(default_state))
-async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
+async def button_down_jacket(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку пуховики')
     await bot.send_photo(
         chat_id=callback.message.chat.id,
@@ -115,7 +115,7 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
 
 # Хендлер по цене пуховики
 @router.message(StateFilter(FSMDownJacket.rate_down_jacket))
-async def calculator_rate_value(message: Message, state: FSMContext):
+async def calculator_down_jacket(message: Message, state: FSMContext):
     logger.debug('Вошли в ценовой-хэндлер пуховиков')
     try:
         text = float(message.text)
@@ -141,7 +141,7 @@ async def calculator_rate_value(message: Message, state: FSMContext):
 
 # Кнопка Одежды
 @router.callback_query(F.data == 'button_clothes', StateFilter(default_state))
-async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
+async def button_clothes(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку кросовки')
     await bot.send_photo(
         chat_id=callback.message.chat.id,
@@ -163,7 +163,7 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
 
 # Хендлер по цене одежды
 @router.message(StateFilter(FSMClothes.rate_clothes))
-async def calculator_rate_value(message: Message, state: FSMContext):
+async def calculator_clothes(message: Message, state: FSMContext):
     logger.debug('Вошли в ценовой-хэндлер одежды')
     try:
         text = float(message.text)
@@ -189,7 +189,7 @@ async def calculator_rate_value(message: Message, state: FSMContext):
 
 # Кнопка Украшения/духи/ковры
 @router.callback_query(F.data == 'button_care', StateFilter(default_state))
-async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
+async def button_care(callback: CallbackQuery, state: FSMContext):
     logger.debug('Вошли в кнопку Украшения/духи/ковры')
     await bot.send_photo(
         chat_id=callback.message.chat.id,
@@ -211,7 +211,7 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
 
 # Хендлер по цене Украшения/духи/ковры
 @router.message(StateFilter(FSMCare.rate_сare))
-async def calculator_rate_value(message: Message, state: FSMContext):
+async def calculator_rate_care(message: Message, state: FSMContext):
     logger.debug('Вошли в ценовой-хэндлер Украшения/духи/ковры')
     try:
         text = float(message.text)
@@ -233,3 +233,15 @@ async def calculator_rate_value(message: Message, state: FSMContext):
         await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                             parse_mode='MarkdownV2')
     logger.debug('Вышли из ценового-хэндлера Украшения/духи/ковры')
+
+
+# Кнопка аксесуары
+@router.callback_query(F.data == 'button_jewelry')
+async def button_jewelry(callback: CallbackQuery, state: FSMContext):
+    logger.debug('Вошли в кнопку аксесуары')
+    await callback.message.edit_text(
+        text=LEXICON_RU["Заказ аксессуаров"],
+        parse_mode='MarkdownV2',
+        reply_markup=update_calculator,)
+    await callback.answer(show_alert=True)
+    logger.debug('Вышли из кнопки аксесуары')
