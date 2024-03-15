@@ -179,16 +179,16 @@ async def create_bot(callback: CallbackQuery):
     logger.debug('Вышли из кнопки бота')
 
 
-# # Хендлер по добавлению id файла
-# @router.callback_query(F.data == 'android_botton')
-# async def calculator_rate_value(callback: CallbackQuery):
-#     logger.debug('Вошли в хендлер добавления курса юаня')
-#     await bot.send_document(
-#         chat_id=callback.message.chat.id,
-#         document="BQACAgIAAxkBAAICNGXy96uCuCZvJeWjmC2ChhNSv5xUAAIcQAAC7xuYS1dZtAFjP5ErNAQ",
-#     )
-#     logger.debug('Не получилось добавить курс')
-#     logger.debug('Вышли из хендлера добавления курса юаня')
+# Хендлер по файлу POIZON
+@router.callback_query(F.data == 'android_botton')
+async def calculator_rate_value(callback: CallbackQuery):
+    logger.debug('Вошли в хендлер добавления курса юаня')
+    await bot.send_document(
+        chat_id=callback.message.chat.id,
+        document="BQACAgIAAxkBAAICNGXy96uCuCZvJeWjmC2ChhNSv5xUAAIcQAAC7xuYS1dZtAFjP5ErNAQ",
+    )
+    logger.debug('Не получилось добавить курс')
+    logger.debug('Вышли из хендлера добавления курса юаня')
 
 
 # # ехо
