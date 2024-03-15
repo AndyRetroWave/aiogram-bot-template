@@ -185,7 +185,7 @@ async def calculator_rate_value(callback: CallbackQuery):
     logger.debug('Вошли в хендлер добавления курса юаня')
     await bot.send_document(
         chat_id=callback.message.chat.id,
-        document="BQACAgIAAxkBAAICNGXy96uCuCZvJeWjmC2ChhNSv5xUAAIcQAAC7xuYS1dZtAFjP5ErNAQ",
+        document="BQACAgIAAxkBAAIJF2X0Q25XzC9d3Scln9zmao5kjw4zAALPRAACvlagS-VCxk9phw4TNAQ",
     )
     logger.debug('Не получилось добавить курс')
     logger.debug('Вышли из хендлера добавления курса юаня')
