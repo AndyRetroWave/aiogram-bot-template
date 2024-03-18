@@ -17,28 +17,28 @@ menu_booton = InlineKeyboardButton(
     text='Меню🎛',
     callback_data='menu_booton'
 )
-сalculator = InlineKeyboardButton(
+button_сalculator = InlineKeyboardButton(
     text='👜Калькулятор цены',
     callback_data='big_button_1_pressed'
 )
-update_count = InlineKeyboardButton(
+button_update_count = InlineKeyboardButton(
     text='🔄Посчитать повторно',
     callback_data='big_button_1_pressed'
 )
-skam = InlineKeyboardButton(
+button_skam = InlineKeyboardButton(
     text='☠Про скам',
     callback_data='button_skam'
 )
-rate = InlineKeyboardButton(
+button_rate = InlineKeyboardButton(
     text='⛩️Про курс',
     callback_data='button_rate'
 )
-feedback = InlineKeyboardButton(
+button_feedback = InlineKeyboardButton(
     text='⚡Отзывы',
     url='https://vk.com/id143809040?w=wall143809040_6977',
     callback_data='button_feedback'
 )
-instruction = InlineKeyboardButton(
+button_instruction = InlineKeyboardButton(
     text='Инструкция📃',
     callback_data='instruction'
 )
@@ -62,56 +62,44 @@ button_care = InlineKeyboardButton(
     text='Украшения/духи/ковры💍',
     callback_data='button_care'
 )
-course = InlineKeyboardButton(
+button_course = InlineKeyboardButton(
     text='Изменить курс юаня',
     callback_data='add_course_botton'
 )
-course = InlineKeyboardButton(
+button_course = InlineKeyboardButton(
     text='Изменить курс юаня 🇨🇳',
     callback_data='add_course_botton'
 )
-availability = InlineKeyboardButton(
-    text='🧧Как определить наличие модели?',
-    callback_data='availability_botton'
-)
-size = InlineKeyboardButton(
-    text='📏Есть ли мой размер на данную модель?',
-    callback_data='size_botton'
-)
-size_pick_up = InlineKeyboardButton(
-    text='📐Как подобрать размер?',
-    callback_data='size_pick_up_botton'
-)
-delivery = InlineKeyboardButton(
-    text='💸Сколько будет стоить товар с доставкой?',
-    callback_data='delivery_botton'
-)
-terms = InlineKeyboardButton(
-    text='🗓Сколько доставка займёт по времени?',
-    callback_data='terms_botton'
-)
-issue = InlineKeyboardButton(
+button_issue = InlineKeyboardButton(
     text='Частые вопросы❓',
     callback_data='issue_botton'
 )
-appendix = InlineKeyboardButton(
+button_appendix = InlineKeyboardButton(
     text='Где установить POIZON🕶',
     callback_data='appendix_botton'
 )
-android_poizon_botton = InlineKeyboardButton(
+button_guide = InlineKeyboardButton(
+    text='Гайд по POIZON🔑',
+    callback_data='button_guide'
+)
+button_android_poizon_botton = InlineKeyboardButton(
     text='POIZON для Андройд',
     callback_data='android_poizon_botton'
+)
+button_next = InlineKeyboardButton(
+    text='Далee',
+    callback_data='button_next'
 )
 
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
-    inline_keyboard=[[сalculator], [skam, rate],
-                    [feedback, instruction], [issue], [appendix], [bot_botton], [course]]
+    inline_keyboard=[[button_сalculator], [button_skam, button_rate],
+                    [button_feedback, button_instruction], [button_guide], [button_appendix],  [bot_botton], [button_course]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
-    inline_keyboard=[[сalculator], [skam, rate],
-                    [feedback, instruction], [appendix], [issue], [bot_botton]]
+    inline_keyboard=[[button_сalculator], [button_skam, button_rate],
+                    [button_feedback, button_instruction], [button_guide], [button_appendix], [bot_botton]]
 )
 # Список кнопок с калькулятором
 calculator_rate = InlineKeyboardMarkup(
@@ -120,16 +108,15 @@ calculator_rate = InlineKeyboardMarkup(
 )
 # Калькулятор
 calculator_update = InlineKeyboardMarkup(
-    inline_keyboard=[[сalculator], [menu_booton_basic]]
+    inline_keyboard=[[button_сalculator], [menu_booton_basic]]
 )
 # Повтор расчета
 update_calculator = InlineKeyboardMarkup(
-    inline_keyboard=[[update_count], [menu_booton_basic]]
+    inline_keyboard=[[button_update_count], [menu_booton_basic]]
 )
-# Частые вопросы
+# Гайд по poizon
 frequent_questions = InlineKeyboardMarkup(
-    inline_keyboard=[[availability], [size], [
-        size_pick_up], [terms], [menu_booton_basic]]
+    inline_keyboard= [[menu_booton_basic], [button_guide]]
 )
 # Основное меню
 menu_rare = InlineKeyboardMarkup(
@@ -137,8 +124,17 @@ menu_rare = InlineKeyboardMarkup(
 )
 # Кнопка андройд
 android_poizon = InlineKeyboardMarkup(
-    inline_keyboard=[[android_poizon_botton], [menu_booton]]
+    inline_keyboard=[[button_android_poizon_botton], [menu_booton]]
 )
+# Меню с проскальзыванием
 menu_one = InlineKeyboardMarkup(
     inline_keyboard=[[menu_booton]]
+)
+# Кнопка дальше
+next = InlineKeyboardMarkup(
+    inline_keyboard=[[button_next]]
+)
+# Кнопка далее и установить пойзон
+next_and_poizon = InlineKeyboardMarkup(
+    inline_keyboard=[[button_appendix], [button_next]]
 )

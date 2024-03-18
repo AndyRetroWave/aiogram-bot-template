@@ -1,10 +1,8 @@
-import logging
-import os
 from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.filters.filters import photo, file
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import calculator_update, frequent_questions, meny_admin, menu_rare, android_poizon, menu_one
+from app.keyboards.keyboards import calculator_update, meny_admin, android_poizon
 from app.models.course.dao import add_course, course_today
 from config.config import logger
 from app.states.states import FSMCourse, FSMFile, FSMPhoto
@@ -55,11 +53,6 @@ async def calculator_rate_value(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_feedback')
 async def recall(callback: CallbackQuery):
     logger.debug('Вошли в отзывы')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Отзывы"],
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
     await callback.answer(show_alert=True)
     logger.debug('Вышли из отзывов')
 
@@ -75,19 +68,6 @@ async def instruction(callback: CallbackQuery):
     )
     await callback.answer(show_alert=True)
     logger.debug('Вышли из инструкции')
-
-
-# Кнопка задать вопрос
-@router.callback_query(F.data == 'question')
-async def ask_a_question(callback: CallbackQuery):
-    logger.debug('Вошли в вопрос')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Вопрос"],
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
-    await callback.answer(show_alert=True)
-    logger.debug('Вышли из вопроса')
 
 
 # Кнопка курска юаня
@@ -129,20 +109,6 @@ async def skam(callback: CallbackQuery):
     )
     await callback.answer(show_alert=True)
     logger.debug(f'Пользователь {user_name} - вышел из скама')
-
-
-# Кнопка частые вопросы
-@router.callback_query(F.data == 'issue_botton')
-async def issue(callback: CallbackQuery):
-    user_name = callback.from_user.first_name
-    logger.debug(f'Пользователь {user_name} - вошел в частые вопросы')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Частые вопросы"],
-        reply_markup=frequent_questions,
-        parse_mode='MarkdownV2'
-    )
-    await callback.answer(show_alert=True)
-    logger.debug(f'Пользователь {user_name} - вышел из частых вопросов')
 
 
 # Кнопка скачивания POIZON
@@ -206,15 +172,15 @@ async def calculator_rate_value(callback: CallbackQuery):
 
 # # ехо файл
 @router.message(file, StateFilter(default_state))
-async def calculator_rate_value(message: Message, state: FSMContext):
+async def echo_file(message: Message, state: FSMContext):
     await message.answer(
         text="Пришли мне файл"
     )
     await state.set_state(FSMFile.file)
 
-
+# файл id 
 @router.message(FSMFile.file)
-async def calculator_rate_value(message: Message, state: FSMContext):
+async def file_id(message: Message, state: FSMContext):
     logger.debug('Вошли в хендлер добавления курса юаня')
     file_id = message.document.file_id
     await message.answer(
@@ -224,31 +190,18 @@ async def calculator_rate_value(message: Message, state: FSMContext):
 
 # # ехо фото
 @router.message(photo, StateFilter(default_state))
-async def calculator_rate_value(message: Message, state: FSMContext):
+async def echo_photo(message: Message, state: FSMContext):
     await message.answer(
         text="Пришли мне фото"
     )
     await state.set_state(FSMPhoto.photo)
 
-
+# фото id 
 @router.message(FSMPhoto.photo)
-async def calculator_rate_value(message: Message):
+async def photo_id(message: Message):
 
     file_id = message.photo[-1].file_id
     await message.answer(
         text=file_id
     )
 
-
-# Кнопка по определению наличия модели
-@router.callback_query(F.data == 'availability_botton')
-async def create_bot(callback: CallbackQuery):
-    logger.debug('Вошли в кнопки бота')
-    await bot.send_photo(
-        chat_id=callback.message.chat.id,
-        caption=LEXICON_RU["Модель в налиции"],
-        reply_markup=menu_one,
-        photo="AgACAgIAAxkBAAIJTWX0U7W8-Uatxu8YK3zKfCEypIHsAAI94jEb_0OoSxyma-WYnDEoAQADAgADeQADNAQ",
-        parse_mode='MarkdownV2'
-    )
-    logger.debug('Вышли из кнопки бота')
