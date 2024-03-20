@@ -5,11 +5,17 @@ from app.keyboards.keyboards import meny_admin, admin, mailing_botton
 from app.models.course.dao import add_course, course_today
 from app.models.users.dao import all_user
 from config.config import logger
-from app.states.states import FSMCourse, FSMFile, FSMMailing, FSMPhoto
+from app.states.states import FSMCourse, FSMMailing
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from config.config import bot
+import asyncio
+
+
+import time
+from datetime import datetime
+
 
 router = Router()
 
@@ -140,3 +146,8 @@ async def botton_mailing(callback: CallbackQuery, state: FSMContext):
     )
     await callback.answer(show_alert=True)
     await state.set_state(FSMMailing.mailing)
+
+
+@router.message()
+async def notification():
+    await bot.send_message(chat_id=848116805, text='Доброе утро!')

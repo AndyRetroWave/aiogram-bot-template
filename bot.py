@@ -1,6 +1,6 @@
 import asyncio
 import logging
-
+from datetime import datetime
 from aiogram import Bot, Dispatcher
 from aiogram import F, types, Router, Bot
 from config.config import Config, load_config
@@ -10,6 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from app.keyboards.set_menu import set_main_menu
 from sqladmin import Admin, expose
 from config import async_session_maker, engine, base
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,9 @@ async def main():
     await set_main_menu(bot)
     # admin = Admin(async_session_maker, base, engine)
 
+    schelduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    schelduler.add_job(admin.notification, trigger='cron', hour=8, minute=0, second=0)
+    schelduler.start()
     # Включаем маршрутизаторы
     dp.include_router(user.router)
     dp.include_router(rate.router)

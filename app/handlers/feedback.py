@@ -88,9 +88,6 @@ async def create_bot(callback: CallbackQuery):
     logger.debug('Вышли из кнопки бота')
 
 
-
-
-
 # # ехо файл
 @router.message(file, StateFilter(default_state))
 async def echo_file(message: Message, state: FSMContext):
