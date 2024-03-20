@@ -18,3 +18,10 @@ async def add_user(first_name, last_name, username, user_id):
             first_name=first_name, last_name=last_name, username=username, user_id=user_id)
         session.add(new_user)
         await session.commit()
+
+async def all_user():
+    async with async_session_maker() as session:
+        result = await session.execute(select(UserModel.user_id))
+        users = result.scalars().all()
+        return users
+

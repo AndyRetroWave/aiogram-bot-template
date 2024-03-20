@@ -10,7 +10,7 @@ menu_booton_basic = InlineKeyboardButton(
     callback_data='menu_booton_basic'
 )
 bot_botton = InlineKeyboardButton(
-    text='🤖Хочешь себе такого бота?',
+    text='🤖Нужен бот?',
     callback_data='bot_botton'
 )
 menu_booton = InlineKeyboardButton(
@@ -62,13 +62,17 @@ button_care = InlineKeyboardButton(
     text='Украшения/духи/ковры💍',
     callback_data='button_care'
 )
-button_course = InlineKeyboardButton(
-    text='Изменить курс юаня',
-    callback_data='add_course_botton'
+button_admin = InlineKeyboardButton(
+    text='Админ панель',
+    callback_data='add_course_admin'
 )
 button_course = InlineKeyboardButton(
     text='Изменить курс юаня 🇨🇳',
     callback_data='add_course_botton'
+)
+button_mailing = InlineKeyboardButton(
+    text='Сделать рассылку',
+    callback_data='mailing_botton'
 )
 button_issue = InlineKeyboardButton(
     text='Частые вопросы❓',
@@ -90,16 +94,23 @@ button_next = InlineKeyboardButton(
     text='Далee',
     callback_data='button_next'
 )
-
+button_сonfirm_and_send = InlineKeyboardButton(
+    text='Отправляем📌',
+    callback_data='button_сonfirm_and_send'
+)
+button_modify = InlineKeyboardButton(
+    text='Изменяем✂',
+    callback_data='button_modify'
+)
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_skam, button_rate],
-                    [button_feedback, button_instruction], [button_guide], [button_appendix],  [bot_botton], [button_course]]
+                    [button_feedback, button_instruction], [button_guide], [bot_botton], [button_admin]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_skam, button_rate],
-                    [button_feedback, button_instruction], [button_guide], [button_appendix], [bot_botton]]
+                    [button_feedback, button_instruction], [button_guide], [bot_botton]]
 )
 # Список кнопок с калькулятором
 calculator_rate = InlineKeyboardMarkup(
@@ -124,7 +135,7 @@ menu_rare = InlineKeyboardMarkup(
 )
 # Кнопка андройд
 android_poizon = InlineKeyboardMarkup(
-    inline_keyboard=[[button_android_poizon_botton], [menu_booton]]
+    inline_keyboard=[[button_android_poizon_botton], [button_next]]
 )
 # Меню с проскальзыванием
 menu_one = InlineKeyboardMarkup(
@@ -137,4 +148,11 @@ next = InlineKeyboardMarkup(
 # Кнопка далее и установить пойзон
 next_and_poizon = InlineKeyboardMarkup(
     inline_keyboard=[[button_appendix], [button_next]]
+)
+# Админ панель
+admin = InlineKeyboardMarkup(
+    inline_keyboard=[[button_course], [button_mailing], [menu_booton_basic]]
+)
+mailing_botton = InlineKeyboardMarkup(
+    inline_keyboard=[[button_сonfirm_and_send], [button_modify]]
 )

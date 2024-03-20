@@ -33,10 +33,17 @@ class FSMPhoto(StatesGroup):
     photo = State()
 
 
+# Состояние рассылки
+class FSMMailing(StatesGroup):
+    mailing = State()
+    mailing2 = State()
+
+
 # Состояние гайд 
 class FSMGuide(StatesGroup):
     install_1 = State()
     install_2 = State()
+    install_3 = State()
     search_1 = State()
     search_2 = State()
     size_1 = State()

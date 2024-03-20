@@ -66,7 +66,7 @@ async def start(callback: CallbackQuery, state: FSMContext):
     else:
         await callback.message.edit_text(
             text=LEXICON_RU["Привет"],
-            reply_markup=meny_admin,
+            reply_markup=meny,
             parse_mode='MarkdownV2')
         await callback.answer(show_alert=True)
         await state.clear()
@@ -93,7 +93,7 @@ async def start(callback: CallbackQuery, state: FSMContext):
         await bot.send_message(
             chat_id=callback.message.chat.id,
             text=LEXICON_RU["Привет"],
-            reply_markup=meny_admin,
+            reply_markup=meny,
             parse_mode='MarkdownV2')
         await callback.answer(show_alert=True)
         await state.clear()
