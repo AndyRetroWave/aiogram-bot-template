@@ -88,13 +88,7 @@ async def create_bot(callback: CallbackQuery):
     logger.debug('Вышли из кнопки бота')
 
 
-# Хендлер по файлу POIZON
-@router.callback_query(F.data == 'android_poizon_botton')
-async def calculator_rate_value(callback: CallbackQuery):
-    await bot.send_document(
-        chat_id=callback.message.chat.id,
-        document="BQACAgIAAxkBAAIJF2X0Q25XzC9d3Scln9zmao5kjw4zAALPRAACvlagS-VCxk9phw4TNAQ",
-    )
+
 
 
 # # ехо файл
@@ -110,13 +104,9 @@ async def echo_file(message: Message, state: FSMContext):
 @router.message(FSMFile.file)
 async def file_id(message: Message, state: FSMContext):
     logger.debug('Вошли в хендлер добавления курса юаня')
-    file_id = str(message.message_id)
-    chat_id = str(message.chat.id)
+    file_id = message.document.file_id
     await message.answer(
         text=file_id
-    )
-    await message.answer(
-        text=chat_id
     )
 
 

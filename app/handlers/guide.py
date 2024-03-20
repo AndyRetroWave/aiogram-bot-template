@@ -76,12 +76,35 @@ async def poizon(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMGuide.install_2)
 
 
+# Хендлер по файлу POIZON
+@router.callback_query(F.data == 'android_poizon_botton')
+async def calculator_rate_value(callback: CallbackQuery):
+    # # Тест 
+    # await bot.send_document(
+    #     chat_id=callback.message.chat.id,
+    #     document="BQACAgIAAxkBAAIJUGX6uuLQ27eWxWLFtqbKjhO0P3POAAKDQAACd-PZS1PCpnS08OK1NAQ",
+    # )
+    # Сервер
+    await bot.send_document(
+        chat_id=callback.message.chat.id,
+        document="BQACAgIAAxkBAAIJF2X0Q25XzC9d3Scln9zmao5kjw4zAALPRAACvlagS-VCxk9phw4TNAQ",
+    )
+
 # Кнопка далее(Регистрация в пойзон)
 @router.callback_query(F.data == 'button_next', StateFilter(FSMGuide.install_2))
 async def guide_poizon_1(callback: CallbackQuery, state: FSMContext):
+    # тест
+    # await bot.send_photo(
+    #     chat_id=callback.message.chat.id,
+    #     photo="AgACAgIAAxkBAAIGnGX5Q4KOoCMtcAHifOvqu9AItSnSAAIT2DEbqmHJS0BUzaSM8VVvAQADAgADeQADNAQ",
+    #     caption=LEXICON_RU["Регистрация пойзон"],
+    #     reply_markup=next,
+    #     parse_mode='MarkdownV2'
+    # )
+    # сервер
     await bot.send_photo(
         chat_id=callback.message.chat.id,
-        photo="AgACAgIAAxkBAAIGnGX5Q4KOoCMtcAHifOvqu9AItSnSAAIT2DEbqmHJS0BUzaSM8VVvAQADAgADeQADNAQ",
+        photo="AgACAgIAAxkBAAIM6WX6vStGenN6nH5AAg6vadTJzdg2AAI61TEbELrYS1lNEoHG-ZQqAQADAgADeQADNAQ",
         caption=LEXICON_RU["Регистрация пойзон"],
         reply_markup=next,
         parse_mode='MarkdownV2'
