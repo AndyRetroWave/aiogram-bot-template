@@ -21,6 +21,10 @@ button_сalculator = InlineKeyboardButton(
     text='👜Калькулятор цены',
     callback_data='big_button_1_pressed'
 )
+button_orders = InlineKeyboardButton(
+    text='Оформить заказ💸',
+    callback_data='botton_orders'
+)
 button_update_count = InlineKeyboardButton(
     text='🔄Посчитать повторно',
     callback_data='big_button_1_pressed'
@@ -104,12 +108,12 @@ button_modify = InlineKeyboardButton(
 )
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_skam, button_rate],
+    inline_keyboard=[[button_сalculator], [button_orders], [button_skam, button_rate],
                     [button_feedback, button_instruction], [button_guide], [bot_botton], [button_admin]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_skam, button_rate],
+    inline_keyboard=[[button_сalculator], [button_orders], [button_skam, button_rate],
                     [button_feedback, button_instruction], [button_guide], [bot_botton]]
 )
 # Список кнопок с калькулятором
@@ -127,7 +131,7 @@ update_calculator = InlineKeyboardMarkup(
 )
 # Гайд по poizon
 frequent_questions = InlineKeyboardMarkup(
-    inline_keyboard= [[menu_booton_basic], [button_guide]]
+    inline_keyboard=[[menu_booton_basic], [button_guide]]
 )
 # Основное меню
 menu_rare = InlineKeyboardMarkup(

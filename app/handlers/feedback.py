@@ -17,33 +17,44 @@ router = Router()
 # Кнопка отзывы
 @router.callback_query(F.data == 'button_feedback')
 async def recall(callback: CallbackQuery):
-    logger.debug('Вошли в отзывы')
-    await callback.answer(show_alert=True)
-    logger.debug('Вышли из отзывов')
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку отзывы")
+        await callback.answer(show_alert=True)
+    except:
+        logger.critical("Ошибка в кнопке отзывы")
 
 
 # Кнопка инструкция
 @router.callback_query(F.data == 'instruction')
 async def instruction(callback: CallbackQuery):
-    logger.debug('Вошли в инструкцию')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Инструкция"],
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
-    await callback.answer(show_alert=True)
-    logger.debug('Вышли из инструкции')
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку инструкция")
+        logger.debug('Вошли в инструкцию')
+        await callback.message.edit_text(
+            text=LEXICON_RU["Инструкция"],
+            reply_markup=calculator_update,
+            parse_mode='MarkdownV2'
+        )
+        await callback.answer(show_alert=True)
+        logger.debug('Вышли из инструкции')
+    except:
+        logger.critical("Ошибка в кнопке инструкция")
 
 
 # Кнопка курска юаня
 @router.callback_query(F.data == 'button_rate')
 async def course_yan(callback: CallbackQuery):
-    value = await course_today()
-    formatted_num = "{}\\.{}".format(
-        int(value), int(value * 100) % 100)
-    logger.debug('Вошли в курс юаня')
-    await callback.message.edit_text(
-        text=f"""Курс юаня к рублю на сегодня : *{formatted_num}*\n\n
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку курса юаня")
+        value = await course_today()
+        formatted_num = "{}\\.{}".format(
+            int(value), int(value * 100) % 100)
+        logger.debug('Вошли в курс юаня')
+        await callback.message.edit_text(
+            text=f"""Курс юаня к рублю на сегодня : *{formatted_num}*\n\n
 *Почему у нас такой большой курс юаня?*🇨🇳 Если вы задались таким вопросом, значит вы зашли на сайт [Центробанка РФ](http://cbr.ru/) и справа снизу посмотрели официальный курс и увидели, что он отличается от нашего примерно на 2 рубля\(специально не приводим точных цифр, т\.к\. ситуация меняется каждый день\)\n\n
 Самый простой ответ на вопрос о высоком курсе:\n
 ❗️В текущих реалиях нельзя купить валюту даже близко к курсу ЦБ Например, можно посмотреть по какой цене [Сбербанк](http://www.sberbank.ru/ru/quotes/currencies?currency=CNY) продает *юань*\n\n
@@ -55,37 +66,43 @@ async def course_yan(callback: CallbackQuery):
 *Какой будет курс завтра?*💴🇨🇳💴
 Мы не знаем также как и не знаете вы\. Всем клиентам\(хоть на 100юаней, хоть на 100 000 юане\) мы советуем не ждать завтра, потому что завтра в большинстве случаев хуже\. В таком мире живем\.\n\n
 *Мы готовы купить неограниченное количество юаней по курсу ЦБ*""",
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
-    await callback.answer(show_alert=True)
-    logger.debug('Вышли из курс юаня')
+            reply_markup=calculator_update,
+            parse_mode='MarkdownV2'
+        )
+        await callback.answer(show_alert=True)
+    except:
+        logger.critical("Ошибка в кнопке курса юаня")
 
 
 # Кнопка скама
 @router.callback_query(F.data == 'button_skam')
 async def skam(callback: CallbackQuery):
-    user_name = callback.from_user.first_name
-    logger.debug(f'Пользователь {user_name} - вошел в скам')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Скам"],
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
-    await callback.answer(show_alert=True)
-    logger.debug(f'Пользователь {user_name} - вышел из скама')
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку скама")
+        await callback.message.edit_text(
+            text=LEXICON_RU["Скам"],
+            reply_markup=calculator_update,
+            parse_mode='MarkdownV2'
+        )
+        await callback.answer(show_alert=True)
+    except:
+        logger.critical("Ошибка в кнопке скама")
 
 
 # Кнопка по создателю
 @router.callback_query(F.data == 'bot_botton')
 async def create_bot(callback: CallbackQuery):
-    logger.debug('Вошли в кнопки бота')
-    await callback.message.edit_text(
-        text=LEXICON_RU["Заказ бота"],
-        reply_markup=calculator_update,
-        parse_mode='MarkdownV2'
-    )
-    logger.debug('Вышли из кнопки бота')
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку создатель")
+        await callback.message.edit_text(
+            text=LEXICON_RU["Заказ бота"],
+            reply_markup=calculator_update,
+            parse_mode='MarkdownV2'
+        )
+    except:
+        logger.critical("Ошибка в кнопке создатель")
 
 
 # # ехо файл
@@ -119,7 +136,6 @@ async def echo_photo(message: Message, state: FSMContext):
 # фото id
 @router.message(FSMPhoto.photo)
 async def photo_id(message: Message):
-
     file_id = message.photo[-1].file_id
     await message.answer(
         text=file_id

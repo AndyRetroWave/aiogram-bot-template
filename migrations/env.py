@@ -11,6 +11,7 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 from app.models.users.models import UserModel
 from app.models.course.models import CourseModel
+from app.models.order.models import OrderModel
 
 from config.database import Base, DATABASE_URL
 
