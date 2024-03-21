@@ -180,6 +180,6 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
     except:
         logger.debug('Ошибка в кнопке изменения текста')
 
-@router.message()
+
 async def notification():
     await bot.send_message(chat_id=848116805, text='Доброе утро! Пора обновлять курс юаня!', reply_markup=admin)

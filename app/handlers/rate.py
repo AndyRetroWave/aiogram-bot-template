@@ -46,9 +46,8 @@ async def repetition_buttons(callback: CallbackQuery):
     except:
         logger.critical("Ошибка в кнопке повтора")
 
+
 # Кнопка кросовка
-
-
 @router.callback_query(F.data == 'button_snecers', StateFilter(default_state))
 async def sneaks_button(callback: CallbackQuery, state: FSMContext):
     try:

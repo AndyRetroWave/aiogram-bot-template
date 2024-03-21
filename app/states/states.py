@@ -52,9 +52,21 @@ class FSMGuide(StatesGroup):
 
 # Состояние заказ 
 class FSMOrders(StatesGroup):
-    price = State()
+    price_snecers = State()
+    price_clothe = State()
+    price_jacket = State()
     url = State()
     phone = State()
     name = State()
     adress = State()
     color = State()
+    penza = State()
+    another = State()
+    another2 = State()
+
+# Состояние заказ 
+class FSMAdress(StatesGroup):
+    adress = State()
+    adress2 = State()
+
+

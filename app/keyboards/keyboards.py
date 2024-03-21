@@ -126,6 +126,14 @@ button_modify = InlineKeyboardButton(
     text='Изменяем✂',
     callback_data='button_modify'
 )
+addres_penza_botton = InlineKeyboardButton(
+    text='Пенза💖',
+    callback_data='addres_penza_botton'
+)
+addres_changes_botton = InlineKeyboardButton(
+    text='Другой город🏛',
+    callback_data='addres_changes_botton'
+)
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [button_skam, button_rate],
@@ -141,10 +149,10 @@ calculator_rate = InlineKeyboardMarkup(
     inline_keyboard=[[big_button_2], [button_down_jacket], [
         button_clothes], [button_care], [button_jewelry], [menu_booton_basic]]
 )
-# Список кнопок с калькулятором
+# Список кнопок с заказом
 order = InlineKeyboardMarkup(
     inline_keyboard=[[sneacker_button_order], [button_clothes_order], [
-        button_down_jacke_order], [button_jewelr_order], [button_care_order], [menu_booton_basic]]
+        button_down_jacke_order], [button_care_order], [button_jewelr_order], [menu_booton_basic]]
 )
 # Калькулятор
 calculator_update = InlineKeyboardMarkup(
@@ -182,6 +190,11 @@ next_and_poizon = InlineKeyboardMarkup(
 admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_course], [button_mailing], [menu_booton_basic]]
 )
+# Рассылка
 mailing_botton = InlineKeyboardMarkup(
     inline_keyboard=[[button_сonfirm_and_send], [button_modify]]
+)
+# Выбор доставки
+adress_botton = InlineKeyboardMarkup(
+    inline_keyboard=[[addres_penza_botton], [addres_changes_botton]]
 )
