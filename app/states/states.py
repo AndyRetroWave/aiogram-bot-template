@@ -50,3 +50,11 @@ class FSMGuide(StatesGroup):
     reference = State()
 
 
+# Состояние заказ 
+class FSMOrders(StatesGroup):
+    price = State()
+    url = State()
+    phone = State()
+    name = State()
+    adress = State()
+    color = State()

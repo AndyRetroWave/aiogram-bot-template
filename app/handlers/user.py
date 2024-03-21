@@ -7,7 +7,7 @@ from app.keyboards.keyboards import meny, meny_admin
 from aiogram.fsm.state import default_state
 from aiogram.fsm.context import FSMContext
 from config.config import bot, logger, settings
-from app.static.images import photo_start
+from app.static.images import static
 
 
 router = Router()
@@ -26,7 +26,7 @@ async def start(message: types.Message, state: FSMContext):
         if message.from_user.id == settings.ADMIN_ID or message.from_user.id == settings.ADMIN_ID2:
             await bot.send_photo(
                 chat_id=message.chat.id,
-                photo=photo_start,
+                photo=static.photo_url_start,
                 caption=LEXICON_RU["/start"],
                 parse_mode='MarkdownV2'
             )
@@ -37,7 +37,7 @@ async def start(message: types.Message, state: FSMContext):
         else:
             await bot.send_photo(
                 chat_id=message.chat.id,
-                photo=photo_start,
+                photo=static.photo_url_start,
                 caption=LEXICON_RU["/start"],
                 parse_mode='MarkdownV2'
             )

@@ -66,6 +66,26 @@ button_care = InlineKeyboardButton(
     text='Украшения/духи/ковры💍',
     callback_data='button_care'
 )
+sneacker_button_order = InlineKeyboardButton(
+    text='Кросовки👟',
+    callback_data='button_snecers_order'
+)
+button_clothes_order = InlineKeyboardButton(
+    text='Одежда🩳',
+    callback_data='button_clothe_order'
+)
+button_down_jacke_order = InlineKeyboardButton(
+    text='Пуховики🥼',
+    callback_data='button_down_jacket_order'
+)
+button_jewelr_order = InlineKeyboardButton(
+    text='Аксесуары💄',
+    callback_data='button_jewelr_order'
+)
+button_care_order = InlineKeyboardButton(
+    text='Украшения/духи/ковры💍',
+    callback_data='button_care_order'
+)
 button_admin = InlineKeyboardButton(
     text='Админ панель',
     callback_data='add_course_admin'
@@ -120,6 +140,11 @@ meny = InlineKeyboardMarkup(
 calculator_rate = InlineKeyboardMarkup(
     inline_keyboard=[[big_button_2], [button_down_jacket], [
         button_clothes], [button_care], [button_jewelry], [menu_booton_basic]]
+)
+# Список кнопок с калькулятором
+order = InlineKeyboardMarkup(
+    inline_keyboard=[[sneacker_button_order], [button_clothes_order], [
+        button_down_jacke_order], [button_jewelr_order], [button_care_order], [menu_booton_basic]]
 )
 # Калькулятор
 calculator_update = InlineKeyboardMarkup(

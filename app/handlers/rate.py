@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
 from app.states.states import FSMCare, FSMClothes, FSMSneakers, FSMDownJacket
-from app.static.images import photo_rate_1, photo_rate_2
+from app.static.images import static
 from aiogram.fsm.state import default_state
 from config.config import bot, logger
 
@@ -58,13 +58,13 @@ async def sneaks_button(callback: CallbackQuery, state: FSMContext):
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
-            photo=photo_rate_1,
+            photo=static.photo_url_rate_1,
             parse_mode='MarkdownV2'
         )
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Выкуп"],
-            photo=photo_rate_2,
+            photo=static.photo_url_rate_2,
             parse_mode='MarkdownV2',
             allow_sending_without_reply=True
         )
@@ -112,13 +112,13 @@ async def button_down_jacket(callback: CallbackQuery, state: FSMContext):
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
-            photo=photo_rate_1,
+            photo=static.photo_url_rate_1,
             parse_mode='MarkdownV2'
         )
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Выкуп"],
-            photo=photo_rate_2,
+            photo=static.photo_url_rate_2,
             parse_mode='MarkdownV2',
             allow_sending_without_reply=True
         )
@@ -166,13 +166,13 @@ async def button_clothes(callback: CallbackQuery, state: FSMContext):
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
-            photo=photo_rate_1,
+            photo=static.photo_url_rate_1,
             parse_mode='MarkdownV2'
         )
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Выкуп"],
-            photo=photo_rate_2,
+            photo=static.photo_url_rate_2,
             parse_mode='MarkdownV2',
             allow_sending_without_reply=True
         )
@@ -220,13 +220,13 @@ async def button_care(callback: CallbackQuery, state: FSMContext):
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
-            photo=photo_rate_1,
+            photo=static.photo_url_rate_1,
             parse_mode='MarkdownV2'
         )
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Выкуп"],
-            photo=photo_rate_2,
+            photo=static.photo_url_rate_2,
             parse_mode='MarkdownV2',
             allow_sending_without_reply=True
         )
