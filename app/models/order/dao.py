@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update, and_
 from app.models.order.models import OrderModel
 from config.database import async_session_maker
 
@@ -168,4 +168,15 @@ async def modify_addres_user_id(
         new_addres = {'addres': new_addres}
         stmt = update(OrderModel).where(OrderModel.user_id == user_id).values(new_addres)
         result = await session.execute(stmt)
+        await session.commit()
+
+
+# Удалить заказ
+async def delete_order_user_id(
+        user_id: int,
+        order: int
+    ):
+    async with async_session_maker() as session:
+        stmt = delete(OrderModel).where(and_(OrderModel.user_id == user_id, OrderModel.order == order))
+        await session.execute(stmt)
         await session.commit()

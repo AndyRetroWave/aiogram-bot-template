@@ -74,3 +74,8 @@ class FSMAdress(StatesGroup):
     adress2 = State()
 
 
+# Состояние удаление заказа
+class FSMDeleteorder(StatesGroup):
+    delete = State()
+
+

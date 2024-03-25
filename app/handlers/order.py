@@ -8,18 +8,34 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
 from app.models.order.dao import *
-from app.states.states import FSMAdress, FSMOrders
+from app.states.states import FSMAdress, FSMDeleteorder, FSMOrders
 from aiogram.fsm.state import default_state
 from config.config import bot, logger
 from app.static.images import static
 
+
 router = Router()
 
+
 # Кнопка заказ
-
-
 @router.callback_query(F.data == 'botton_orders')
 async def category_botton_order(callback: CallbackQuery):
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку заказа")
+        await callback.message.edit_text(
+            text=LEXICON_RU["Категория"],
+            reply_markup=order,
+            parse_mode='MarkdownV2'
+        )
+        await callback.answer(show_alert=True)
+    except:
+        logger.critical("Ошибка в кнопке заказа")
+
+
+# Кнопка добавить заказ
+@router.callback_query(F.data == 'add_order_botton')
+async def category_botton_order_new(callback: CallbackQuery):
     try:
         user = callback.from_user.username
         logger.info(f"Пользователь {user} нажал на кнопку заказа")
@@ -294,6 +310,7 @@ async def color_order(message: Message, state: FSMContext):
                 order_info = '\n'.join(
                     [f'-<code>{u}</code>, цвет: <b>{c}</b> на <b>{p}</b> юаней, заказ№: <code>{o}</code>' for o, u, c, p in zip(orders, url, color, price)])
             total_price = round(sum(price)*value + sum(shipping_cost))
+            await state.clear()
             await message.answer(
                 text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
 В заказе товары:\n
@@ -317,7 +334,6 @@ _____________________\n
                 parse_mode='HTML',
                 reply_markup=order_botton,
             )
-            await state.clear()
         else:
             await message.answer(
                 text=LEXICON_RU["Номер телефона"],
@@ -476,7 +492,7 @@ async def phone_order_modify(message: Message, state: FSMContext):
             await state.update_data({"phone": phone})
         except:
             await message.answer(text=LEXICON_RU["Введите правильно номер"],
-                                 parse_mode='MarkdownV2')
+                                parse_mode='MarkdownV2')
             logger.info(
                 f"Пользователь {user} совершил ошибку в  изменение номера телефона")
     except:
@@ -559,3 +575,83 @@ _____________________\n
         await state.clear()
     except:
         logger.critical("Ошибка адреса в заказе ")
+
+
+# Кнопка удалить заказ
+@router.callback_query(F.data == 'delete_order_botton', StateFilter(default_state))
+async def category_botton_order(callback: CallbackQuery, state: FSMContext):
+    try:
+        user = callback.from_user.username
+        use_id = callback.from_user.id
+        logger.info(f"Пользователь {user} нажал на кнопку удалить заказ")
+        await bot.send_message(
+            chat_id=use_id,
+            text=LEXICON_RU["Удалить заказ"],
+            parse_mode='MarkdownV2'
+        )
+        await state.set_state(FSMDeleteorder.delete)
+    except:
+        logger.critical("Ошибка в кнопке удаления заказа")
+
+
+# Хенедер по удалению заказа итого по заказам
+@router.message(StateFilter(FSMDeleteorder.delete))
+async def phone_order(message: Message, state: FSMContext):
+    # try:
+        try:
+            user = message.from_user.username
+            user_id = message.from_user.id
+            order = int(message.text)
+            await delete_order_user_id(user_id, order)
+            logger.info(
+                f"Пользователь {user} получил заказ после удаления")
+            value = await course_today()
+            order_id = await order_user_id_all(user_id)
+            addres = await order_user_id_addres(user_id)
+            phone = await order_user_id_phone(user_id)
+            username = await order_user_id_username(user_id)
+            color = []
+            orders = []
+            url = []
+            price = []
+            shipping_cost = []
+            for order in order_id:
+                orders.append(order['order'])
+                url.append(order['url'])
+                color.append(order['color'])
+                price.append(order['price'])
+                shipping_cost.append(order['shipping_cost'])
+                order_info = '\n'.join(
+                    [f'-<code>{u}</code>, цвет: <b>{c}</b> на <b>{p}</b> юаней, заказ№: <code>{o}</code>' for o, u, c, p in zip(orders, url, color, price)])
+            total_price = round(sum(price)*value + sum(shipping_cost))
+            await bot.send_message(
+                chat_id=message.from_user.id,
+                text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
+    В заказе товары:\n
+    {order_info}\n
+    Курс юаня к рублю {value}\n
+    Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
+    🏡 Отправим ваш заказ по адресу:
+    <b>{addres}</b>
+    <b>{username}</b>
+    <b>{phone}</b>
+    Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
+    ⚠️Мы выкупаем товар в течение <b>18 часов после оплаты</b>. 
+    Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
+    _____________________
+    Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую карту 🏧
+    2202206381488191 Сбербанк! Нурлан А
+    _____________________\n
+    Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
+    Мы не несем ответственности за соответствие размеров и брак.\n
+    Оплатите и нажмите кнопку Подтвердить оплату✅""",
+                parse_mode='HTML',
+                reply_markup=order_botton,
+            )
+            await state.clear()
+        except:
+            await bot.send_message(
+                chat_id=user_id,
+                text="Введите номер заказа числом а не буквами")
+    # except:
+    #     logger.critical("Ошибка в удаленном заказе ")
