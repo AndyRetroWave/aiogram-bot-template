@@ -16,3 +16,12 @@ class OrderModel(Base):
     order = Column(BIGINT)
     data = Column(DATE)
     shipping_cost = Column(BIGINT)
+
+
+class OrderGivenModel(Base):
+    __tablename__ = "given_order"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(BIGINT, ForeignKey('users.user_id'))
+    phone = Column(String)
+    addres = Column(String)
+    name = Column(String)

@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import delete, select, update, and_
-from app.models.order.models import OrderModel
+from app.models.order.models import OrderGivenModel, OrderModel
 from config.database import async_session_maker
 
 from config.config import logger
@@ -34,6 +34,25 @@ async def add_order(
         logger.info(f"Пользователь {username} сохранил заказ в базе данных")
         await session.commit()
 
+
+# Запись данных человека
+async def add_diven_user(
+    addres: str,
+    phone: str,
+    username: str,
+    user_id: int,
+):
+    async with async_session_maker() as session:
+        new_user = OrderGivenModel(
+            user_id=user_id,
+            addres=addres,
+            name=username,
+            phone=phone,
+        )
+        session.add(new_user)
+        await session.commit()
+
+
 # получение заказа по юзеру
 async def order_user_id_all(
     user_id: int
@@ -42,18 +61,60 @@ async def order_user_id_all(
         result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
         price = result.mappings().all()
         return [{'id': row['OrderModel'].id,
-                'price': row['OrderModel'].price, 
-                'addres': row['OrderModel'].addres, 
-                'name': row['OrderModel'].name, 
-                'phone': row['OrderModel'].phone, 
-                'color': row['OrderModel'].color, 
-                'url': row['OrderModel'].url, 
-                'order': row['OrderModel'].order, 
+                'price': row['OrderModel'].price,
+                'addres': row['OrderModel'].addres,
+                'name': row['OrderModel'].name,
+                'phone': row['OrderModel'].phone,
+                'color': row['OrderModel'].color,
+                'url': row['OrderModel'].url,
+                'order': row['OrderModel'].order,
                 'date': row['OrderModel'].data,
-                'shipping_cost': row['OrderModel'].shipping_cost,} for row in price]
-    
+                'shipping_cost': row['OrderModel'].shipping_cost, } for row in price]
 
-# получение телефона юзера
+
+# Получение телефона юзера по таблице given 
+async def phone_user_id_given(
+        user_id: int,
+        ):
+    async with async_session_maker() as session:
+        result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
+    user_phone = result.scalar()
+    if user_phone is not None:
+        phone = user_phone.phone
+        return phone
+    else:
+        pass
+
+
+# получение адреса юзера по таблице given
+async def addres_user_id_given(
+    user_id: int
+):
+    async with async_session_maker() as session:
+        result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
+        addres_user = result.scalar()
+        if addres_user is not None:
+            addres = addres_user.addres
+            return addres
+        else:
+            pass
+
+
+# получение имени юзера по заказу по таблицу given 
+async def username_user_id_given(
+    user_id: int
+):
+    async with async_session_maker() as session:
+        result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
+        username_user = result.scalar()
+        if username_user is not None:
+            username = username_user.name
+            return username
+        else:
+            pass
+
+
+# получение телефона юзера по заказу
 async def order_user_id_phone(
     user_id: int
 ):
@@ -67,7 +128,7 @@ async def order_user_id_phone(
         pass
 
 
-# получение url юзера
+# получение url юзера по заказу
 async def order_user_id_url(
     user_id: int
 ):
@@ -80,7 +141,8 @@ async def order_user_id_url(
     else:
         pass
 
-# получение color юзера
+
+# получение color юзера по заказу
 async def order_url_id_color(
     user_id: int
 ):
@@ -93,7 +155,8 @@ async def order_url_id_color(
     else:
         pass
 
-# получение адреса юзера
+
+# получение адреса юзера по заказу
 async def order_user_id_addres(
     user_id: int
 ):
@@ -107,7 +170,7 @@ async def order_user_id_addres(
             pass
 
 
-# получение имени юзера
+# получение имени юзера по заказу
 async def order_user_id_username(
     user_id: int
 ):
@@ -121,7 +184,7 @@ async def order_user_id_username(
             pass
 
 
-# получение стоимости доставки заказа 
+# получение стоимости доставки заказа
 async def order_user_id_shipping_cost(
     user_id: int
 ):
@@ -135,48 +198,52 @@ async def order_user_id_shipping_cost(
             pass
 
 
-# Изменение телефона юзера
+# Изменение телефона юзера по заказу
 async def modify_phone_user_id(
-        user_id: int,
-        new_phone: str,
-    ):
+    user_id: int,
+    new_phone: str,
+):
     async with async_session_maker() as session:
         new_phone = {'phone': new_phone}
-        stmt = update(OrderModel).where(OrderModel.user_id == user_id).values(new_phone)
+        stmt = update(OrderGivenModel).where(
+            OrderGivenModel.user_id == user_id).values(new_phone)
         result = await session.execute(stmt)
         await session.commit()
 
 
-# Изменение Имени юзера
+# Изменение Имени юзера по заказу
 async def modify_username_user_id(
-        user_id: int,
-        new_name: str,
-    ):
+    user_id: int,
+    new_name: str,
+):
     async with async_session_maker() as session:
         new_name = {'name': new_name}
-        stmt = update(OrderModel).where(OrderModel.user_id == user_id).values(new_name)
+        stmt = update(OrderGivenModel).where(
+            OrderGivenModel.user_id == user_id).values(new_name)
         result = await session.execute(stmt)
         await session.commit()
 
 
-# Изменение адреса юзера
+# Изменение адреса юзера по заказу
 async def modify_addres_user_id(
-        user_id: int,
-        new_addres: str,
-    ):
+    user_id: int,
+    new_addres: str,
+):
     async with async_session_maker() as session:
         new_addres = {'addres': new_addres}
-        stmt = update(OrderModel).where(OrderModel.user_id == user_id).values(new_addres)
+        stmt = update(OrderGivenModel).where(
+            OrderGivenModel.user_id == user_id).values(new_addres)
         result = await session.execute(stmt)
         await session.commit()
 
 
 # Удалить заказ
 async def delete_order_user_id(
-        user_id: int,
-        order: int
-    ):
+    user_id: int,
+    order: int
+):
     async with async_session_maker() as session:
-        stmt = delete(OrderModel).where(and_(OrderModel.user_id == user_id, OrderModel.order == order))
+        stmt = delete(OrderModel).where(
+            and_(OrderModel.user_id == user_id, OrderModel.order == order))
         await session.execute(stmt)
         await session.commit()
