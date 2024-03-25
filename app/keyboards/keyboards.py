@@ -130,19 +130,31 @@ addres_penza_botton = InlineKeyboardButton(
     text='Пенза💖',
     callback_data='addres_penza_botton'
 )
-addres_changes_botton = InlineKeyboardButton(
-    text='Другой город🏛',
-    callback_data='addres_changes_botton'
+add_order_botton = InlineKeyboardButton(
+    text='Добавить заказ➕',
+    callback_data='add_order_botton'
+)
+payment_botton = InlineKeyboardButton(
+    text='Подтвердить заказ✔',
+    callback_data='payment_botton'
+)
+delete_order_botton = InlineKeyboardButton(
+    text='Удалить заказ ➖',
+    callback_data='delete_order_botton'
+)
+addres_modify_botton = InlineKeyboardButton(
+    text='Изменить адрес доставки🚍',
+    callback_data='addres_modify_botton'
 )
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [button_skam, button_rate],
-                    [button_feedback, button_instruction], [button_guide], [bot_botton], [button_admin]]
+                     [button_feedback, button_instruction], [button_guide], [bot_botton], [button_admin]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [button_skam, button_rate],
-                    [button_feedback, button_instruction], [button_guide], [bot_botton]]
+                     [button_feedback, button_instruction], [button_guide], [bot_botton]]
 )
 # Список кнопок с калькулятором
 calculator_rate = InlineKeyboardMarkup(
@@ -195,6 +207,6 @@ mailing_botton = InlineKeyboardMarkup(
     inline_keyboard=[[button_сonfirm_and_send], [button_modify]]
 )
 # Выбор доставки
-adress_botton = InlineKeyboardMarkup(
-    inline_keyboard=[[addres_penza_botton], [addres_changes_botton]]
+order_botton = InlineKeyboardMarkup(
+    inline_keyboard=[[payment_botton], [delete_order_botton, add_order_botton], [addres_modify_botton]]
 )

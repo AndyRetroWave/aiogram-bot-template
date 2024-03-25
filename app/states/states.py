@@ -61,8 +61,12 @@ class FSMOrders(StatesGroup):
     adress = State()
     color = State()
     penza = State()
+    penza2 = State()
     another = State()
     another2 = State()
+    phone_modify = State()
+    adress_modify = State()
+    name_modify = State()
 
 # Состояние заказ 
 class FSMAdress(StatesGroup):
