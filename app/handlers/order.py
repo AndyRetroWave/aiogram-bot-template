@@ -3,7 +3,7 @@ import re
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import order, order_botton, meny
+from app.keyboards.keyboards import order, order_botton, meny, order_botton_one
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
@@ -98,20 +98,17 @@ async def calculator_rate_value_order(message: Message, state: FSMContext):
         user = message.from_user.username
         logger.info(f"Пользователь {user} посчитал цену кросовок в заказе")
         try:
+            text = int(message.text)
+            shipping_cost = 1200
+            await state.update_data({"shipping_cost": shipping_cost})
+            await state.update_data({"round_value": text})
+            await state.set_state(FSMOrders.url)
             await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=static.url_order,
                 caption=LEXICON_RU["Ссылка на товар"],
                 parse_mode='MarkdownV2'
             )
-            text = int(message.text)
-            value = await course_today()
-            value_markup = text * value + 1200
-            # round_value = round(value_markup)
-            shipping_cost = 1200
-            await state.update_data({"shipping_cost": shipping_cost})
-            await state.update_data({"round_value": text})
-            await state.set_state(FSMOrders.url)
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
@@ -147,25 +144,22 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 
 # Хендлер по цене одежды
 @router.message(StateFilter(FSMOrders.price_clothe))
-async def calculator_rate_value_order(message: Message, state: FSMContext):
+async def calculator_rate_value_order_clothed(message: Message, state: FSMContext):
     try:
         user = message.from_user.username
         logger.info(f"Пользователь {user} посчитал цену ордежды в заказе")
         try:
+            text = int(message.text)
+            shipping_cost = 1000
+            await state.update_data({"shipping_cost": shipping_cost})
+            await state.update_data({"round_value": text})
+            await state.set_state(FSMOrders.url)
             await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=static.url_order,
                 caption=LEXICON_RU["Ссылка на товар"],
                 parse_mode='MarkdownV2'
             )
-            text = int(message.text)
-            value = await course_today()
-            value_markup = text * value + 1000
-            round_value = round(value_markup)
-            shipping_cost = 1000
-            await state.update_data({"shipping_cost": shipping_cost})
-            await state.update_data({"round_value": text})
-            await state.set_state(FSMOrders.url)
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
@@ -201,35 +195,32 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 
 # Хендлер по цене пуховиков
 @router.message(StateFilter(FSMOrders.price_jacket))
-async def calculator_rate_value_order(message: Message, state: FSMContext):
+async def calculator_rate_value_order_jacket(message: Message, state: FSMContext):
     try:
         user = message.from_user.username
         logger.info(f"Пользователь {user} посчитал цену пуховиков в заказе")
         try:
+            text = int(message.text)
+            shipping_cost = 1000
+            await state.update_data({"shipping_cost": shipping_cost})
+            await state.update_data({"round_value": text})
+            await state.set_state(FSMOrders.url)
             await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=static.url_order,
                 caption=LEXICON_RU["Ссылка на товар"],
                 parse_mode='MarkdownV2'
             )
-            text = int(message.text)
-            value = await course_today()
-            value_markup = text * value + 1000
-            round_value = round(value_markup)
-            shipping_cost = 1000
-            await state.update_data({"shipping_cost": shipping_cost})
-            await state.update_data({"round_value": text})
-            await state.set_state(FSMOrders.url)
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
-                                 parse_mode='MarkdownV2')
+                                parse_mode='MarkdownV2')
     except:
         logger.critical("Ошибка в калькуляторе пуховиков в заказе")
 
 
 # Кнопка Пуховики
 @router.callback_query(F.data == 'button_care_order', StateFilter(default_state))
-async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
+async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
     try:
         user = callback.from_user.username
         logger.info(
@@ -251,6 +242,21 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         await state.set_state(FSMOrders.price_clothe)
     except:
         logger.critical("Ошибка в кнопке пуховиков в заказе")
+
+
+# Кнопка аксессуары
+@router.callback_query(F.data == 'button_jewelr_order')
+async def button_jewelry(callback: CallbackQuery, state: FSMContext):
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} зешел в кнопку украшений")
+        await callback.message.edit_text(
+            text=LEXICON_RU["Заказ аксессуаров"],
+            parse_mode='MarkdownV2',
+            reply_markup=meny,)
+        await callback.answer(show_alert=True)
+    except:
+        logger.critical("Ошибка кнопке аксессуары")
 
 
 # Хенедер по ссылки на товар
@@ -361,7 +367,7 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку Изменить адрес✏️\n
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -382,7 +388,7 @@ _______________________\n
 # Хенедер по цвету и размеру и по вывода итого если пользователь уже оформлял заказы ИТОГО
 @router.message(StateFilter(FSMOrders.color))
 async def color_order(message: Message, state: FSMContext):
-    # try:
+    try:
         user = message.from_user.username
         logger.info(f"Пользователь {user} вписал цвет и размер")
         user_id = message.from_user.id
@@ -430,7 +436,7 @@ async def color_order(message: Message, state: FSMContext):
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку Изменить адрес✏️\n
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -449,8 +455,8 @@ _______________________\n
                 parse_mode='MarkdownV2'
             )
             await state.set_state(FSMOrders.phone)
-    # except:
-    #     logger.critical("Ошибка ссылки в заказе")
+    except:
+        logger.critical("Ошибка ссылки в заказе")
 
 
 # Хенедер кнопки по изменению Номера телефона
@@ -481,8 +487,11 @@ async def phone_order_modify(message: Message, state: FSMContext):
                 f"Пользователь {user} вписал номер телефона в изменение данных")
             phone_old = str(message.text)
             await modify_phone_user_id(user_id, phone_old)
+            await modify_phone_user_id_order(user_id, phone_old)
             if not re.match(r'^7\d{10}$', phone_old):
-                await message.answer(text=LEXICON_RU["Введите правильно номер"])
+                await message.answer(
+                    text=LEXICON_RU["Введите правильно номер"], 
+                    parse_mode='MarkdownV2')
                 return
             phone = await phone_user_id_given(user_id)
             await state.update_data({"phone": phone})
@@ -510,6 +519,7 @@ async def phone_order_modify(message: Message, state: FSMContext):
         logger.info(f"Пользователь {user} вписал ФИО для изменения данных")
         username_old = str(message.text)
         await modify_username_user_id(user_id, username_old)
+        await modify_username_user_id_order(user_id, username_old)
         await message.answer(
             text=LEXICON_RU["Адрес"],
             parse_mode='MarkdownV2',
@@ -531,7 +541,8 @@ async def phone_order(message: Message, state: FSMContext):
             f"Пользователь {user} нажал на кнопку измененного адреса пензы и получил ответ заказа")
         addres_old = str(message.text)
         value = await course_today()
-        addres = await modify_addres_user_id(user_id, addres_old)
+        await modify_addres_user_id(user_id, addres_old)
+        await modify_addres_user_id_order(user_id, addres_old)
         order_id = await order_user_id_all(user_id)
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
@@ -561,7 +572,7 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку Изменить адрес✏️\n
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -637,7 +648,7 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку Изменить адрес✏️\n
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -658,9 +669,72 @@ _______________________\n
                         reply_markup = meny,
                         parse_mode='MarkdownV2',
                     )
+                    await state.clear()
         except:
             await bot.send_message(
                 chat_id=user_id,
                 text="Введите номер заказа числом, а не буквами")
     except:
         logger.critical("Ошибка в удаленном заказе ")
+
+
+# Кнопка Корзины
+@router.callback_query(F.data == 'cart_botton')
+async def phone_order(callback: CallbackQuery):
+    try:
+            user = callback.from_user.username
+            user_id = callback.from_user.id
+            logger.info(
+                f"Пользователь {user} нажал на кнопку корзины")
+            value = await course_today()
+            order_id = await order_user_id_all(user_id)
+            addres = await addres_user_id_given(user_id)
+            phone = await phone_user_id_given(user_id)
+            username = await username_user_id_given(user_id)
+            color = []
+            orders = []
+            url = []
+            price = []
+            shipping_cost = []
+            if order_id:
+                for order in order_id:
+                    orders.append(order['order'])
+                    url.append(order['url'])
+                    color.append(order['color'])
+                    price.append(order['price'])
+                    shipping_cost.append(order['shipping_cost'])
+                    order_info = '\n'.join([f'---- <code>{u}</code>,цвет: <b>{c}</b> на <b>{p}</b> юаней, заказ №: <code>{o}</code>' for o, u, c, p in zip(orders, url, color, price)])
+                total_price = round(sum(price)*value + sum(shipping_cost))
+                await callback.message.edit_text(
+                    text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
+В заказе товары:\n
+{order_info}\n
+Курс юаня к рублю <b>{value}</b>\n
+Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
+🏡 Отправим ваш заказ по адресу:
+<b>{addres}</b>
+<b>{username}</b>
+<b>{phone}</b>
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
+⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
+_______________________
+Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
+<code>79530203476</code> Тиньков! Рябяв П.
+_______________________\n
+Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
+<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
+Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
+                        parse_mode='HTML',
+                        reply_markup=order_botton,
+                    )
+                callback.answer()
+            else:
+                await callback.answer(
+                    text=LEXICON_RU["Корзина"],
+                    reply_markup = order_botton_one,
+                    parse_mode='MarkdownV2',
+                )
+            callback.answer()
+    except:
+        logger.critical("Ошибка в кнопке корзины ")

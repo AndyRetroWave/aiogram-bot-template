@@ -198,7 +198,7 @@ async def order_user_id_shipping_cost(
             pass
 
 
-# Изменение телефона юзера по заказу
+# Изменение телефона юзера по заказу по таблице Юзера 
 async def modify_phone_user_id(
     user_id: int,
     new_phone: str,
@@ -211,7 +211,7 @@ async def modify_phone_user_id(
         await session.commit()
 
 
-# Изменение Имени юзера по заказу
+# Изменение Имени юзера по заказу по таблице Юзера
 async def modify_username_user_id(
     user_id: int,
     new_name: str,
@@ -224,7 +224,7 @@ async def modify_username_user_id(
         await session.commit()
 
 
-# Изменение адреса юзера по заказу
+# Изменение адреса юзера по заказу по таблице Юзера
 async def modify_addres_user_id(
     user_id: int,
     new_addres: str,
@@ -233,6 +233,45 @@ async def modify_addres_user_id(
         new_addres = {'addres': new_addres}
         stmt = update(OrderGivenModel).where(
             OrderGivenModel.user_id == user_id).values(new_addres)
+        result = await session.execute(stmt)
+        await session.commit()
+
+
+# Изменение телефона юзера по заказу по таблице Заказа
+async def modify_phone_user_id_order(
+    user_id: int,
+    new_phone: str,
+):
+    async with async_session_maker() as session:
+        new_phone = {'phone': new_phone}
+        stmt = update(OrderModel).where(
+            OrderModel.user_id == user_id).values(new_phone)
+        result = await session.execute(stmt)
+        await session.commit()
+
+
+# Изменение Имени юзера по заказу по таблице Заказа
+async def modify_username_user_id_order(
+    user_id: int,
+    new_name: str,
+):
+    async with async_session_maker() as session:
+        new_name = {'name': new_name}
+        stmt = update(OrderModel).where(
+            OrderModel.user_id == user_id).values(new_name)
+        result = await session.execute(stmt)
+        await session.commit()
+
+
+# Изменение адреса юзера по заказу по таблице Заказа
+async def modify_addres_user_id_order(
+    user_id: int,
+    new_addres: str,
+):
+    async with async_session_maker() as session:
+        new_addres = {'addres': new_addres}
+        stmt = update(OrderModel).where(
+            OrderModel.user_id == user_id).values(new_addres)
         result = await session.execute(stmt)
         await session.commit()
 
