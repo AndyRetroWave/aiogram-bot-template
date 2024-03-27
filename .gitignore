@@ -135,4 +135,4 @@ dmypy.json
 .pyre/
 
 migrations/versions/*
-/.env copy
+/.env-copy
