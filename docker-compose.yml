@@ -18,7 +18,5 @@ services:
     restart: always
     depends_on:
       - db
-    ports:
-      - 5432:5432
     command: sh -c "alembic upgrade head && python bot.py"
 
