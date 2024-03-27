@@ -738,3 +738,36 @@ _______________________\n
             callback.answer()
     except:
         logger.critical("Ошибка в кнопке корзины ")
+
+
+# Кнопка подверждения заказа
+@router.callback_query(F.data == 'payment_botton')
+async def phone_order(callback: CallbackQuery):
+    user = callback.from_user
+    user_id = user.id
+    user_link = f"https://t.me/{user.username}" if user.username else f"https://t.me/id{user_id}"
+    logger.info(f"Пользователь {user} нажал на подтвердить заказ")
+    order_id = await order_user_id_all(user_id)
+    if order_id:
+        for order in order_id:
+            addres = order['addres']
+            url = order['url']
+            color = order['color']
+            price = order['price']
+            phone = order['phone']
+            name = order['name']
+            orders = order['order']
+            date = order['date']
+            shipping_cost = order['shipping_cost']
+            user_id = order['user_id']
+            await add_order_save(addres, url, color, price, phone, name, orders, date, user_id, shipping_cost, user_link)
+        await delete_order(user_id)
+        await callback.message.edit_text(
+            text=f"""Спасибо что выбрали нас, мы оформили ваш заказ и в ближайшее время выкупим ваш заказ, как только появиться информация по отправке мы вас напишем!""",
+            parse_mode='HTML',
+            reply_markup=meny,
+        )
+        callback.answer()
+    # except:
+    #     logger.critical("Ошибка в кнопке подтверждения заказ")
+

@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import delete, select, update, and_
-from app.models.order.models import OrderGivenModel, OrderModel
+from app.models.order.models import OrderGivenModel, OrderModel, OrderModelSave
 from config.database import async_session_maker
 
 from config.config import logger
@@ -61,6 +61,7 @@ async def order_user_id_all(
         result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
         price = result.mappings().all()
         return [{'id': row['OrderModel'].id,
+                'user_id': row['OrderModel'].user_id,
                 'price': row['OrderModel'].price,
                 'addres': row['OrderModel'].addres,
                 'name': row['OrderModel'].name,
@@ -284,5 +285,49 @@ async def delete_order_user_id(
     async with async_session_maker() as session:
         stmt = delete(OrderModel).where(
             and_(OrderModel.user_id == user_id, OrderModel.order == order))
+        await session.execute(stmt)
+        await session.commit()
+
+
+# Сохранение заказа по номеру заказа
+async def add_order_save(
+    addres: str,
+    url: str,
+    color: str,
+    round_value: int,
+    phone: str,
+    username: str,
+    order: int,
+    date: datetime,
+    user_id: int,
+    shipping_cost: int,
+    user_link: int,
+):
+    async with async_session_maker() as session:
+        new_order = OrderModelSave(
+            user_id=user_id,
+            price=round_value,
+            addres=addres,
+            name=username,
+            phone=phone,
+            color=color,
+            url=url,
+            order=order,
+            data=date,
+            shipping_cost=shipping_cost,
+            user_link=user_link
+        )
+        session.add(new_order)
+        logger.info(f"Пользователь {username} сохранил заказ в базе данных")
+        await session.commit()
+
+
+# Удалить заказ после формирования заказа
+async def delete_order(
+    user_id: int
+):
+    async with async_session_maker() as session:
+        stmt = delete(OrderModel).where(
+            and_(OrderModel.user_id == user_id))
         await session.execute(stmt)
         await session.commit()
