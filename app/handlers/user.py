@@ -16,7 +16,7 @@ router = Router()
 # Старт нашего проекта
 @router.message(my_start_filter)
 async def start(message: types.Message, state: FSMContext):
-    try:
+    # try:
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
         username = message.from_user.username
@@ -45,8 +45,8 @@ async def start(message: types.Message, state: FSMContext):
                                 reply_markup=meny,
                                 parse_mode='MarkdownV2')
             await state.clear()
-    except:
-        logger.critical("Ошибка в старте проекта")
+    # except:
+    #     logger.critical("Ошибка в старте проекта")
 
 
 # Кнопка меню всплывающая

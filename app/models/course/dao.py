@@ -14,6 +14,10 @@ async def course_today():
     async with async_session_maker() as session:
         subquery = await session.execute(select(func.max(CourseModel.id)))
         result = await session.execute(select(CourseModel).where(CourseModel.id == subquery.scalar()))
-        price = result.scalar().price
-        return price
+        try:
+            price = result.scalar().price
+            return price
+        except:
+            return None
+        
 

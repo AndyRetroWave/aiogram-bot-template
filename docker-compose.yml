@@ -1,12 +1,28 @@
-version: '3.8'
+version: "3.9"
 
 services:
+  db:
+    image: postgres:16
+    container_name: contora_db
+    networks:
+      - back
+    restart: always
+    env_file:
+      - .env copy
+
   bot-app:
+    image: contora
     container_name: contorabot
     build:
       context: .
-      dockerfile: Dockerfile
     env_file:
-      - .env
-    command: ["python", "./bot.py"]
+      - .env copy
+    restart: always
+    networks:
+      - back
+    depends_on:
+      - db
+    ports:
+      - 5432:5432
+    command: sh -c "alembic upgrade head && python bot.py"
 

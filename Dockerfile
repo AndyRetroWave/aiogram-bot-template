@@ -1,14 +1,14 @@
 FROM python:3.10-slim
 
-WORKDIR /app
+RUN mkdir /contora
+
+WORKDIR /contora
 
 COPY requirements.txt .
 
 RUN python -m venv venv
 
-RUN pip install --upgrade pip \
-        && pip install -r requirements.txt \
-        && rm -rf requirements
+RUN pip install -r requirements.txt 
 
 COPY . .
 

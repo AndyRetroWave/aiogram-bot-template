@@ -36,15 +36,23 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
     try:
         user = callback.from_user.username
         logger.info(f"Пользователь {user} нажал на кнопку изменения курса юаня")
-        value = await course_today()
-        formatted_num = "{}\\.{}".format(
-            int(value), int(value * 100) % 100)
-        await callback.message.edit_text(
-            text=f"""Введи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!\n\nКурс на данный момент: *{formatted_num}* """,
-            parse_mode='MarkdownV2',
-        )
-        await callback.answer(show_alert=True)
-        await state.set_state(FSMCourse.course)
+        try:
+            value = await course_today()
+            formatted_num = "{}\\.{}".format(
+                int(value), int(value * 100) % 100)
+            await callback.message.edit_text(
+                text=f"""Введи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!\n\nКурс на данный момент: *{formatted_num}* """,
+                parse_mode='MarkdownV2',
+            )
+            await callback.answer(show_alert=True)
+            await state.set_state(FSMCourse.course)
+        except:
+            await callback.message.edit_text(
+                text=f"""Введи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!""",
+                parse_mode='MarkdownV2',
+            )
+            await callback.answer(show_alert=True)
+            await state.set_state(FSMCourse.course)
     except:
         logger.critical("Ошибка в кнопке изменения курса юаня")
 
