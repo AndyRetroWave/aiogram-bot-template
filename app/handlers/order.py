@@ -763,8 +763,8 @@ async def phone_order(callback: CallbackQuery):
             await add_order_save(addres, url, color, price, phone, name, orders, date, user_id, shipping_cost, user_link)
         await delete_order(user_id)
         await callback.message.edit_text(
-            text=f"""Спасибо что выбрали нас, мы оформили ваш заказ и в ближайшее время выкупим ваш заказ, как только появиться информация по отправке мы вас напишем!""",
-            parse_mode='HTML',
+            text=f"""*Спасибо что выбрали нас*!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\nКак только появиться информация по отправке мы вам сообщим!""",
+            parse_mode='MarkdownV2',
             reply_markup=meny,
         )
         callback.answer()
