@@ -4,8 +4,6 @@ services:
   db:
     image: postgres:16
     container_name: contora_db
-    networks:
-      - back
     restart: always
     env_file:
       - .env copy
@@ -18,8 +16,6 @@ services:
     env_file:
       - .env copy
     restart: always
-    networks:
-      - back
     depends_on:
       - db
     ports:
