@@ -6,7 +6,7 @@ services:
     container_name: contora_db
     restart: always
     env_file:
-      - .env copy
+      - .env-copy
 
   bot-app:
     image: contora
@@ -14,7 +14,7 @@ services:
     build:
       context: .
     env_file:
-      - .env copy
+      - .env-copy
     restart: always
     depends_on:
       - db
