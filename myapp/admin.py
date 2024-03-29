@@ -22,14 +22,9 @@ class OrderModelAdmin(admin.ModelAdmin):
     url_link.short_description = 'URL'
 
 
-class UsersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_id', 'first_name', 'last_name', 'username')
-
-
 class UsersOrderGivenAdmin(admin.ModelAdmin):
     list_display = ('id', 'user_id', 'addres', 'phone', 'name')
 
 
 admin.site.register(OrderModel, OrderModelAdmin)
-admin.site.register(UserModel, UsersAdmin)
 admin.site.register(UserOrderGivenModel, UsersOrderGivenAdmin)
