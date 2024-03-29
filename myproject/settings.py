@@ -71,6 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
+ALLOWED_HOSTS = ['109.71.245.118']
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
