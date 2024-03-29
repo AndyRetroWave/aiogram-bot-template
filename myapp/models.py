@@ -14,6 +14,7 @@ class OrderModel(models.Model):
     order = models.BigIntegerField()
     data = models.DateField()
     shipping_cost = models.FloatField()
+    user_link = models.CharField(max_length=255)
 
     class Meta:
         managed = False

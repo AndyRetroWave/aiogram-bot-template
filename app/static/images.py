@@ -45,7 +45,7 @@ class StaticFile():
 
     # сервер
 
-    # Cтарт
+    # # Cтарт
     photo_url_start = "AgACAgIAAxkBAAIOfGX8EAK-sFTw15R-ftvAmRUdkKi9AAIp0TEbe3LhS_MNUc6vRYd0AQADAgADeQADNAQ"
 
     # Калькулятор
