@@ -6,7 +6,7 @@ class OrderModel(Base):
     __tablename__ = "order"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(BIGINT, ForeignKey('users.user_id'))
+    user_id = Column(BIGINT)
     price = Column(BIGINT)
     addres = Column(String)
     name = Column(String)
@@ -21,7 +21,7 @@ class OrderModel(Base):
 class OrderGivenModel(Base):
     __tablename__ = "given_order"
     id = Column(Integer, primary_key=True)
-    user_id = Column(BIGINT, ForeignKey('users.user_id'))
+    user_id = Column(BIGINT)
     phone = Column(String)
     addres = Column(String)
     name = Column(String)
@@ -29,7 +29,7 @@ class OrderGivenModel(Base):
 class OrderModelSave(Base):
     __tablename__ = "save_order"
     id = Column(Integer, primary_key=True)
-    user_id = Column(BIGINT, ForeignKey('users.user_id'))
+    user_id = Column(BIGINT)
     price = Column(BIGINT)
     addres = Column(String)
     name = Column(String)

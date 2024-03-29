@@ -331,3 +331,36 @@ async def delete_order(
             and_(OrderModel.user_id == user_id))
         await session.execute(stmt)
         await session.commit()
+
+# Получение заказа из сохраненой базы
+async def add_save_order(
+        user_id: int
+        ):
+    async with async_session_maker() as session:
+        order = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
+        stmt = order.scalar()
+        if stmt is not None:
+            result = stmt.order
+            return result
+        else:
+            pass
+
+
+# получение заказа по сохраненым заказам
+async def order_user_id_all_save(
+    user_id: int
+):
+    async with async_session_maker() as session:
+        result = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
+        price = result.mappings().all()
+        return [{'id': row['OrderModelSave'].id,
+                'user_id': row['OrderModelSave'].user_id,
+                'price': row['OrderModelSave'].price,
+                'addres': row['OrderModelSave'].addres,
+                'name': row['OrderModelSave'].name,
+                'phone': row['OrderModelSave'].phone,
+                'color': row['OrderModelSave'].color,
+                'url': row['OrderModelSave'].url,
+                'order': row['OrderModelSave'].order,
+                'date': row['OrderModelSave'].data,
+                'shipping_cost': row['OrderModelSave'].shipping_cost, } for row in price]

@@ -150,6 +150,10 @@ cart_botton = InlineKeyboardButton(
     text='Ваша корзина🛒',
     callback_data='cart_botton'
 )
+order_client_botton = InlineKeyboardButton(
+    text='Вашы заказы📦',
+    callback_data='order_client_botton'
+)
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_skam, button_rate],
@@ -158,6 +162,10 @@ meny_admin = InlineKeyboardMarkup(
 # Меню клиента
 meny = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_skam, button_rate],
+                    [button_feedback, button_instruction], [button_guide], [bot_botton]]
+)
+meny_order = InlineKeyboardMarkup(
+    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_skam, button_rate],
                     [button_feedback, button_instruction], [button_guide], [bot_botton]]
 )
 # Список кнопок с калькулятором

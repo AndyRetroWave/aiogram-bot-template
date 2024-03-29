@@ -12,4 +12,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["python", "./bot.py"]
+CMD ["python", "./bot.py", "python manage.py runserver"]

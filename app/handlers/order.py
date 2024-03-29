@@ -3,7 +3,7 @@ import re
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import order, order_botton, meny, order_botton_one
+from app.keyboards.keyboards import order, order_botton, meny, order_botton_one, meny_order
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
@@ -372,7 +372,7 @@ async def phone_order(message: Message, state: FSMContext):
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябяв П.
+<code>79530203476</code> Тиньков! Рябов П.
 _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
@@ -441,7 +441,7 @@ async def color_order(message: Message, state: FSMContext):
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябяв П.
+<code>79530203476</code> Тиньков! Рябов П.
 _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
@@ -577,7 +577,7 @@ async def phone_order(message: Message, state: FSMContext):
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябяв П.
+<code>79530203476</code> Тиньков! Рябов П.
 _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
@@ -609,7 +609,7 @@ async def category_botton_order(callback: CallbackQuery, state: FSMContext):
 
 # Хенедер по удалению заказа итого по заказам ИТОГО 
 @router.message(StateFilter(FSMDeleteorder.delete))
-async def phone_order(message: Message, state: FSMContext):
+async def delete_order_botton(message: Message, state: FSMContext):
     try:
         try:
                 user = message.from_user.username
@@ -653,7 +653,7 @@ async def phone_order(message: Message, state: FSMContext):
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябяв П.
+<code>79530203476</code> Тиньков! Рябов П.
 _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
@@ -680,7 +680,7 @@ _______________________\n
 
 # Кнопка Корзины
 @router.callback_query(F.data == 'cart_botton')
-async def phone_order(callback: CallbackQuery):
+async def basket(callback: CallbackQuery):
     try:
             user = callback.from_user.username
             user_id = callback.from_user.id
@@ -720,7 +720,7 @@ async def phone_order(callback: CallbackQuery):
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябяв П.
+<code>79530203476</code> Тиньков! Рябов П.
 _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
@@ -742,32 +742,80 @@ _______________________\n
 
 # Кнопка подверждения заказа
 @router.callback_query(F.data == 'payment_botton')
-async def phone_order(callback: CallbackQuery):
+async def order_confirmation(callback: CallbackQuery):
+    try:
+        user = callback.from_user
+        user_id = user.id
+        logger.info(f"Пользователь {user} нажал на подтвердить заказ")
+        order_id = await order_user_id_all(user_id)
+        addres = await addres_user_id_given(user_id)
+        phone = await phone_user_id_given(user_id)
+        username = await username_user_id_given(user_id)
+        user_link = f"https://t.me/{user.username}" if user.username else f"Пользователь скрыл свой никнейм поэтому вот его телефон: <code>{phone}</code> "
+        url = []
+        color = []
+        price = []
+        orders = []
+        if order_id:
+            for order in order_id:
+                orders.append(order['order'])
+                url.append(order['url'])
+                color.append(order['color'])
+                price.append(order['price'])
+                addres = order['addres']
+                url_int = order['url']
+                color_int = order['color']
+                price_int = order['price']
+                phone = order['phone']
+                name = order['name']
+                orders_int = order['order']
+                date = order['date']
+                shipping_cost = order['shipping_cost']
+                user_id = order['user_id']
+                order_info = '\n'.join(
+                    [f'---- {u},цвет: <b>{c}</b> на <b>{p}</b> юаней, заказ №: <code>{o}</code>' for o, u, c, p in zip(orders, url, color, price)])
+                await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, date, user_id, shipping_cost, user_link)
+            await delete_order(user_id)
+            await callback.message.edit_text(
+                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\nКак только появиться информация по отправке мы вам сообщим\!""",
+                parse_mode='MarkdownV2',
+                reply_markup=meny_order,
+            )
+            callback.answer()
+            await bot.send_message(
+                chat_id=6983025115,
+                text=f"""Был оформлен новый заказ!\n
+Покупатель: {user_link}\n
+Заказ: {order_info}
+Данные пользователя:
+<b>{addres}
+{username}
+{phone}</b>\n
+Проверь на отправку денег, если деньги пришли формируй заказ!
+""",
+            parse_mode="HTML")
+    except:
+        logger.critical("Ошибка в кнопке подтверждения заказ")
+
+# Ваш заказ
+@router.callback_query(F.data == 'order_client_botton')
+async def order_user(callback: CallbackQuery):
     user = callback.from_user
     user_id = user.id
-    user_link = f"https://t.me/{user.username}" if user.username else f"https://t.me/id{user_id}"
-    logger.info(f"Пользователь {user} нажал на подтвердить заказ")
-    order_id = await order_user_id_all(user_id)
+    logger.info(f"Пользователь {user} нажал на свои заказы")
+    order_id = await order_user_id_all_save(user_id)
+    orders = []
+    url = []
+    color = []
+    price = []   
     if order_id:
         for order in order_id:
-            addres = order['addres']
-            url = order['url']
-            color = order['color']
-            price = order['price']
-            phone = order['phone']
-            name = order['name']
-            orders = order['order']
-            date = order['date']
-            shipping_cost = order['shipping_cost']
-            user_id = order['user_id']
-            await add_order_save(addres, url, color, price, phone, name, orders, date, user_id, shipping_cost, user_link)
-        await delete_order(user_id)
-        await callback.message.edit_text(
-            text=f"""*Спасибо что выбрали нас*!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\nКак только появиться информация по отправке мы вам сообщим!""",
-            parse_mode='MarkdownV2',
-            reply_markup=meny,
-        )
-        callback.answer()
-    # except:
-    #     logger.critical("Ошибка в кнопке подтверждения заказ")
-
+            orders.append(order['order'])
+            url.append(order['url'])
+            color.append(order['color'])
+            price.append(order['price'])
+            order_info = '\n'.join(
+                    [f'---- {u},цвет: <b>{c}</b> на <b>{p}</b> юаней, заказ №: <code>{o}</code>' for o, u, c, p in zip(orders, url, color, price)])
+    await callback.message.edit_text(
+        text=f"""Список ваших заказов:\n{order_info}""",
+        parse_mode="HTML")
