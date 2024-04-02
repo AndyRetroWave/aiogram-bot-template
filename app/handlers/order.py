@@ -809,7 +809,7 @@ _______________________\n
 # Кнопка подверждения заказа
 @router.callback_query(F.data == 'payment_botton')
 async def order_confirmation(callback: CallbackQuery):
-    # try:
+    try:
         user = callback.from_user
         user_id = user.id
         logger.info(f"Пользователь {user} нажал на подтвердить заказ")
@@ -896,42 +896,45 @@ async def order_confirmation(callback: CallbackQuery):
 <b>Проверь на отправку денег, если деньги пришли формируй заказ!</b>
 """,
                     parse_mode="HTML")
-    # except:
-    #     logger.critical("Ошибка в кнопке подтверждения заказ")
+    except:
+        logger.critical("Ошибка в кнопке подтверждения заказ")
 
 
 # Ваш заказ
 @router.callback_query(F.data == 'order_client_botton')
 async def order_user(callback: CallbackQuery):
-    user = callback.from_user
-    user_id = user.id
-    logger.info(f"Пользователь {user} нажал на свои заказы")
-    order_id = await order_user_id_all_save(user_id)
-    orders = []
-    url = []
-    color = []
-    price = []
-    data_20 = []
-    data_30 = []
-    if order_id:
-        for order in order_id:
-            orders.append(order['order'])
-            url.append(order['url'])
-            color.append(order['color'])
-            price.append(order['price'])
-            data = order['date']
-            new_date_20 = data + timedelta(days=20)
-            new_date_30 = data + timedelta(days=30)
-            month_name_en_20 = calendar.month_name[new_date_20.month]
-            month_name_ru_20 = months[month_name_en_20]
-            month_name_en_30 = calendar.month_name[new_date_30.month]
-            month_name_ru_30 = months[month_name_en_30]
-            data_20.append(f'{new_date_20.day} {month_name_ru_20}')
-            data_30.append(f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года')
-            order_info = '\n'.join(
-                [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\nОжидаемая дата доставки: <b>{d_20} - {d_30}</b>\n' for o, u, c, p, d_20, d_30 in zip(orders, url, color, price, data_20, data_30)])
-    await callback.message.edit_text(
-        text=f"""Список ваших заказов:\n\n{order_info}""",
-        parse_mode="HTML",
-        reply_markup=menu_rare,
-    )
+    try:
+        user = callback.from_user
+        user_id = user.id
+        logger.info(f"Пользователь {user} нажал на свои заказы")
+        order_id = await order_user_id_all_save(user_id)
+        orders = []
+        url = []
+        color = []
+        price = []
+        data_20 = []
+        data_30 = []
+        if order_id:
+            for order in order_id:
+                orders.append(order['order'])
+                url.append(order['url'])
+                color.append(order['color'])
+                price.append(order['price'])
+                data = order['date']
+                new_date_20 = data + timedelta(days=20)
+                new_date_30 = data + timedelta(days=30)
+                month_name_en_20 = calendar.month_name[new_date_20.month]
+                month_name_ru_20 = months[month_name_en_20]
+                month_name_en_30 = calendar.month_name[new_date_30.month]
+                month_name_ru_30 = months[month_name_en_30]
+                data_20.append(f'{new_date_20.day} {month_name_ru_20}')
+                data_30.append(f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года')
+                order_info = '\n'.join(
+                    [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\nОжидаемая дата доставки: <b>{d_20} - {d_30}</b>\n' for o, u, c, p, d_20, d_30 in zip(orders, url, color, price, data_20, data_30)])
+        await callback.message.edit_text(
+            text=f"""Список ваших заказов:\n\n{order_info}""",
+            parse_mode="HTML",
+            reply_markup=menu_rare,
+        )
+    except:
+        logger.critical("Ошибка в кнопке заказов")
