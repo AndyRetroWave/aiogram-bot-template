@@ -31,6 +31,7 @@ class OrderModelSave(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(BIGINT)
     price = Column(BIGINT)
+    price_rub = Column(BIGINT)
     addres = Column(String)
     name = Column(String)
     phone = Column(String)

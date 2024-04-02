@@ -104,6 +104,20 @@ async def create_bot(callback: CallbackQuery):
     except:
         logger.critical("Ошибка в кнопке создатель")
 
+# Кнопка по вопросу
+@router.callback_query(F.data == 'question_client_botton')
+async def create_bot(callback: CallbackQuery):
+    try:
+        user = callback.from_user.username
+        logger.info(f"Пользователь {user} нажал на кнопку вопроса")
+        await callback.message.edit_text(
+            text=LEXICON_RU["Вопрос"],
+            reply_markup=calculator_update,
+            parse_mode='MarkdownV2'
+        )
+    except:
+        logger.critical("Ошибка в кнопке вопрос")
+
 
 # # ехо файл
 @router.message(file, StateFilter(default_state))

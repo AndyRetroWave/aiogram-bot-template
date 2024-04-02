@@ -1,7 +1,6 @@
 import requests
 import xml.etree.ElementTree as ET
 
-
 response = requests.get("https://www.cbr.ru/scripts/XML_daily.asp")
 tree = ET.fromstring(response.content)
 value = None
@@ -15,3 +14,18 @@ for valute in tree.findall('.//Valute'):
                 int(yuan_rate), int(yuan_rate * 100) % 100)
         break
 
+# создаем словарь с переводом названий месяцев
+months = {
+    'January': 'января',
+    'February': 'февраля',
+    'March': 'марта',
+    'April': 'апреля',
+    'May': 'мая',
+    'June': 'июня',
+    'July': 'июля',
+    'August': 'августа',
+    'September': 'сентября',
+    'October': 'октября',
+    'November': 'ноября',
+    'December': 'декабря'
+}

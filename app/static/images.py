@@ -1,7 +1,7 @@
 class StaticFile():
     # Тесты
 
-    # # # Cтарт
+    # # Cтарт
     # photo_url_start = "AgACAgIAAxkBAAIKH2X8CRE8oPb1aTTXwai4fykIeoiZAAIp0TEbe3LhS1dSKGLqlMocAQADAgADeQADNAQ"
 
     # # # Калькулятор
@@ -43,9 +43,9 @@ class StaticFile():
     # # # Заказ
     # url_order = "AgACAgIAAxkBAAIKf2X8Fdc1eE27voRENWP71w3GYuV8AAJX0TEbe3LhS4li6XE52cMyAQADAgADeAADNAQ"
 
-    # сервер
+    # # сервер
 
-    # # Cтарт
+    # # #Cтарт
     photo_url_start = "AgACAgIAAxkBAAIOfGX8EAK-sFTw15R-ftvAmRUdkKi9AAIp0TEbe3LhS_MNUc6vRYd0AQADAgADeQADNAQ"
 
     # Калькулятор

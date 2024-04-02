@@ -128,6 +128,19 @@ async def order_user_id_phone(
     else:
         pass
 
+# получение даты заказа по заказу ) 
+async def order_user_id_date(
+    user_id: int
+):
+    async with async_session_maker() as session:
+        result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+    user_data = result.scalar()
+    if user_data is not None:
+        data = user_data.data
+        return data
+    else:
+        pass
+
 
 # получение url юзера по заказу
 async def order_user_id_url(
@@ -298,10 +311,10 @@ async def add_order_save(
     phone: str,
     username: str,
     order: int,
-    date: datetime,
     user_id: int,
     shipping_cost: int,
     user_link: int,
+    price_rub: int,
 ):
     async with async_session_maker() as session:
         new_order = OrderModelSave(
@@ -313,9 +326,10 @@ async def add_order_save(
             color=color,
             url=url,
             order=order,
-            data=date,
+            data=datetime.now(),
             shipping_cost=shipping_cost,
-            user_link=user_link
+            user_link=user_link,
+            price_rub=price_rub
         )
         session.add(new_order)
         logger.info(f"Пользователь {username} сохранил заказ в базе данных")
@@ -364,3 +378,17 @@ async def order_user_id_all_save(
                 'order': row['OrderModelSave'].order,
                 'date': row['OrderModelSave'].data,
                 'shipping_cost': row['OrderModelSave'].shipping_cost, } for row in price]
+    
+
+# получение даты с сохраненных заказов
+async def data_order_save(
+        user_id: int
+        ):
+    async with async_session_maker() as session:
+        result = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
+        stmt = result.scalar()
+        if stmt is not None:
+            result = stmt.data
+            return result
+        else:
+            pass

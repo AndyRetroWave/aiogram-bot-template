@@ -1,3 +1,4 @@
+from datetime import timedelta
 import random
 import re
 from aiogram import F, Router
@@ -12,7 +13,9 @@ from app.states.states import FSMAdress, FSMDeleteorder, FSMOrders
 from aiogram.fsm.state import default_state
 from config.config import bot, logger
 from app.static.images import static
-
+import calendar
+import datetime
+from app.api.response_rate import months
 
 router = Router()
 
@@ -350,6 +353,15 @@ async def phone_order(message: Message, state: FSMContext):
     await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
     await add_diven_user(addres, phone, username, user_id)
     order_id = await order_user_id_all(user_id)
+    date = await order_user_id_date(user_id)
+    new_date_20 = date + timedelta(days=20)
+    new_date_30 = date + timedelta(days=30)
+    month_name_en_20 = calendar.month_name[new_date_20.month]
+    month_name_ru_20 = months[month_name_en_20]
+    month_name_en_30 = calendar.month_name[new_date_30.month]
+    month_name_ru_30 = months[month_name_en_30]
+    new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
+    new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
     color = []
     orders = []
     url = []
@@ -376,6 +388,7 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -396,46 +409,57 @@ _______________________\n
 # Хенедер по цвету и размеру и по вывода итого если пользователь уже оформлял заказы ИТОГО
 @router.message(StateFilter(FSMOrders.color))
 async def color_order(message: Message, state: FSMContext):
-    try:
+    # try:
+    user = message.from_user.username
+    logger.info(f"Пользователь {user} вписал цвет и размер")
+    user_id = message.from_user.id
+    color = message.text
+    await state.update_data({"color": color})
+    phone_user_id = await phone_user_id_given(user_id)
+    if phone_user_id is not None:
+        value = await course_today()
+        round_value = round(value)
         user = message.from_user.username
-        logger.info(f"Пользователь {user} вписал цвет и размер")
         user_id = message.from_user.id
-        color = message.text
-        await state.update_data({"color": color})
-        phone_user_id = await phone_user_id_given(user_id)
-        if phone_user_id is not None:
-            value = await course_today()
-            round_value = round(value)
-            user = message.from_user.username
-            user_id = message.from_user.id
-            logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
-            addres = await addres_user_id_given(user_id)
-            round_value = (await state.get_data())['round_value']
-            url = (await state.get_data())['url']
-            color = (await state.get_data())['color']
-            phone = await phone_user_id_given(user_id)
-            username = await username_user_id_given(user_id)
-            shipping_cost = (await state.get_data())['shipping_cost']
-            order = random.randint(1000000, 9999999)
-            await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
-            order_id = await order_user_id_all(user_id)
-            color = []
-            orders = []
-            url = []
-            price = []
-            shipping_cost = []
-            for order in order_id:
-                orders.append(order['order'])
-                url.append(order['url'])
-                color.append(order['color'])
-                price.append(order['price'])
-                shipping_cost.append(order['shipping_cost'])
-                order_info = '\n'.join(
-                    [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
-            total_price = round(sum(price)*value + sum(shipping_cost))
-            await state.clear()
-            await message.answer(
-                text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
+        logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
+        addres = await addres_user_id_given(user_id)
+        round_value = (await state.get_data())['round_value']
+        url = (await state.get_data())['url']
+        color = (await state.get_data())['color']
+        phone = await phone_user_id_given(user_id)
+        username = await username_user_id_given(user_id)
+        shipping_cost = (await state.get_data())['shipping_cost']
+        order = random.randint(1000000, 9999999)
+        await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
+        order_id = await order_user_id_all(user_id)
+        date = await order_user_id_date(user_id)
+        new_date_20 = date + timedelta(days=20)
+        new_date_30 = date + timedelta(days=30)
+        new_date_20_formatted = new_date_20.strftime('%d %B')
+        new_date_30_formatted = new_date_30.strftime('%d %B %Y года')
+        month_name_en_20 = calendar.month_name[new_date_20.month]
+        month_name_ru_20 = months[month_name_en_20]
+        month_name_en_30 = calendar.month_name[new_date_30.month]
+        month_name_ru_30 = months[month_name_en_30]
+        new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
+        new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
+        color = []
+        orders = []
+        url = []
+        price = []
+        shipping_cost = []
+        for order in order_id:
+            orders.append(order['order'])
+            url.append(order['url'])
+            color.append(order['color'])
+            price.append(order['price'])
+            shipping_cost.append(order['shipping_cost'])
+            order_info = '\n'.join(
+                [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
+        total_price = round(sum(price)*value + sum(shipping_cost))
+        await state.clear()
+        await message.answer(
+            text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
 В заказе товары:\n
 {order_info}
 Курс юаня к рублю <b>{value}</b>\n
@@ -445,6 +469,7 @@ async def color_order(message: Message, state: FSMContext):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -454,17 +479,17 @@ _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
 Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-                parse_mode='HTML',
-                reply_markup=order_botton,
-            )
-        else:
-            await message.answer(
-                text=LEXICON_RU["Номер телефона"],
-                parse_mode='MarkdownV2'
-            )
-            await state.set_state(FSMOrders.phone)
-    except:
-        logger.critical("Ошибка ссылки в заказе")
+            parse_mode='HTML',
+            reply_markup=order_botton,
+        )
+    else:
+        await message.answer(
+            text=LEXICON_RU["Номер телефона"],
+            parse_mode='MarkdownV2'
+        )
+        await state.set_state(FSMOrders.phone)
+    # except:
+    #     logger.critical("Ошибка ссылки в заказе")
 
 
 # Хенедер кнопки по изменению Номера телефона
@@ -555,6 +580,15 @@ async def phone_order(message: Message, state: FSMContext):
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
         username = await username_user_id_given(user_id)
+        date = await order_user_id_date(user_id)
+        new_date_20 = date + timedelta(days=20)
+        new_date_30 = date + timedelta(days=30)
+        month_name_en_20 = calendar.month_name[new_date_20.month]
+        month_name_ru_20 = months[month_name_en_20]
+        month_name_en_30 = calendar.month_name[new_date_30.month]
+        month_name_ru_30 = months[month_name_en_30]
+        new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
+        new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
         color = []
         orders = []
         url = []
@@ -581,6 +615,7 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -631,6 +666,15 @@ async def delete_order_botton(message: Message, state: FSMContext):
             addres = await addres_user_id_given(user_id)
             phone = await phone_user_id_given(user_id)
             username = await username_user_id_given(user_id)
+            date = await order_user_id_date(user_id)
+            new_date_20 = date + timedelta(days=20)
+            new_date_30 = date + timedelta(days=30)
+            month_name_en_20 = calendar.month_name[new_date_20.month]
+            month_name_ru_20 = months[month_name_en_20]
+            month_name_en_30 = calendar.month_name[new_date_30.month]
+            month_name_ru_30 = months[month_name_en_30]
+            new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
+            new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
             color = []
             orders = []
             url = []
@@ -658,6 +702,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -690,16 +735,26 @@ _______________________\n
 # Кнопка Корзины
 @router.callback_query(F.data == 'cart_botton')
 async def basket(callback: CallbackQuery):
-    try:
-        user = callback.from_user.username
-        user_id = callback.from_user.id
-        logger.info(
-            f"Пользователь {user} нажал на кнопку корзины")
-        value = await course_today()
-        order_id = await order_user_id_all(user_id)
-        addres = await addres_user_id_given(user_id)
-        phone = await phone_user_id_given(user_id)
-        username = await username_user_id_given(user_id)
+    # try:
+    user = callback.from_user.username
+    user_id = callback.from_user.id
+    logger.info(
+        f"Пользователь {user} нажал на кнопку корзины")
+    value = await course_today()
+    order_id = await order_user_id_all(user_id)
+    addres = await addres_user_id_given(user_id)
+    phone = await phone_user_id_given(user_id)
+    username = await username_user_id_given(user_id)
+    date = await order_user_id_date(user_id)
+    if date:
+        new_date_20 = date + timedelta(days=20)
+        new_date_30 = date + timedelta(days=30)
+        month_name_en_20 = calendar.month_name[new_date_20.month]
+        month_name_ru_20 = months[month_name_en_20]
+        month_name_en_30 = calendar.month_name[new_date_30.month]
+        month_name_ru_30 = months[month_name_en_30]
+        new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
+        new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
         color = []
         orders = []
         url = []
@@ -726,6 +781,7 @@ async def basket(callback: CallbackQuery):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -739,21 +795,21 @@ _______________________\n
                 reply_markup=order_botton,
             )
             callback.answer()
-        else:
-            await callback.answer(
-                text=LEXICON_RU["Корзина"],
-                reply_markup=order_botton_one,
-                parse_mode='MarkdownV2',
-            )
-        callback.answer()
-    except:
-        logger.critical("Ошибка в кнопке корзины ")
+    else:
+        await callback.answer(
+            text=LEXICON_RU["Корзина"],
+            reply_markup=order_botton_one,
+            parse_mode='MarkdownV2',
+        )
+    callback.answer()
+    # except:
+    #     logger.critical("Ошибка в кнопке корзины ")
 
 
 # Кнопка подверждения заказа
 @router.callback_query(F.data == 'payment_botton')
 async def order_confirmation(callback: CallbackQuery):
-    try:
+    # try:
         user = callback.from_user
         user_id = user.id
         logger.info(f"Пользователь {user} нажал на подтвердить заказ")
@@ -761,19 +817,20 @@ async def order_confirmation(callback: CallbackQuery):
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
         username = await username_user_id_given(user_id)
+        value = await course_today()
         user_link = f"https://t.me/{user.username}" if user.username else f"<code>{phone}</code> "
-        print(type(user_link))
-        print(user_link)
         url = []
         color = []
         price = []
         orders = []
+        shipping_cost = []
         if order_id:
             for order in order_id:
                 orders.append(order['order'])
                 url.append(order['url'])
                 color.append(order['color'])
                 price.append(order['price'])
+                shipping_cost.append(order['shipping_cost'])
                 addres = order['addres']
                 url_int = order['url']
                 color_int = order['color']
@@ -782,21 +839,36 @@ async def order_confirmation(callback: CallbackQuery):
                 name = order['name']
                 orders_int = order['order']
                 date = order['date']
-                shipping_cost = order['shipping_cost']
+                shipping_cost_int = order['shipping_cost']
                 user_id = order['user_id']
                 order_info = '\n'.join(
                     [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
-                await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, date, user_id, shipping_cost, user_link)
+                total_price = round(sum(price)*value + sum(shipping_cost))
+                price_rub = (price_int*value)+shipping_cost_int
+                if user_link.startswith("<code>7"):
+                    user_link_phone = phone
+                    await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, user_id, shipping_cost_int, user_link_phone, price_rub)
+                else:
+                    await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, user_id, shipping_cost_int, user_link, price_rub)
+            date = await data_order_save(user_id)
+            new_date_20 = date + timedelta(days=20)
+            new_date_30 = date + timedelta(days=30)
+            month_name_en_20 = calendar.month_name[new_date_20.month]
+            month_name_ru_20 = months[month_name_en_20]
+            month_name_en_30 = calendar.month_name[new_date_30.month]
+            month_name_ru_30 = months[month_name_en_30]
+            new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
+            new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
             await delete_order(user_id)
             await callback.message.edit_text(
-                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\nКак только появиться информация по отправке мы вам сообщим\!""",
+                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nКак только появиться информация по отправке мы вам сообщим\!""",
                 parse_mode='MarkdownV2',
                 reply_markup=meny_order,
             )
             callback.answer()
             if user_link.startswith("<code>7"):
                 await bot.send_message(
-                    chat_id=538383620,
+                    chat_id=6983025115,
                     text=f"""Был оформлен новый заказ!\n
 Если нет ссылки на покупателя, то он либо скрыл ник либо не вводил, вот его номер телефона: {user_link}\n
 Заказ: {order_info}
@@ -804,12 +876,14 @@ async def order_confirmation(callback: CallbackQuery):
 <b>{addres}
 {username}
 {phone}</b>\n
-Проверь на отправку денег, если деньги пришли формируй заказ!
+Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
+Проверь на отправку денег, если деньги пришли формируй заказ!\n
+<b>Если клиент не отправил денег, удали заказ через админку!</b>
 """,
                     parse_mode="HTML")
             else:
                 await bot.send_message(
-                    chat_id=538383620,
+                    chat_id=6983025115,
                     text=f"""Был оформлен новый заказ!\n
 Вот ссылка на покупателя: {user_link}\n
 Заказ: 
@@ -818,15 +892,15 @@ async def order_confirmation(callback: CallbackQuery):
 <b>{addres}
 {username}
 {phone}</b>\n
-Проверь на отправку денег, если деньги пришли формируй заказ!
+Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
+<b>Проверь на отправку денег, если деньги пришли формируй заказ!</b>
 """,
                     parse_mode="HTML")
-    except:
-        logger.critical("Ошибка в кнопке подтверждения заказ")
+    # except:
+    #     logger.critical("Ошибка в кнопке подтверждения заказ")
+
 
 # Ваш заказ
-
-
 @router.callback_query(F.data == 'order_client_botton')
 async def order_user(callback: CallbackQuery):
     user = callback.from_user
@@ -837,16 +911,27 @@ async def order_user(callback: CallbackQuery):
     url = []
     color = []
     price = []
+    data_20 = []
+    data_30 = []
     if order_id:
         for order in order_id:
             orders.append(order['order'])
             url.append(order['url'])
             color.append(order['color'])
             price.append(order['price'])
+            data = order['date']
+            new_date_20 = data + timedelta(days=20)
+            new_date_30 = data + timedelta(days=30)
+            month_name_en_20 = calendar.month_name[new_date_20.month]
+            month_name_ru_20 = months[month_name_en_20]
+            month_name_en_30 = calendar.month_name[new_date_30.month]
+            month_name_ru_30 = months[month_name_en_30]
+            data_20.append(f'{new_date_20.day} {month_name_ru_20}')
+            data_30.append(f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года')
             order_info = '\n'.join(
-                [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
+                [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\nОжидаемая дата доставки: <b>{d_20} - {d_30}</b>\n' for o, u, c, p, d_20, d_30 in zip(orders, url, color, price, data_20, data_30)])
     await callback.message.edit_text(
-        text=f"""Список ваших заказов:\n{order_info}""",
+        text=f"""Список ваших заказов:\n\n{order_info}""",
         parse_mode="HTML",
         reply_markup=menu_rare,
     )
