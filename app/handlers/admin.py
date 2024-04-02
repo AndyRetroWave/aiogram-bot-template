@@ -190,4 +190,4 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
 
 
 async def notification():
-    await bot.send_message(chat_id=848116805, text='Доброе утро! Пора обновлять курс юаня!', reply_markup=admin)
+    await bot.send_message(chat_id=538383620, text='Доброе утро! Пора обновлять курс юаня!', reply_markup=admin)
