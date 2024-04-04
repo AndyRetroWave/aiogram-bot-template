@@ -160,7 +160,7 @@ question_client_botton = InlineKeyboardButton(
 )
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
+    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
 )
 # Меню клиента

@@ -54,7 +54,7 @@ async def start(message: types.Message, state: FSMContext):
                                     parse_mode='MarkdownV2')
                 await state.clear()
     except:
-        logger.critical("Ошибка в старте проекта")
+        logger.critical("Ошибка в старте проекта", exc_info=True)
 
 
 # Кнопка меню всплывающая
@@ -86,7 +86,7 @@ async def start(callback: CallbackQuery, state: FSMContext):
                                     parse_mode='MarkdownV2')
                 await state.clear()
     except:
-        logger.critical('Ошибка в кнопке меню')
+        logger.critical('Ошибка в кнопке меню', exc_info=True)
 
 
 # Кнопка меню оснв
@@ -123,4 +123,4 @@ async def start(callback: CallbackQuery, state: FSMContext):
                     parse_mode='MarkdownV2')
                 await state.clear()
     except:
-        logger.critical("Ошибка в кнопке меню")
+        logger.critical("Ошибка в кнопке меню", exc_info=True)

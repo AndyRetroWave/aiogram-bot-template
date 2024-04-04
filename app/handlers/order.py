@@ -33,7 +33,7 @@ async def category_botton_order(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке заказа")
+        logger.critical("Ошибка в кнопке заказа", exc_info=True)
 
 
 # Кнопка добавить заказ
@@ -49,7 +49,7 @@ async def category_botton_order_new(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке заказа")
+        logger.critical("Ошибка в кнопке заказа", exc_info=True)
 
 
 # Кнопка повтора заказа
@@ -65,7 +65,7 @@ async def category_botton_order(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке заказа")
+        logger.critical("Ошибка в кнопке заказа", exc_info=True)
 
 
 # Кнопка кросовка
@@ -91,7 +91,7 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_snecers)
     except:
-        logger.critical("Ошибка в кнопке кросовка в заказе")
+        logger.critical("Ошибка в кнопке кросовка в заказе", exc_info=True)
 
 
 # Хендлер по цене кросовок
@@ -116,7 +116,8 @@ async def calculator_rate_value_order(message: Message, state: FSMContext):
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка в калькуляторе кросовок в заказе")
+        logger.critical(
+            "Ошибка в калькуляторе кросовок в заказе", exc_info=True)
 
 
 # Кнопка Одежды
@@ -142,7 +143,7 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_clothe)
     except:
-        logger.critical("Ошибка в кнопке одежды в заказе")
+        logger.critical("Ошибка в кнопке одежды в заказе", exc_info=True)
 
 
 # Хендлер по цене одежды
@@ -167,7 +168,7 @@ async def calculator_rate_value_order_clothed(message: Message, state: FSMContex
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка в калькуляторе одежды в заказе")
+        logger.critical("Ошибка в калькуляторе одежды в заказе", exc_info=True)
 
 
 # Кнопка Пуховики
@@ -193,7 +194,7 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_jacket)
     except:
-        logger.critical("Ошибка в кнопке пуховиков в заказе")
+        logger.critical("Ошибка в кнопке пуховиков в заказе", exc_info=True)
 
 
 # Хендлер по цене пуховиков
@@ -218,7 +219,8 @@ async def calculator_rate_value_order_jacket(message: Message, state: FSMContext
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка в калькуляторе пуховиков в заказе")
+        logger.critical(
+            "Ошибка в калькуляторе пуховиков в заказе", exc_info=True)
 
 
 # Кнопка Пуховики
@@ -244,7 +246,7 @@ async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_clothe)
     except:
-        logger.critical("Ошибка в кнопке пуховиков в заказе")
+        logger.critical("Ошибка в кнопке пуховиков в заказе", exc_info=True)
 
 
 # Кнопка аксессуары
@@ -268,7 +270,7 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
                 reply_markup=meny,)
             await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка кнопке аксессуары")
+        logger.critical("Ошибка кнопке аксессуары", exc_info=True)
 
 
 # Хенедер по ссылки на товар
@@ -285,7 +287,7 @@ async def url_order(message: Message, state: FSMContext):
         await state.update_data({"url": url})
         await state.set_state(FSMOrders.color)
     except:
-        logger.critical("Ошибка ссылки в заказе")
+        logger.critical("Ошибка ссылки в заказе", exc_info=True)
 
 
 # Хенедер по Номеру телефона
@@ -312,7 +314,7 @@ async def phone_order(message: Message, state: FSMContext):
                 f"Пользователь {user} совершил ошибку в номере телефона")
         await state.update_data({"phone": phone})
     except:
-        logger.critical("Ошибка ссылки в заказе")
+        logger.critical("Ошибка ссылки в заказе", exc_info=True)
 
 
 # Хенедер по ФИО
@@ -330,146 +332,73 @@ async def phone_order(message: Message, state: FSMContext):
         await state.set_state(FSMOrders.penza)
 
     except:
-        logger.critical("Ошибка ссылки в заказе")
+        logger.critical("Ошибка ссылки в заказе", exc_info=True)
 
 
 # Хенедер по адрусу пензы и итого по первому заказу для клиента ИТОГО
 @router.message(StateFilter(FSMOrders.penza))
 async def phone_order(message: Message, state: FSMContext):
-    # try:
-    value = await course_today()
-    round_value = round(value)
-    user = message.from_user.username
-    user_id = message.from_user.id
-    logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
-    addres = message.text
-    round_value = (await state.get_data())['round_value']
-    url = (await state.get_data())['url']
-    color = (await state.get_data())['color']
-    phone = ((await state.get_data())['phone'])
-    username = (await state.get_data())['username']
-    shipping_cost = (await state.get_data())['shipping_cost']
-    order = random.randint(1000000, 9999999)
-    await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
-    await add_diven_user(addres, phone, username, user_id)
-    order_id = await order_user_id_all(user_id)
-    date = await order_user_id_date(user_id)
-    new_date_20 = date + timedelta(days=20)
-    new_date_30 = date + timedelta(days=30)
-    month_name_en_20 = calendar.month_name[new_date_20.month]
-    month_name_ru_20 = months[month_name_en_20]
-    month_name_en_30 = calendar.month_name[new_date_30.month]
-    month_name_ru_30 = months[month_name_en_30]
-    new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
-    new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
-    color = []
-    orders = []
-    url = []
-    price = []
-    shipping_cost = []
-    for order in order_id:
-        orders.append(order['order'])
-        url.append(order['url'])
-        color.append(order['color'])
-        price.append(order['price'])
-        shipping_cost.append(order['shipping_cost'])
-        order_info = '\n'.join(
-            [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
-    total_price = round(sum(price)*value + sum(shipping_cost))
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>\n
-Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
-⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-        parse_mode='HTML',
-        reply_markup=order_botton,
-    )
-    await state.clear()
-    # except:
-    #     logger.critical("Ошибка адреса в заказе ")
-
-
-# Хенедер по цвету и размеру и по вывода итого если пользователь уже оформлял заказы ИТОГО
-@router.message(StateFilter(FSMOrders.color))
-async def color_order(message: Message, state: FSMContext):
-    # try:
-    user = message.from_user.username
-    logger.info(f"Пользователь {user} вписал цвет и размер")
-    user_id = message.from_user.id
-    color = message.text
-    await state.update_data({"color": color})
-    phone_user_id = await phone_user_id_given(user_id)
-    if phone_user_id is not None:
+    try:
         value = await course_today()
         round_value = round(value)
         user = message.from_user.username
         user_id = message.from_user.id
         logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
-        addres = await addres_user_id_given(user_id)
+        addres = message.text
         round_value = (await state.get_data())['round_value']
         url = (await state.get_data())['url']
         color = (await state.get_data())['color']
-        phone = await phone_user_id_given(user_id)
-        username = await username_user_id_given(user_id)
+        phone = ((await state.get_data())['phone'])
+        username = (await state.get_data())['username']
         shipping_cost = (await state.get_data())['shipping_cost']
         order = random.randint(1000000, 9999999)
         await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
+        await add_diven_user(addres, phone, username, user_id)
         order_id = await order_user_id_all(user_id)
-        date = await order_user_id_date(user_id)
-        new_date_20 = date + timedelta(days=20)
-        new_date_30 = date + timedelta(days=30)
-        new_date_20_formatted = new_date_20.strftime('%d %B')
-        new_date_30_formatted = new_date_30.strftime('%d %B %Y года')
-        month_name_en_20 = calendar.month_name[new_date_20.month]
-        month_name_ru_20 = months[month_name_en_20]
-        month_name_en_30 = calendar.month_name[new_date_30.month]
-        month_name_ru_30 = months[month_name_en_30]
-        new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
-        new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
+
+        def get_new_date(date, days):
+            new_date = date + timedelta(days=days)
+            month_name_en = calendar.month_name[new_date.month]
+            month_name_ru = months[month_name_en]
+            if days == 30:
+                return f'{new_date.day} {month_name_ru} {new_date.year} года'
+            else:
+                return f'{new_date.day} {month_name_ru}'
+
+        date = await data_order_save(user_id)
+        new_dates = [get_new_date(date, days) for days in [20, 30]]
+        new_date_20_formatted, new_date_30_formatted = new_dates
         color = []
         orders = []
         url = []
         price = []
         shipping_cost = []
+        price_rub = []
         for order in order_id:
             orders.append(order['order'])
             url.append(order['url'])
             color.append(order['color'])
             price.append(order['price'])
             shipping_cost.append(order['shipping_cost'])
+            price_rub_round = round(
+                value*order['price'] + order['shipping_cost'])
+            price_rub.append(price_rub_round)
             order_info = '\n'.join(
-                [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
+                [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
         total_price = round(sum(price)*value + sum(shipping_cost))
-        await state.clear()
-        await message.answer(
+        await bot.send_message(
+            chat_id=message.from_user.id,
             text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
 В заказе товары:\n
 {order_info}
-Курс юаня к рублю <b>{value}</b>\n
-Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
+Курс юаня к рублю <b>{value}</b>🇨🇳\n
+<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
 🏡 Отправим ваш заказ по адресу:
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -482,14 +411,101 @@ _______________________\n
             parse_mode='HTML',
             reply_markup=order_botton,
         )
-    else:
-        await message.answer(
-            text=LEXICON_RU["Номер телефона"],
-            parse_mode='MarkdownV2'
-        )
-        await state.set_state(FSMOrders.phone)
-    # except:
-    #     logger.critical("Ошибка ссылки в заказе")
+        await state.clear()
+    except:
+        logger.critical("Ошибка адреса в заказе ", exc_info=True)
+
+
+# Хенедер по цвету и размеру и по вывода итого если пользователь уже оформлял заказы ИТОГО
+@router.message(StateFilter(FSMOrders.color))
+async def color_order(message: Message, state: FSMContext):
+    try:
+        user = message.from_user.username
+        logger.info(f"Пользователь {user} вписал цвет и размер")
+        user_id = message.from_user.id
+        color = message.text
+        await state.update_data({"color": color})
+        phone_user_id = await phone_user_id_given(user_id)
+        if phone_user_id is not None:
+            value = await course_today()
+            round_value = round(value)
+            user = message.from_user.username
+            user_id = message.from_user.id
+            logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
+            addres = await addres_user_id_given(user_id)
+            round_value = (await state.get_data())['round_value']
+            url = (await state.get_data())['url']
+            color = (await state.get_data())['color']
+            phone = await phone_user_id_given(user_id)
+            username = await username_user_id_given(user_id)
+            shipping_cost = (await state.get_data())['shipping_cost']
+            order = random.randint(1000000, 9999999)
+            await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
+            order_id = await order_user_id_all(user_id)
+
+            def get_new_date(date, days):
+                new_date = date + timedelta(days=days)
+                month_name_en = calendar.month_name[new_date.month]
+                month_name_ru = months[month_name_en]
+                if days == 30:
+                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
+                else:
+                    return f'{new_date.day} {month_name_ru}'
+
+            date = await data_order_save(user_id)
+            new_dates = [get_new_date(date, days) for days in [20, 30]]
+            new_date_20_formatted, new_date_30_formatted = new_dates
+            color = []
+            orders = []
+            url = []
+            price = []
+            shipping_cost = []
+            price_rub = []
+            for order in order_id:
+                orders.append(order['order'])
+                url.append(order['url'])
+                color.append(order['color'])
+                price.append(order['price'])
+                shipping_cost.append(order['shipping_cost'])
+                price_rub_round = round(
+                    value*order['price'] + order['shipping_cost'])
+                price_rub.append(price_rub_round)
+                order_info = '\n'.join(
+                    [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+            total_price = round(sum(price)*value + sum(shipping_cost))
+            await state.clear()
+            await message.answer(
+                text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
+В заказе товары:\n
+{order_info}
+Курс юаня к рублю <b>{value}</b>🇨🇳\n
+<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
+🏡 Отправим ваш заказ по адресу:
+<b>{addres}</b>
+<b>{username}</b>
+<b>{phone}</b>
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
+⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
+_______________________
+Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
+<code>79530203476</code> Тиньков! Рябов П.
+_______________________\n
+Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
+<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
+Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
+                parse_mode='HTML',
+                reply_markup=order_botton,
+            )
+        else:
+            await message.answer(
+                text=LEXICON_RU["Номер телефона"],
+                parse_mode='MarkdownV2'
+            )
+            await state.set_state(FSMOrders.phone)
+    except:
+        logger.critical("Ошибка ссылки в заказе", exc_info=True)
 
 
 # Хенедер кнопки по изменению Номера телефона
@@ -506,7 +522,7 @@ async def phone_order(callback: CallbackQuery, state: FSMContext):
         )
         await state.set_state(FSMOrders.phone_modify)
     except:
-        logger.critical("Ошибка ссылки в заказе")
+        logger.critical("Ошибка ссылки в заказе", exc_info=True)
 
 
 # Хенедер по изменению Номера телефона
@@ -540,7 +556,7 @@ async def phone_order_modify(message: Message, state: FSMContext):
             logger.info(
                 f"Пользователь {user} совершил ошибку в  изменение номера телефона")
     except:
-        logger.critical("Ошибка изменения номера телефона")
+        logger.critical("Ошибка изменения номера телефона", exc_info=True)
 
 
 # Хенедер по изменения ФИО
@@ -561,7 +577,7 @@ async def phone_order_modify(message: Message, state: FSMContext):
         await state.update_data({"username": username})
         await state.set_state(FSMOrders.adress_modify)
     except:
-        logger.critical("Ошибка ссылки в заказе")
+        logger.critical("Ошибка ссылки в заказе", exc_info=True)
 
 
 # Хенедер по измененному адрусу пензы и итого по первому заказу для клиента ИТОГО
@@ -580,42 +596,50 @@ async def phone_order(message: Message, state: FSMContext):
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
         username = await username_user_id_given(user_id)
-        date = await order_user_id_date(user_id)
-        new_date_20 = date + timedelta(days=20)
-        new_date_30 = date + timedelta(days=30)
-        month_name_en_20 = calendar.month_name[new_date_20.month]
-        month_name_ru_20 = months[month_name_en_20]
-        month_name_en_30 = calendar.month_name[new_date_30.month]
-        month_name_ru_30 = months[month_name_en_30]
-        new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
-        new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
+
+        def get_new_date(date, days):
+            new_date = date + timedelta(days=days)
+            month_name_en = calendar.month_name[new_date.month]
+            month_name_ru = months[month_name_en]
+            if days == 30:
+                return f'{new_date.day} {month_name_ru} {new_date.year} года'
+            else:
+                return f'{new_date.day} {month_name_ru}'
+
+        date = await data_order_save(user_id)
+        new_dates = [get_new_date(date, days) for days in [20, 30]]
+        new_date_20_formatted, new_date_30_formatted = new_dates
         color = []
         orders = []
         url = []
         price = []
         shipping_cost = []
+        price_rub = []
         for order in order_id:
             orders.append(order['order'])
             url.append(order['url'])
             color.append(order['color'])
             price.append(order['price'])
             shipping_cost.append(order['shipping_cost'])
+            price_rub_round = round(
+                value*order['price'] + order['shipping_cost'])
+            price_rub.append(price_rub_round)
             order_info = '\n'.join(
-                [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
+                [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
         total_price = round(sum(price)*value + sum(shipping_cost))
         await bot.send_message(
             chat_id=message.from_user.id,
             text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
 В заказе товары:\n
 {order_info}
-Курс юаня к рублю <b>{value}</b>\n
-Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
+Курс юаня к рублю <b>{value}</b>🇨🇳\n
+<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
 🏡 Отправим ваш заказ по адресу:
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -630,7 +654,7 @@ _______________________\n
         )
         await state.clear()
     except:
-        logger.critical("Ошибка адреса в заказе ")
+        logger.critical("Ошибка адреса в заказе ", exc_info=True)
 
 
 # Кнопка удалить заказ
@@ -647,7 +671,7 @@ async def category_botton_order(callback: CallbackQuery, state: FSMContext):
         )
         await state.set_state(FSMDeleteorder.delete)
     except:
-        logger.critical("Ошибка в кнопке удаления заказа")
+        logger.critical("Ошибка в кнопке удаления заказа", exc_info=True)
 
 
 # Хенедер по удалению заказа итого по заказам ИТОГО
@@ -666,43 +690,50 @@ async def delete_order_botton(message: Message, state: FSMContext):
             addres = await addres_user_id_given(user_id)
             phone = await phone_user_id_given(user_id)
             username = await username_user_id_given(user_id)
-            date = await order_user_id_date(user_id)
-            new_date_20 = date + timedelta(days=20)
-            new_date_30 = date + timedelta(days=30)
-            month_name_en_20 = calendar.month_name[new_date_20.month]
-            month_name_ru_20 = months[month_name_en_20]
-            month_name_en_30 = calendar.month_name[new_date_30.month]
-            month_name_ru_30 = months[month_name_en_30]
-            new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
-            new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
             color = []
             orders = []
             url = []
             price = []
             shipping_cost = []
+            price_rub = []
             if order_id:
+                def get_new_date(date, days):
+                    new_date = date + timedelta(days=days)
+                    month_name_en = calendar.month_name[new_date.month]
+                    month_name_ru = months[month_name_en]
+                    if days == 30:
+                        return f'{new_date.day} {month_name_ru} {new_date.year} года'
+                    else:
+                        return f'{new_date.day} {month_name_ru}'
+
+                date = await data_order_save(user_id)
+                new_dates = [get_new_date(date, days) for days in [20, 30]]
+                new_date_20_formatted, new_date_30_formatted = new_dates
                 for order in order_id:
                     orders.append(order['order'])
                     url.append(order['url'])
                     color.append(order['color'])
                     price.append(order['price'])
                     shipping_cost.append(order['shipping_cost'])
+                    price_rub_round = round(
+                        value*order['price'] + order['shipping_cost'])
+                    price_rub.append(price_rub_round)
                     order_info = '\n'.join(
-                        [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
+                        [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 await bot.send_message(
                     chat_id=message.from_user.id,
                     text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
 В заказе товары:\n
 {order_info}
-Курс юаня к рублю <b>{value}</b>\n
-Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
+Курс юаня к рублю <b>{value}</b>🇨🇳\n
+<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
 🏡 Отправим ваш заказ по адресу:
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -729,59 +760,67 @@ _______________________\n
                 chat_id=user_id,
                 text="Введите номер заказа числом, а не буквами")
     except:
-        logger.critical("Ошибка в удаленном заказе ")
+        logger.critical("Ошибка в удаленном заказе ", exc_info=True)
 
 
 # Кнопка Корзины
 @router.callback_query(F.data == 'cart_botton')
 async def basket(callback: CallbackQuery):
-    # try:
-    user = callback.from_user.username
-    user_id = callback.from_user.id
-    logger.info(
-        f"Пользователь {user} нажал на кнопку корзины")
-    value = await course_today()
-    order_id = await order_user_id_all(user_id)
-    addres = await addres_user_id_given(user_id)
-    phone = await phone_user_id_given(user_id)
-    username = await username_user_id_given(user_id)
-    date = await order_user_id_date(user_id)
-    if date:
-        new_date_20 = date + timedelta(days=20)
-        new_date_30 = date + timedelta(days=30)
-        month_name_en_20 = calendar.month_name[new_date_20.month]
-        month_name_ru_20 = months[month_name_en_20]
-        month_name_en_30 = calendar.month_name[new_date_30.month]
-        month_name_ru_30 = months[month_name_en_30]
-        new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
-        new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
-        color = []
-        orders = []
-        url = []
-        price = []
-        shipping_cost = []
-        if order_id:
-            for order in order_id:
-                orders.append(order['order'])
-                url.append(order['url'])
-                color.append(order['color'])
-                price.append(order['price'])
-                shipping_cost.append(order['shipping_cost'])
-                order_info = '\n'.join(
-                    [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
-            total_price = round(sum(price)*value + sum(shipping_cost))
-            await callback.message.edit_text(
-                text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
+    try:
+        user = callback.from_user.username
+        user_id = callback.from_user.id
+        logger.info(
+            f"Пользователь {user} нажал на кнопку корзины")
+        value = await course_today()
+        order_id = await order_user_id_all(user_id)
+        addres = await addres_user_id_given(user_id)
+        phone = await phone_user_id_given(user_id)
+        username = await username_user_id_given(user_id)
+        date = await order_user_id_date(user_id)
+        if date:
+            def get_new_date(date, days):
+                new_date = date + timedelta(days=days)
+                month_name_en = calendar.month_name[new_date.month]
+                month_name_ru = months[month_name_en]
+                if days == 30:
+                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
+                else:
+                    return f'{new_date.day} {month_name_ru}'
+
+            date = await data_order_save(user_id)
+            new_dates = [get_new_date(date, days) for days in [20, 30]]
+            new_date_20_formatted, new_date_30_formatted = new_dates
+            color = []
+            orders = []
+            url = []
+            price = []
+            shipping_cost = []
+            price_rub = []
+            if order_id:
+                for order in order_id:
+                    orders.append(order['order'])
+                    url.append(order['url'])
+                    color.append(order['color'])
+                    price.append(order['price'])
+                    shipping_cost.append(order['shipping_cost'])
+                    price_rub_round = round(
+                        value*order['price'] + order['shipping_cost'])
+                    price_rub.append(price_rub_round)
+                    order_info = '\n'.join(
+                        [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                total_price = round(sum(price)*value + sum(shipping_cost))
+                await callback.message.edit_text(
+                    text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
 В заказе товары:\n
 {order_info}
-Курс юаня к рублю <b>{value}</b>\n
-Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу\n
+Курс юаня к рублю <b>{value}</b>🇨🇳\n
+<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
 🏡 Отправим ваш заказ по адресу:
 <b>{addres}</b>
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
@@ -791,19 +830,19 @@ _______________________\n
 Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
 <b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
 Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-                parse_mode='HTML',
-                reply_markup=order_botton,
+                    parse_mode='HTML',
+                    reply_markup=order_botton,
+                )
+                callback.answer()
+        else:
+            await callback.answer(
+                text=LEXICON_RU["Корзина"],
+                reply_markup=order_botton_one,
+                parse_mode='MarkdownV2',
             )
-            callback.answer()
-    else:
-        await callback.answer(
-            text=LEXICON_RU["Корзина"],
-            reply_markup=order_botton_one,
-            parse_mode='MarkdownV2',
-        )
-    callback.answer()
-    # except:
-    #     logger.critical("Ошибка в кнопке корзины ")
+        callback.answer()
+    except:
+        logger.critical("Ошибка в кнопке корзины ", exc_info=True)
 
 
 # Кнопка подверждения заказа
@@ -819,17 +858,18 @@ async def order_confirmation(callback: CallbackQuery):
         username = await username_user_id_given(user_id)
         value = await course_today()
         user_link = f"https://t.me/{user.username}" if user.username else f"<code>{phone}</code> "
-        url = []
-        color = []
-        price = []
-        orders = []
-        shipping_cost = []
+        url, color, price, orders, shipping_cost, price_rub = [], [], [], [], [], []
+        order_info = []
         if order_id:
             for order in order_id:
                 orders.append(order['order'])
                 url.append(order['url'])
                 color.append(order['color'])
                 price.append(order['price'])
+                shipping_cost_int = order['shipping_cost']
+                price_rub_round = round(
+                    value*order['price'] + order['shipping_cost'])
+                price_rub.append(int(price_rub_round))
                 shipping_cost.append(order['shipping_cost'])
                 addres = order['addres']
                 url_int = order['url']
@@ -839,10 +879,10 @@ async def order_confirmation(callback: CallbackQuery):
                 name = order['name']
                 orders_int = order['order']
                 date = order['date']
-                shipping_cost_int = order['shipping_cost']
                 user_id = order['user_id']
-                order_info = '\n'.join(
-                    [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\n' for o, u, c, p in zip(orders, url, color, price)])
+                order_info.append(
+                    f'---- Ссылка: <code>{url_int}</code>\nЦвет и размер: <b>{color_int}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub}</b> ₽\nСтоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders_int}</code>⚠\n'
+                )
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 price_rub = (price_int*value)+shipping_cost_int
                 if user_link.startswith("<code>7"):
@@ -850,18 +890,21 @@ async def order_confirmation(callback: CallbackQuery):
                     await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, user_id, shipping_cost_int, user_link_phone, price_rub)
                 else:
                     await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, user_id, shipping_cost_int, user_link, price_rub)
+            order_info = '\n'.join(order_info)
+            def get_new_date(date, days):
+                new_date = date + timedelta(days=days)
+                month_name_en = calendar.month_name[new_date.month]
+                month_name_ru = months[month_name_en]
+                if days == 30:
+                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
+                else:
+                    return f'{new_date.day} {month_name_ru}'
             date = await data_order_save(user_id)
-            new_date_20 = date + timedelta(days=20)
-            new_date_30 = date + timedelta(days=30)
-            month_name_en_20 = calendar.month_name[new_date_20.month]
-            month_name_ru_20 = months[month_name_en_20]
-            month_name_en_30 = calendar.month_name[new_date_30.month]
-            month_name_ru_30 = months[month_name_en_30]
-            new_date_20_formatted = f'{new_date_20.day} {month_name_ru_20}'
-            new_date_30_formatted = f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года'
+            new_dates = [get_new_date(date, days) for days in [20, 30]]
+            new_date_20_formatted, new_date_30_formatted = new_dates
             await delete_order(user_id)
             await callback.message.edit_text(
-                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nКак только появиться информация по отправке мы вам сообщим\!""",
+                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\n\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nКак только появиться информация по отправке мы вам сообщим\!""",
                 parse_mode='MarkdownV2',
                 reply_markup=meny_order,
             )
@@ -877,7 +920,7 @@ async def order_confirmation(callback: CallbackQuery):
 {username}
 {phone}</b>\n
 Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
-Проверь на отправку денег, если деньги пришли формируй заказ!\n
+Проверь на отправку денег, если деньги пришли формируй заказ❗\n
 <b>Если клиент не отправил денег, удали заказ через админку!</b>
 """,
                     parse_mode="HTML")
@@ -893,17 +936,19 @@ async def order_confirmation(callback: CallbackQuery):
 {username}
 {phone}</b>\n
 Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
-<b>Проверь на отправку денег, если деньги пришли формируй заказ!</b>
+<b>Проверь на отправку денег, если деньги пришли формируй заказ❗</b>\n
+<b>Если клиент не отправил денег, удали заказ через админку!</b>
 """,
                     parse_mode="HTML")
     except:
-        logger.critical("Ошибка в кнопке подтверждения заказ")
+        logger.critical("Ошибка в кнопке подтверждения заказ", exc_info=True)
 
 
 # Ваш заказ
 @router.callback_query(F.data == 'order_client_botton')
 async def order_user(callback: CallbackQuery):
     try:
+        value = await course_today()
         user = callback.from_user
         user_id = user.id
         logger.info(f"Пользователь {user} нажал на свои заказы")
@@ -912,6 +957,8 @@ async def order_user(callback: CallbackQuery):
         url = []
         color = []
         price = []
+        price_rub = []
+        shipping_cost = []
         data_20 = []
         data_30 = []
         if order_id:
@@ -920,6 +967,10 @@ async def order_user(callback: CallbackQuery):
                 url.append(order['url'])
                 color.append(order['color'])
                 price.append(order['price'])
+                price.append(order['price'])
+                shipping_cost.append(order['shipping_cost'])
+                price_rub_round=round(value*order['price'] + order['shipping_cost'])
+                price_rub.append(price_rub_round)
                 data = order['date']
                 new_date_20 = data + timedelta(days=20)
                 new_date_30 = data + timedelta(days=30)
@@ -928,13 +979,14 @@ async def order_user(callback: CallbackQuery):
                 month_name_en_30 = calendar.month_name[new_date_30.month]
                 month_name_ru_30 = months[month_name_en_30]
                 data_20.append(f'{new_date_20.day} {month_name_ru_20}')
-                data_30.append(f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года')
+                data_30.append(
+                    f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года')
                 order_info = '\n'.join(
-                    [f'---- Ссылка: <code>{u}</code>\nЦвет: <b>{c}</b> на сумму <b>{p}</b> юаней\nНомер заказа: <code>{o}</code>✅\nОжидаемая дата доставки: <b>{d_20} - {d_30}</b>\n' for o, u, c, p, d_20, d_30 in zip(orders, url, color, price, data_20, data_30)])
+                    [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
         await callback.message.edit_text(
             text=f"""Список ваших заказов:\n\n{order_info}""",
             parse_mode="HTML",
             reply_markup=menu_rare,
         )
     except:
-        logger.critical("Ошибка в кнопке заказов")
+        logger.critical("Ошибка в кнопке заказов", exc_info=True)

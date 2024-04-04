@@ -27,7 +27,7 @@ async def guide_poizon_1(callback: CallbackQuery, state: FSMContext):
         await state.set_state(FSMGuide.install_1)
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке гайда")
+        logger.critical("Ошибка в кнопке гайда", exc_info=True)
 
 #Гайд скачивания POIZON
 @router.callback_query(F.data == 'button_next', StateFilter(FSMGuide.install_1))
@@ -64,7 +64,7 @@ async def poizon(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMGuide.install_2)
     except:
-        logger.critical("Ошибка в гайд скачивания POIZON")
+        logger.critical("Ошибка в гайд скачивания POIZON", exc_info=True)
 
 
 # Хендлер по файлу POIZON
@@ -78,7 +78,7 @@ async def calculator_rate_value(callback: CallbackQuery):
             document=static.file_1,
         )
     except:
-        logger.critical("Ошибка в скачивании приложения POIZON")
+        logger.critical("Ошибка в скачивании приложения POIZON", exc_info=True)
 
 
 # Кнопка далее(Регистрация в пойзон)
@@ -97,7 +97,7 @@ async def guide_poizon_1(callback: CallbackQuery, state: FSMContext):
         await state.set_state(FSMGuide.install_3)
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в гайде регистрации")
+        logger.critical("Ошибка в гайде регистрации", exc_info=True)
 
 
 # Кнопка далее 2(Регистрация в пойзон)
@@ -125,7 +125,7 @@ async def guide_poizon_2(callback: CallbackQuery, state: FSMContext):
         await state.set_state(FSMGuide.search_1)
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в гайде регистрации 2")
+        logger.critical("Ошибка в гайде регистрации 2", exc_info=True)
 
 
 # Кнопка далее 3(Поиск модели)
@@ -157,7 +157,7 @@ async def guide_poizon_3(callback: CallbackQuery, state: FSMContext):
         await state.set_state(FSMGuide.size_1)
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в гайде поиска модели")
+        logger.critical("Ошибка в гайде поиска модели", exc_info=True)
 
 
 
@@ -186,7 +186,7 @@ async def guide_poizon_4(callback: CallbackQuery, state: FSMContext):
         await state.set_state(FSMGuide.reference)
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в гайде подбора размера")
+        logger.critical("Ошибка в гайде подбора размера", exc_info=True)
 
 
 # Кнопка далее 5 (Как найти ссылку)
@@ -212,5 +212,5 @@ async def guide_poizon_5(callback: CallbackQuery, state: FSMContext):
         await state.clear()
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в гайде поиска ссылки")
+        logger.critical("Ошибка в гайде поиска ссылки", exc_info=True)
 

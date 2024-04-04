@@ -22,7 +22,7 @@ async def recall(callback: CallbackQuery):
         logger.info(f"Пользователь {user} нажал на кнопку отзывы")
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке отзывы")
+        logger.critical("Ошибка в кнопке отзывы", exc_info=True)
 
 
 # Кнопка инструкция
@@ -40,7 +40,7 @@ async def instruction(callback: CallbackQuery):
         await callback.answer(show_alert=True)
         logger.debug('Вышли из инструкции')
     except:
-        logger.critical("Ошибка в кнопке инструкция")
+        logger.critical("Ошибка в кнопке инструкция", exc_info=True)
 
 
 # Кнопка курска юаня
@@ -71,7 +71,7 @@ async def course_yan(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке курса юаня")
+        logger.critical("Ошибка в кнопке курса юаня", exc_info=True)
 
 
 # Кнопка скама
@@ -87,7 +87,7 @@ async def skam(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке скама")
+        logger.critical("Ошибка в кнопке скама", exc_info=True)
 
 
 # Кнопка по создателю
@@ -102,7 +102,7 @@ async def create_bot(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
     except:
-        logger.critical("Ошибка в кнопке создатель")
+        logger.critical("Ошибка в кнопке создатель", exc_info=True)
 
 # Кнопка по вопросу
 @router.callback_query(F.data == 'question_client_botton')
@@ -116,7 +116,7 @@ async def create_bot(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
     except:
-        logger.critical("Ошибка в кнопке вопрос")
+        logger.critical("Ошибка в кнопке вопрос", exc_info=True)
 
 
 # # ехо файл
@@ -131,7 +131,7 @@ async def echo_file(message: Message, state: FSMContext):
 # файл id
 @router.message(FSMFile.file)
 async def file_id(message: Message, state: FSMContext):
-    logger.debug('Вошли в хендлер добавления курса юаня')
+    logger.debug('Вошли в хендлер добавления курса юаня', exc_info=True)
     file_id = message.document.file_id
     await message.answer(
         text=file_id

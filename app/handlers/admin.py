@@ -27,7 +27,7 @@ async def admin_panel(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке админ панель")
+        logger.critical("Ошибка в кнопке админ панель", exc_info=True)
 
 
 # Кнопка добовления курса юаня
@@ -54,7 +54,7 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
             await callback.answer(show_alert=True)
             await state.set_state(FSMCourse.course)
     except:
-        logger.critical("Ошибка в кнопке изменения курса юаня")
+        logger.critical("Ошибка в кнопке изменения курса юаня", exc_info=True)
 
 
 # Хендлер по добавлению курса юаня
@@ -74,7 +74,7 @@ async def calculator_rate_value(message: Message, state: FSMContext):
             await message.answer(
                 text="Введи пожалуйста курс числом а не словами")
     except:
-        logger.debug('Не получилось добавить курс')
+        logger.debug('Не получилось добавить курс', exc_info=True)
 
 
 # Кнопка рассылки
@@ -90,7 +90,7 @@ async def botton_mailing(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMMailing.mailing)
     except:
-        logger.debug('Ошибка в кнопке рассылки')
+        logger.debug('Ошибка в кнопке рассылки', exc_info=True)
 
 
 # Хендлер по рассылки
@@ -136,7 +136,7 @@ async def handler_mailing(message: Message, state: FSMContext):
                     text="Ты не правильно экранизировал символы или допустил ошибку, повтори еще раз"
                 )
     except:
-        logger.critical('Ошибка написание текста рассылки')
+        logger.critical('Ошибка написание текста рассылки', exc_info=True)
 
 
 
@@ -170,7 +170,7 @@ async def text_mailing(callback: CallbackQuery, state: FSMContext):
             await callback.answer(show_alert=True)
             await state.clear()
     except:
-        logger.debug('Ошибка отправки рассылки')
+        logger.debug('Ошибка отправки рассылки', exc_info=True)
 
 
 # Кнопка изменения текста
@@ -186,7 +186,7 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMMailing.mailing)
     except:
-        logger.debug('Ошибка в кнопке изменения текста')
+        logger.debug('Ошибка в кнопке изменения текста', exc_info=True)
 
 
 async def notification():

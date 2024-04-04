@@ -28,7 +28,7 @@ async def category_botton(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке категории")
+        logger.critical("Ошибка в кнопке категории", exc_info=True)
 
 
 # Кнопка повтора
@@ -44,7 +44,7 @@ async def repetition_buttons(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке повтора")
+        logger.critical("Ошибка в кнопке повтора", exc_info=True)
 
 
 # Кнопка кросовка
@@ -70,7 +70,7 @@ async def sneaks_button(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMSneakers.rate_sneakers)
     except:
-        logger.critical("Ошибка в кнопке кросовка")
+        logger.critical("Ошибка в кнопке кросовка", exc_info=True)
 
 
 # Хендлер по цене кросовок
@@ -99,7 +99,7 @@ async def calculator_rate_value(message: Message, state: FSMContext):
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка в калькуляторе кросовок")
+        logger.critical("Ошибка в калькуляторе кросовок", exc_info=True)
 
 
 # Кнопка пуховики
@@ -124,7 +124,7 @@ async def button_down_jacket(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMDownJacket.rate_down_jacket)
     except:
-        logger.critical("Ошибка в кнопке пуховиков ")
+        logger.critical("Ошибка в кнопке пуховиков", exc_info=True)
 
 
 # Хендлер по цене пуховики
@@ -153,7 +153,7 @@ async def calculator_down_jacket(message: Message, state: FSMContext):
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка в калькуляторе пуховиков ")
+        logger.critical("Ошибка в калькуляторе пуховиков", exc_info=True)
 
 
 # Кнопка Одежды
@@ -178,7 +178,7 @@ async def button_clothes(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMClothes.rate_clothes)
     except:
-        logger.critical("Ошибка в кнопке одежды")
+        logger.critical("Ошибка в кнопке одежды", exc_info=True)
 
 
 # Хендлер по цене одежды
@@ -207,7 +207,7 @@ async def calculator_clothes(message: Message, state: FSMContext):
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка калькуляторе одежды")
+        logger.critical("Ошибка калькуляторе одежды", exc_info=True)
 
 
 # Кнопка Украшения/духи/ковры
@@ -232,7 +232,7 @@ async def button_care(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMCare.rate_сare)
     except:
-        logger.critical("Ошибка кнопке украшений")
+        logger.critical("Ошибка кнопке украшений", exc_info=True)
 
 
 # Хендлер по цене Украшения/духи/ковры
@@ -261,7 +261,7 @@ async def calculator_rate_care(message: Message, state: FSMContext):
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                             parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка калькуляторе украшений")
+        logger.critical("Ошибка калькуляторе украшений", exc_info=True)
 
 
 # Кнопка аксессуары
@@ -276,4 +276,4 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
             reply_markup=update_calculator,)
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка кнопке аксессуары")
+        logger.critical("Ошибка кнопке аксессуары", exc_info=True)
