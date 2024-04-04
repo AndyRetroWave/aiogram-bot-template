@@ -6,7 +6,7 @@ kb_builder = InlineKeyboardBuilder()
 
 # Создаем объекты инлайн-кнопок
 menu_booton_basic = InlineKeyboardButton(
-    text='Назад в меню🎛',
+    text='Назад в меню🔙',
     callback_data='menu_booton_basic'
 )
 bot_botton = InlineKeyboardButton(
