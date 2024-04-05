@@ -858,7 +858,7 @@ async def order_confirmation(callback: CallbackQuery):
         username = await username_user_id_given(user_id)
         value = await course_today()
         user_link = f"https://t.me/{user.username}" if user.username else f"<code>{phone}</code> "
-        url, color, price, orders, shipping_cost, price_rub = [], [], [], [], [], []
+        url, color, price, orders, shipping_cost = [], [], [], [], []
         order_info = []
         if order_id:
             for order in order_id:
@@ -867,10 +867,8 @@ async def order_confirmation(callback: CallbackQuery):
                 color.append(order['color'])
                 price.append(order['price'])
                 shipping_cost_int = order['shipping_cost']
-                price_rub_round = round(
-                    value*order['price'] + order['shipping_cost'])
-                price_rub.append(int(price_rub_round))
                 shipping_cost.append(order['shipping_cost'])
+                price_rub_round = int(value*order['price'] + order['shipping_cost'])
                 addres = order['addres']
                 url_int = order['url']
                 color_int = order['color']
@@ -881,7 +879,7 @@ async def order_confirmation(callback: CallbackQuery):
                 date = order['date']
                 user_id = order['user_id']
                 order_info.append(
-                    f'---- Ссылка: <code>{url_int}</code>\nЦвет и размер: <b>{color_int}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub}</b> ₽\nСтоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders_int}</code>⚠\n'
+                    f'---- Ссылка: <code>{url_int}</code>\nЦвет и размер: <b>{color_int}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub_round}</b> ₽\nСтоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders_int}</code>⚠\n'
                 )
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 price_rub = (price_int*value)+shipping_cost_int

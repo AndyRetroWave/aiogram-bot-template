@@ -14,7 +14,7 @@ bot_botton = InlineKeyboardButton(
     callback_data='bot_botton'
 )
 menu_booton = InlineKeyboardButton(
-    text='Меню🎛',
+    text='Назад в меню🔙',
     callback_data='menu_booton'
 )
 button_сalculator = InlineKeyboardButton(
@@ -184,11 +184,11 @@ order = InlineKeyboardMarkup(
 )
 # Калькулятор
 calculator_update = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [menu_booton_basic]]
+    inline_keyboard=[[button_сalculator], [button_orders], [menu_booton_basic]]
 )
 # Повтор расчета
 update_calculator = InlineKeyboardMarkup(
-    inline_keyboard=[[button_update_count], [menu_booton_basic]]
+    inline_keyboard=[[button_update_count], [button_orders], [menu_booton_basic]]
 )
 # Гайд по poizon
 frequent_questions = InlineKeyboardMarkup(
