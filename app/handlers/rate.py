@@ -1,4 +1,5 @@
 import logging
+import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
@@ -10,7 +11,7 @@ from app.models.course.dao import course_today
 from app.states.states import FSMCare, FSMClothes, FSMSneakers, FSMDownJacket
 from app.static.images import static
 from aiogram.fsm.state import default_state
-from config.config import bot, logger
+from config.config import settings, bot, logger
 
 router = Router()
 
@@ -27,8 +28,11 @@ async def category_botton(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке категории", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке категория для калькулятара', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке категория для калькулятара:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка повтора
@@ -43,8 +47,11 @@ async def repetition_buttons(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке повтора", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке повтора для калькулятара', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке повтора для калькулятара:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка кросовка
@@ -69,8 +76,11 @@ async def sneaks_button(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMSneakers.rate_sneakers)
-    except:
-        logger.critical("Ошибка в кнопке кросовка", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке кросовка в калькуляторе', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кросовка в калькуляторе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по цене кросовок
@@ -98,8 +108,11 @@ async def calculator_rate_value(message: Message, state: FSMContext):
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
-    except:
-        logger.critical("Ошибка в калькуляторе кросовок", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере кросовок в калькулятореа', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере кросовок в калькуляторе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка пуховики
@@ -123,8 +136,11 @@ async def button_down_jacket(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMDownJacket.rate_down_jacket)
-    except:
-        logger.critical("Ошибка в кнопке пуховиков", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке пуховики в калькуляторе', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке пуховики в калькуляторе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по цене пуховики
@@ -152,8 +168,11 @@ async def calculator_down_jacket(message: Message, state: FSMContext):
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
-    except:
-        logger.critical("Ошибка в калькуляторе пуховиков", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере цены пуховиков в калькуляторе', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере цены пуховиков в калькуляторе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка Одежды
@@ -177,8 +196,12 @@ async def button_clothes(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMClothes.rate_clothes)
-    except:
-        logger.critical("Ошибка в кнопке одежды", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке одежды для калькулятора', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке одежды для калькулятора:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
 
 
 # Хендлер по цене одежды
@@ -206,9 +229,11 @@ async def calculator_clothes(message: Message, state: FSMContext):
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                 parse_mode='MarkdownV2')
-    except:
-        logger.critical("Ошибка калькуляторе одежды", exc_info=True)
-
+    except Exception as e:
+        logger.critical('Ошибка хендлере одежды для калькулятора', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере одежды для калькулятора:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка Украшения/духи/ковры
 @router.callback_query(F.data == 'button_care', StateFilter(default_state))
@@ -231,9 +256,11 @@ async def button_care(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMCare.rate_сare)
-    except:
-        logger.critical("Ошибка кнопке украшений", exc_info=True)
-
+    except Exception as e:
+        logger.critical('Ошибка кнопке украшений для калькулятора', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке украшений для калькулятора:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Хендлер по цене Украшения/духи/ковры
 @router.message(StateFilter(FSMCare.rate_сare))
@@ -260,8 +287,12 @@ async def calculator_rate_care(message: Message, state: FSMContext):
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                             parse_mode='MarkdownV2')
-    except:
-        logger.critical("Ошибка калькуляторе украшений", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка кнопке украшений для калькулятора', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке украшений для калькулятора:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
 
 
 # Кнопка аксессуары
@@ -275,5 +306,8 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
             parse_mode='MarkdownV2',
             reply_markup=update_calculator,)
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка кнопке аксессуары", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка кнопке аксессуары для калькулятора', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке аксессуары для калькулятора:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)

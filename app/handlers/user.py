@@ -1,3 +1,4 @@
+import traceback
 from aiogram import Router, types, F
 from aiogram.types import CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
@@ -53,8 +54,11 @@ async def start(message: types.Message, state: FSMContext):
                                     reply_markup=meny,
                                     parse_mode='MarkdownV2')
                 await state.clear()
-    except:
-        logger.critical("Ошибка в старте проекта", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в старте проекта', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'старта проекта:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка меню всплывающая
@@ -85,8 +89,11 @@ async def start(callback: CallbackQuery, state: FSMContext):
                                     reply_markup=meny,
                                     parse_mode='MarkdownV2')
                 await state.clear()
-    except:
-        logger.critical('Ошибка в кнопке меню', exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке меню всплывающая', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке меню всплывающая:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка меню оснв
@@ -122,5 +129,8 @@ async def start(callback: CallbackQuery, state: FSMContext):
                     reply_markup=meny,
                     parse_mode='MarkdownV2')
                 await state.clear()
-    except:
-        logger.critical("Ошибка в кнопке меню", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке меню основная', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке меню основная:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)

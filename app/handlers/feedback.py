@@ -1,10 +1,11 @@
+import traceback
 from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.filters.filters import photo, file
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import calculator_update, meny_admin
 from app.models.course.dao import add_course, course_today
-from config.config import logger
+from config.config import settings, logger
 from app.states.states import FSMCourse, FSMFile, FSMPhoto
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
@@ -21,8 +22,12 @@ async def recall(callback: CallbackQuery):
         user = callback.from_user.username
         logger.info(f"Пользователь {user} нажал на кнопку отзывы")
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке отзывы", exc_info=True)
+    except Exception as e:
+        logger.critical(
+            'Ошибка кнопке отзывы', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке далее(Регистрация в пойзон):\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка инструкция
@@ -39,8 +44,12 @@ async def instruction(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
         logger.debug('Вышли из инструкции')
-    except:
-        logger.critical("Ошибка в кнопке инструкция", exc_info=True)
+    except Exception as e:
+        logger.critical(
+            'Ошибка кнопке инструкция', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке инструкция:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка курска юаня
@@ -70,24 +79,12 @@ async def course_yan(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке курса юаня", exc_info=True)
-
-
-# Кнопка скама
-@router.callback_query(F.data == 'button_skam')
-async def skam(callback: CallbackQuery):
-    try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку скама")
-        await callback.message.edit_text(
-            text=LEXICON_RU["Скам"],
-            reply_markup=calculator_update,
-            parse_mode='MarkdownV2'
-        )
-        await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке скама", exc_info=True)
+    except Exception as e:
+        logger.critical(
+            'Ошибка кнопке курса юаня', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке курса юаня:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка по создателю
@@ -103,6 +100,9 @@ async def create_bot(callback: CallbackQuery):
         )
     except:
         logger.critical("Ошибка в кнопке создатель", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке создатель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка по вопросу
 @router.callback_query(F.data == 'question_client_botton')
@@ -117,7 +117,9 @@ async def create_bot(callback: CallbackQuery):
         )
     except:
         logger.critical("Ошибка в кнопке вопрос", exc_info=True)
-
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке вопрос:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # # ехо файл
 @router.message(file, StateFilter(default_state))

@@ -1,6 +1,7 @@
 from datetime import timedelta
 import random
 import re
+import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
@@ -9,12 +10,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
 from app.models.order.dao import *
-from app.states.states import FSMAdress, FSMDeleteorder, FSMOrders
+from app.states.states import FSMDeleteorder, FSMOrders
 from aiogram.fsm.state import default_state
-from config.config import bot, logger
+from config.config import settings, bot, logger
 from app.static.images import static
 import calendar
-import datetime
 from app.api.response_rate import months
 
 router = Router()
@@ -32,9 +32,11 @@ async def category_botton_order(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке заказа", exc_info=True)
-
+    except Exception as e:
+        logger.critical('Ошибка в кнопке заказа', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке заказа:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка добавить заказ
 @router.callback_query(F.data == 'add_order_botton')
@@ -48,8 +50,11 @@ async def category_botton_order_new(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке заказа", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке добавить заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке добавить заказ:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка повтора заказа
@@ -64,11 +69,15 @@ async def category_botton_order(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка в кнопке заказа", exc_info=True)
-
+    except Exception as e:
+        logger.critical('Ошибка в кнопке повторить заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке повторить заказ:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка кросовка
+
+
 @router.callback_query(F.data == 'button_snecers_order', StateFilter(default_state))
 async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
     try:
@@ -90,8 +99,11 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_snecers)
-    except:
-        logger.critical("Ошибка в кнопке кросовка в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке кросовка', exc_info=True, stack_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кросовка:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по цене кросовок
@@ -115,9 +127,11 @@ async def calculator_rate_value_order(message: Message, state: FSMContext):
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
-    except:
-        logger.critical(
-            "Ошибка в калькуляторе кросовок в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере цены кросовок', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере цены кросовок:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка Одежды
@@ -142,8 +156,11 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_clothe)
-    except:
-        logger.critical("Ошибка в кнопке одежды в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке одежды для заказа', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке одежды для заказа:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по цене одежды
@@ -166,12 +183,16 @@ async def calculator_rate_value_order_clothed(message: Message, state: FSMContex
             )
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
-                                 parse_mode='MarkdownV2')
-    except:
-        logger.critical("Ошибка в калькуляторе одежды в заказе", exc_info=True)
-
+                                parse_mode='MarkdownV2')
+    except Exception as e:
+        logger.critical('Ошибка в хендлере цены одежды', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере цены одежды:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка Пуховики
+
+
 @router.callback_query(F.data == 'button_down_jacket_order', StateFilter(default_state))
 async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
     try:
@@ -193,8 +214,11 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_jacket)
-    except:
-        logger.critical("Ошибка в кнопке пуховиков в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе пуховики в заказе', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке пуховики в заказе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по цене пуховиков
@@ -217,13 +241,16 @@ async def calculator_rate_value_order_jacket(message: Message, state: FSMContext
             )
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
-                                 parse_mode='MarkdownV2')
-    except:
-        logger.critical(
-            "Ошибка в калькуляторе пуховиков в заказе", exc_info=True)
-
+                                parse_mode='MarkdownV2')
+    except Exception as e:
+        logger.critical('Ошибка в хендлере цены пуховиков', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере цены пуховиков:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка Пуховики
+
+
 @router.callback_query(F.data == 'button_care_order', StateFilter(default_state))
 async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
     try:
@@ -245,8 +272,11 @@ async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_clothe)
-    except:
-        logger.critical("Ошибка в кнопке пуховиков в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке пуховик в заказе', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке пуховик в заказе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка аксессуары
@@ -269,8 +299,11 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
                 parse_mode='MarkdownV2',
                 reply_markup=meny,)
             await callback.answer(show_alert=True)
-    except:
-        logger.critical("Ошибка кнопке аксессуары", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе кнопке аксессуары в заказе', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке аксессуары в заказе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по ссылки на товар
@@ -279,15 +312,22 @@ async def url_order(message: Message, state: FSMContext):
     try:
         user = message.from_user.username
         logger.info(f"Пользователь {user} вписал ссылку на товар в заказе")
-        url = message.text
+        text = message.text
+        try:
+            url = re.search(r'https?://\S+', text).group(0)
+            await state.update_data({"url": url})
+        except:
+            await state.update_data({"url": text})
         await message.answer(
             text=LEXICON_RU["Размер товара"],
             parse_mode='MarkdownV2'
         )
-        await state.update_data({"url": url})
         await state.set_state(FSMOrders.color)
-    except:
-        logger.critical("Ошибка ссылки в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'ссылки на товар в заказе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по Номеру телефона
@@ -309,12 +349,15 @@ async def phone_order(message: Message, state: FSMContext):
             await state.set_state(FSMOrders.name)
         except:
             await message.answer(text=LEXICON_RU["Введите правильно номер"],
-                                 parse_mode='MarkdownV2')
+                                parse_mode='MarkdownV2')
             logger.info(
                 f"Пользователь {user} совершил ошибку в номере телефона")
         await state.update_data({"phone": phone})
-    except:
-        logger.critical("Ошибка ссылки в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'ввода номера телефона в заказе:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по ФИО
@@ -330,9 +373,11 @@ async def phone_order(message: Message, state: FSMContext):
         )
         await state.update_data({"username": username})
         await state.set_state(FSMOrders.penza)
-
-    except:
-        logger.critical("Ошибка ссылки в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе ФИО в заказе', exc_info=True)
+        error_message =LEXICON_RU["Ошибка"] + \
+            f'ФИО в заказе:\n{str(e)}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по адрусу пензы и итого по первому заказу для клиента ИТОГО
@@ -364,8 +409,7 @@ async def phone_order(message: Message, state: FSMContext):
                 return f'{new_date.day} {month_name_ru} {new_date.year} года'
             else:
                 return f'{new_date.day} {month_name_ru}'
-
-        date = await data_order_save(user_id)
+        date = await data_order(user_id)
         new_dates = [get_new_date(date, days) for days in [20, 30]]
         new_date_20_formatted, new_date_30_formatted = new_dates
         color = []
@@ -384,7 +428,7 @@ async def phone_order(message: Message, state: FSMContext):
                 value*order['price'] + order['shipping_cost'])
             price_rub.append(price_rub_round)
             order_info = '\n'.join(
-                [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
         total_price = round(sum(price)*value + sum(shipping_cost))
         await bot.send_message(
             chat_id=message.from_user.id,
@@ -412,8 +456,11 @@ _______________________\n
             reply_markup=order_botton,
         )
         await state.clear()
-    except:
-        logger.critical("Ошибка адреса в заказе ", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере по адрусу пензы и итого по первому заказу для клиента', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хенедере по адрусу пензы и итого по первому заказу для клиента:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по цвету и размеру и по вывода итого если пользователь уже оформлял заказы ИТОГО
@@ -451,8 +498,7 @@ async def color_order(message: Message, state: FSMContext):
                     return f'{new_date.day} {month_name_ru} {new_date.year} года'
                 else:
                     return f'{new_date.day} {month_name_ru}'
-
-            date = await data_order_save(user_id)
+            date = await data_order(user_id)
             new_dates = [get_new_date(date, days) for days in [20, 30]]
             new_date_20_formatted, new_date_30_formatted = new_dates
             color = []
@@ -471,7 +517,7 @@ async def color_order(message: Message, state: FSMContext):
                     value*order['price'] + order['shipping_cost'])
                 price_rub.append(price_rub_round)
                 order_info = '\n'.join(
-                    [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                    [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
             total_price = round(sum(price)*value + sum(shipping_cost))
             await state.clear()
             await message.answer(
@@ -504,8 +550,11 @@ _______________________\n
                 parse_mode='MarkdownV2'
             )
             await state.set_state(FSMOrders.phone)
-    except:
-        logger.critical("Ошибка ссылки в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хенедере по цвету и размеру и по вывода итого если пользователь уже оформлял заказы', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хенедере по цвету и размеру и по вывода итого если пользователь уже оформлял заказы:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер кнопки по изменению Номера телефона
@@ -521,8 +570,11 @@ async def phone_order(callback: CallbackQuery, state: FSMContext):
             parse_mode='MarkdownV2'
         )
         await state.set_state(FSMOrders.phone_modify)
-    except:
-        logger.critical("Ошибка ссылки в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопке изменения номера телефона', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке изменения номера телефона:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по изменению Номера телефона
@@ -552,11 +604,14 @@ async def phone_order_modify(message: Message, state: FSMContext):
             await state.update_data({"phone": phone})
         except:
             await message.answer(text=LEXICON_RU["Введите правильно номер"],
-                                 parse_mode='MarkdownV2')
+                                parse_mode='MarkdownV2')
             logger.info(
                 f"Пользователь {user} совершил ошибку в  изменение номера телефона")
-    except:
-        logger.critical("Ошибка изменения номера телефона", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере изменения номера телефона', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере изменения номера телефона:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по изменения ФИО
@@ -576,8 +631,11 @@ async def phone_order_modify(message: Message, state: FSMContext):
         username = await username_user_id_given(user_id)
         await state.update_data({"username": username})
         await state.set_state(FSMOrders.adress_modify)
-    except:
-        logger.critical("Ошибка ссылки в заказе", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере изменения ФИО', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере изменения ФИО:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по измененному адрусу пензы и итого по первому заказу для клиента ИТОГО
@@ -606,7 +664,7 @@ async def phone_order(message: Message, state: FSMContext):
             else:
                 return f'{new_date.day} {month_name_ru}'
 
-        date = await data_order_save(user_id)
+        date = await data_order(user_id)
         new_dates = [get_new_date(date, days) for days in [20, 30]]
         new_date_20_formatted, new_date_30_formatted = new_dates
         color = []
@@ -625,7 +683,7 @@ async def phone_order(message: Message, state: FSMContext):
                 value*order['price'] + order['shipping_cost'])
             price_rub.append(price_rub_round)
             order_info = '\n'.join(
-                [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
         total_price = round(sum(price)*value + sum(shipping_cost))
         await bot.send_message(
             chat_id=message.from_user.id,
@@ -653,8 +711,11 @@ _______________________\n
             reply_markup=order_botton,
         )
         await state.clear()
-    except:
-        logger.critical("Ошибка адреса в заказе ", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хенедере по измененному адрусу пензы и итого по первому заказу для клиента:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка удалить заказ
@@ -670,8 +731,11 @@ async def category_botton_order(callback: CallbackQuery, state: FSMContext):
             parse_mode='MarkdownV2'
         )
         await state.set_state(FSMDeleteorder.delete)
-    except:
-        logger.critical("Ошибка в кнопке удаления заказа", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе удалить заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'удалить заказ:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хенедер по удалению заказа итого по заказам ИТОГО
@@ -705,8 +769,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         return f'{new_date.day} {month_name_ru} {new_date.year} года'
                     else:
                         return f'{new_date.day} {month_name_ru}'
-
-                date = await data_order_save(user_id)
+                date = await data_order(user_id)
                 new_dates = [get_new_date(date, days) for days in [20, 30]]
                 new_date_20_formatted, new_date_30_formatted = new_dates
                 for order in order_id:
@@ -719,7 +782,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
                     order_info = '\n'.join(
-                        [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                        [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 await bot.send_message(
                     chat_id=message.from_user.id,
@@ -759,8 +822,13 @@ _______________________\n
             await bot.send_message(
                 chat_id=user_id,
                 text="Введите номер заказа числом, а не буквами")
-    except:
-        logger.critical("Ошибка в удаленном заказе ", exc_info=True)
+        logger.info(
+            "Пользователь неправильно ввел номер удаления заказа", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в хендлере удалить заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'хендлере удалить заказ:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка Корзины
@@ -786,8 +854,7 @@ async def basket(callback: CallbackQuery):
                     return f'{new_date.day} {month_name_ru} {new_date.year} года'
                 else:
                     return f'{new_date.day} {month_name_ru}'
-
-            date = await data_order_save(user_id)
+            date = await data_order(user_id)
             new_dates = [get_new_date(date, days) for days in [20, 30]]
             new_date_20_formatted, new_date_30_formatted = new_dates
             color = []
@@ -807,7 +874,7 @@ async def basket(callback: CallbackQuery):
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
                     order_info = '\n'.join(
-                        [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                        [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 await callback.message.edit_text(
                     text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
@@ -841,8 +908,11 @@ _______________________\n
                 parse_mode='MarkdownV2',
             )
         callback.answer()
-    except:
-        logger.critical("Ошибка в кнопке корзины ", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в кнопе корзины', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке корзины:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка подверждения заказа
@@ -868,7 +938,8 @@ async def order_confirmation(callback: CallbackQuery):
                 price.append(order['price'])
                 shipping_cost_int = order['shipping_cost']
                 shipping_cost.append(order['shipping_cost'])
-                price_rub_round = int(value*order['price'] + order['shipping_cost'])
+                price_rub_round = int(
+                    value*order['price'] + order['shipping_cost'])
                 addres = order['addres']
                 url_int = order['url']
                 color_int = order['color']
@@ -879,7 +950,7 @@ async def order_confirmation(callback: CallbackQuery):
                 date = order['date']
                 user_id = order['user_id']
                 order_info.append(
-                    f'---- Ссылка: <code>{url_int}</code>\nЦвет и размер: <b>{color_int}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub_round}</b> ₽\nСтоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders_int}</code>⚠\n'
+                    f'---- Ссылка: {url_int}\nЦвет и размер: <b>{color_int}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub_round}</b> ₽\nСтоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders_int}</code>⚠\n'
                 )
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 price_rub = (price_int*value)+shipping_cost_int
@@ -911,7 +982,7 @@ async def order_confirmation(callback: CallbackQuery):
                 await bot.send_message(
                     chat_id=6983025115,
                     text=f"""Был оформлен новый заказ!\n
-Если нет ссылки на покупателя, то он либо скрыл ник либо не вводил, вот его номер телефона: {user_link}\n
+У клинента нет НИКа, вот его номер телефона: {user_link}\n
 Заказ: {order_info}
 Данные пользователя:
 <b>{addres}
@@ -938,9 +1009,11 @@ async def order_confirmation(callback: CallbackQuery):
 <b>Если клиент не отправил денег, удали заказ через админку!</b>
 """,
                     parse_mode="HTML")
-    except:
-        logger.critical("Ошибка в кнопке подтверждения заказ", exc_info=True)
-
+    except Exception as e:
+        logger.critical('Ошибка в кнопе заказ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'подтвердить заказ:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Ваш заказ
 @router.callback_query(F.data == 'order_client_botton')
@@ -951,6 +1024,9 @@ async def order_user(callback: CallbackQuery):
         user_id = user.id
         logger.info(f"Пользователь {user} нажал на свои заказы")
         order_id = await order_user_id_all_save(user_id)
+        addres = []
+        phone = []
+        username = []
         orders = []
         url = []
         color = []
@@ -965,9 +1041,12 @@ async def order_user(callback: CallbackQuery):
                 url.append(order['url'])
                 color.append(order['color'])
                 price.append(order['price'])
-                price.append(order['price'])
+                addres.append(order['addres'])
+                phone.append(order['phone'])
+                username.append(order['name'])
                 shipping_cost.append(order['shipping_cost'])
-                price_rub_round=round(value*order['price'] + order['shipping_cost'])
+                price_rub_round = round(
+                    value*order['price'] + order['shipping_cost'])
                 price_rub.append(price_rub_round)
                 data = order['date']
                 new_date_20 = data + timedelta(days=20)
@@ -980,11 +1059,15 @@ async def order_user(callback: CallbackQuery):
                 data_30.append(
                     f'{new_date_30.day} {month_name_ru_30} {new_date_30.year} года')
                 order_info = '\n'.join(
-                    [f'---- Ссылка: <code>{u}</code>\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                    [f"""---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽
+Стоимость доставки составило: <b>{s}</b> ₽\nПримерная дата доставки: <b>{d_20} - {d_30}</b>\nДанные получателя:\n<b>{name}\n{ph}\n{adr}</b>\nНомер заказа: <code>{o}</code>⚠\n""" for o, u, c, p, r, s, d_20, d_30, name, ph, adr in zip(orders, url, color, price, price_rub, shipping_cost, data_20, data_30, username, phone, addres)])
         await callback.message.edit_text(
             text=f"""Список ваших заказов:\n\n{order_info}""",
             parse_mode="HTML",
             reply_markup=menu_rare,
         )
-    except:
-        logger.critical("Ошибка в кнопке заказов", exc_info=True)
+    except Exception as e:
+        logger.critical('Ошибка в подтверждение заказа', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'ваш заказ:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)

@@ -1,10 +1,11 @@
+import traceback
 from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import meny_admin, admin, mailing_botton
 from app.models.course.dao import add_course, course_today
 from app.models.users.dao import all_user
-from config.config import logger
+from config.config import settings, logger
 from app.states.states import FSMCourse, FSMMailing
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
@@ -28,14 +29,19 @@ async def admin_panel(callback: CallbackQuery):
         await callback.answer(show_alert=True)
     except:
         logger.critical("Ошибка в кнопке админ панель", exc_info=True)
-
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка добовления курса юаня
+
+
 @router.callback_query(F.data == 'add_course_botton', StateFilter(default_state))
 async def add_course_yan(callback: CallbackQuery, state: FSMContext):
     try:
         user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку изменения курса юаня")
+        logger.info(
+            f"Пользователь {user} нажал на кнопку изменения курса юаня")
         try:
             value = await course_today()
             formatted_num = "{}\\.{}".format(
@@ -55,6 +61,9 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
             await state.set_state(FSMCourse.course)
     except:
         logger.critical("Ошибка в кнопке изменения курса юаня", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке изменения курса юаня:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по добавлению курса юаня
@@ -74,7 +83,10 @@ async def calculator_rate_value(message: Message, state: FSMContext):
             await message.answer(
                 text="Введи пожалуйста курс числом а не словами")
     except:
-        logger.debug('Не получилось добавить курс', exc_info=True)
+        logger.critical('Не получилось добавить курс', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'Не получилось добавить курс:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка рассылки
@@ -90,10 +102,14 @@ async def botton_mailing(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMMailing.mailing)
     except:
-        logger.debug('Ошибка в кнопке рассылки', exc_info=True)
-
+        logger.critical('Ошибка в кнопке рассылки', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке рассылки:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Хендлер по рассылки
+
+
 @router.message(StateFilter(FSMMailing.mailing))
 async def handler_mailing(message: Message, state: FSMContext):
     try:
@@ -133,11 +149,13 @@ async def handler_mailing(message: Message, state: FSMContext):
                 await state.set_state(FSMMailing.mailing2)
         except:
             await message.answer(
-                    text="Ты не правильно экранизировал символы или допустил ошибку, повтори еще раз"
-                )
+                text="Ты не правильно экранизировал символы или допустил ошибку, повтори еще раз"
+            )
     except:
         logger.critical('Ошибка написание текста рассылки', exc_info=True)
-
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке рассылки:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер по рассылки
@@ -170,10 +188,14 @@ async def text_mailing(callback: CallbackQuery, state: FSMContext):
             await callback.answer(show_alert=True)
             await state.clear()
     except:
-        logger.debug('Ошибка отправки рассылки', exc_info=True)
-
+        logger.critical('Ошибка отправки рассылки', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'отправки рассылки:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка изменения текста
+
+
 @router.callback_query(F.data == 'button_modify')
 async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
     try:
@@ -186,8 +208,10 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMMailing.mailing)
     except:
-        logger.debug('Ошибка в кнопке изменения текста', exc_info=True)
-
+        logger.critical('Ошибка в кнопке изменения текста', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке изменения текста:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 async def notification():
     await bot.send_message(chat_id=538383620, text='Доброе утро! Пора обновлять курс юаня!', reply_markup=admin)
