@@ -39,6 +39,8 @@ async def category_botton_order(callback: CallbackQuery):
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # Кнопка добавить заказ
+
+
 @router.callback_query(F.data == 'add_order_botton')
 async def category_botton_order_new(callback: CallbackQuery):
     try:
@@ -100,7 +102,8 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMOrders.price_snecers)
     except Exception as e:
-        logger.critical('Ошибка в кнопке кросовка', exc_info=True, stack_info=True)
+        logger.critical('Ошибка в кнопке кросовка',
+                        exc_info=True, stack_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке кросовка:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
@@ -183,7 +186,7 @@ async def calculator_rate_value_order_clothed(message: Message, state: FSMContex
             )
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
-                                parse_mode='MarkdownV2')
+                                 parse_mode='MarkdownV2')
     except Exception as e:
         logger.critical('Ошибка в хендлере цены одежды', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
@@ -241,7 +244,7 @@ async def calculator_rate_value_order_jacket(message: Message, state: FSMContext
             )
         except ValueError:
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
-                                parse_mode='MarkdownV2')
+                                 parse_mode='MarkdownV2')
     except Exception as e:
         logger.critical('Ошибка в хендлере цены пуховиков', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
@@ -300,7 +303,8 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
                 reply_markup=meny,)
             await callback.answer(show_alert=True)
     except Exception as e:
-        logger.critical('Ошибка в кнопе кнопке аксессуары в заказе', exc_info=True)
+        logger.critical(
+            'Ошибка в кнопе кнопке аксессуары в заказе', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке аксессуары в заказе:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
@@ -349,7 +353,7 @@ async def phone_order(message: Message, state: FSMContext):
             await state.set_state(FSMOrders.name)
         except:
             await message.answer(text=LEXICON_RU["Введите правильно номер"],
-                                parse_mode='MarkdownV2')
+                                 parse_mode='MarkdownV2')
             logger.info(
                 f"Пользователь {user} совершил ошибку в номере телефона")
         await state.update_data({"phone": phone})
@@ -375,7 +379,7 @@ async def phone_order(message: Message, state: FSMContext):
         await state.set_state(FSMOrders.penza)
     except Exception as e:
         logger.critical('Ошибка в кнопе ФИО в заказе', exc_info=True)
-        error_message =LEXICON_RU["Ошибка"] + \
+        error_message = LEXICON_RU["Ошибка"] + \
             f'ФИО в заказе:\n{str(e)}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
@@ -397,7 +401,7 @@ async def phone_order(message: Message, state: FSMContext):
         username = (await state.get_data())['username']
         shipping_cost = (await state.get_data())['shipping_cost']
         order = random.randint(1000000, 9999999)
-        await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
+        await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost, value)
         await add_diven_user(addres, phone, username, user_id)
         order_id = await order_user_id_all(user_id)
 
@@ -442,8 +446,9 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
+Приблизительная дата доставки: </b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
@@ -457,7 +462,8 @@ _______________________\n
         )
         await state.clear()
     except Exception as e:
-        logger.critical('Ошибка в хендлере по адрусу пензы и итого по первому заказу для клиента', exc_info=True)
+        logger.critical(
+            'Ошибка в хендлере по адрусу пензы и итого по первому заказу для клиента', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'хенедере по адрусу пензы и итого по первому заказу для клиента:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
@@ -533,6 +539,7 @@ async def color_order(message: Message, state: FSMContext):
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
 Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
@@ -551,7 +558,8 @@ _______________________\n
             )
             await state.set_state(FSMOrders.phone)
     except Exception as e:
-        logger.critical('Ошибка в хенедере по цвету и размеру и по вывода итого если пользователь уже оформлял заказы', exc_info=True)
+        logger.critical(
+            'Ошибка в хенедере по цвету и размеру и по вывода итого если пользователь уже оформлял заказы', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'хенедере по цвету и размеру и по вывода итого если пользователь уже оформлял заказы:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
@@ -571,7 +579,8 @@ async def phone_order(callback: CallbackQuery, state: FSMContext):
         )
         await state.set_state(FSMOrders.phone_modify)
     except Exception as e:
-        logger.critical('Ошибка в кнопке изменения номера телефона', exc_info=True)
+        logger.critical(
+            'Ошибка в кнопке изменения номера телефона', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке изменения номера телефона:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
@@ -604,11 +613,12 @@ async def phone_order_modify(message: Message, state: FSMContext):
             await state.update_data({"phone": phone})
         except:
             await message.answer(text=LEXICON_RU["Введите правильно номер"],
-                                parse_mode='MarkdownV2')
+                                 parse_mode='MarkdownV2')
             logger.info(
                 f"Пользователь {user} совершил ошибку в  изменение номера телефона")
     except Exception as e:
-        logger.critical('Ошибка в хендлере изменения номера телефона', exc_info=True)
+        logger.critical(
+            'Ошибка в хендлере изменения номера телефона', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'хендлере изменения номера телефона:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
@@ -698,7 +708,8 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
 Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+⚠️Мы выкупаем товар в течение 18 часов после оплаты.
+❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
@@ -798,6 +809,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
 Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
@@ -888,7 +900,95 @@ async def basket(callback: CallbackQuery):
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
 Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
+⚠️Мы выкупаем товар в течение 18 часов после оплаты.
+❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
+Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
+
+_______________________
+Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
+<code>79530203476</code> Тиньков! Рябов П.
+_______________________\n
+Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
+<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
+Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
+                    parse_mode='HTML',
+                    reply_markup=order_botton,
+                )
+                callback.answer()
+        else:
+            await callback.answer(
+                text=LEXICON_RU["Корзина"],
+                reply_markup=order_botton_one,
+                parse_mode='MarkdownV2',
+            )
+        callback.answer()
+    except Exception as e:
+        logger.critical('Ошибка в кнопе корзины', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке корзины:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+# кнопка обновить корзину
+@router.callback_query(F.data == 'upgrate_botton')
+async def basket(callback: CallbackQuery):
+    try:
+        user = callback.from_user.username
+        user_id = callback.from_user.id
+        logger.info(
+            f"Пользователь {user} нажал на кнопку корзины")
+        value = await course_today()
+        order_id = await order_user_id_all(user_id)
+        addres = await addres_user_id_given(user_id)
+        phone = await phone_user_id_given(user_id)
+        username = await username_user_id_given(user_id)
+        await modify_date_order_id(user_id)
+        date = await order_user_id_date(user_id)
+        if date:
+            def get_new_date(date, days):
+                new_date = date + timedelta(days=days)
+                month_name_en = calendar.month_name[new_date.month]
+                month_name_ru = months[month_name_en]
+                if days == 30:
+                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
+                else:
+                    return f'{new_date.day} {month_name_ru}'
+            date = await data_order(user_id)
+            new_dates = [get_new_date(date, days) for days in [20, 30]]
+            new_date_20_formatted, new_date_30_formatted = new_dates
+            color = []
+            orders = []
+            url = []
+            price = []
+            shipping_cost = []
+            price_rub = []
+            if order_id:
+                for order in order_id:
+                    orders.append(order['order'])
+                    url.append(order['url'])
+                    color.append(order['color'])
+                    price.append(order['price'])
+                    shipping_cost.append(order['shipping_cost'])
+                    price_rub_round = round(
+                        value*order['price'] + order['shipping_cost'])
+                    price_rub.append(price_rub_round)
+                    order_info = '\n'.join(
+                        [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
+                total_price = round(sum(price)*value + sum(shipping_cost))
+                await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+                await callback.message.answer(
+                    text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
+В заказе товары:\n
+{order_info}
+Курс юаня к рублю <b>{value}</b>🇨🇳\n
+<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
+🏡 Отправим ваш заказ по адресу:
+<b>{addres}</b>
+<b>{username}</b>
+<b>{phone}</b>
+Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
+❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
 _______________________
 Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
@@ -928,38 +1028,37 @@ async def order_confirmation(callback: CallbackQuery):
         username = await username_user_id_given(user_id)
         value = await course_today()
         user_link = f"https://t.me/{user.username}" if user.username else f"<code>{phone}</code> "
-        url, color, price, orders, shipping_cost = [], [], [], [], []
+        price, shipping_cost = [], []
         order_info = []
         if order_id:
             for order in order_id:
-                orders.append(order['order'])
-                url.append(order['url'])
-                color.append(order['color'])
                 price.append(order['price'])
                 shipping_cost_int = order['shipping_cost']
                 shipping_cost.append(order['shipping_cost'])
                 price_rub_round = int(
                     value*order['price'] + order['shipping_cost'])
                 addres = order['addres']
-                url_int = order['url']
-                color_int = order['color']
+                url = order['url']
+                color = order['color']
                 price_int = order['price']
                 phone = order['phone']
                 name = order['name']
-                orders_int = order['order']
+                orders = order['order']
                 date = order['date']
                 user_id = order['user_id']
                 order_info.append(
-                    f'---- Ссылка: {url_int}\nЦвет и размер: <b>{color_int}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub_round}</b> ₽\nСтоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders_int}</code>⚠\n'
+                    f"""---- Ссылка: {url}\nЦвет и размер: <b>{color}</b> на сумму <b>{price_int}</b> юаней\nЦена с доставкой: <b>{price_rub_round}</b> ₽
+Стоимость доставки составило: <b>{shipping_cost_int}</b> ₽\nНомер заказа: <code>{orders}</code>⚠\n"""
                 )
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 price_rub = (price_int*value)+shipping_cost_int
                 if user_link.startswith("<code>7"):
                     user_link_phone = phone
-                    await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, user_id, shipping_cost_int, user_link_phone, price_rub)
+                    await add_order_save(addres, url, color, price_int, phone, name, orders, user_id, shipping_cost_int, user_link_phone, price_rub)
                 else:
-                    await add_order_save(addres, url_int, color_int, price_int, phone, name, orders_int, user_id, shipping_cost_int, user_link, price_rub)
+                    await add_order_save(addres, url, color, price_int, phone, name, orders, user_id, shipping_cost_int, user_link, price_rub)
             order_info = '\n'.join(order_info)
+
             def get_new_date(date, days):
                 new_date = date + timedelta(days=days)
                 month_name_en = calendar.month_name[new_date.month]
@@ -983,6 +1082,7 @@ async def order_confirmation(callback: CallbackQuery):
                     chat_id=6983025115,
                     text=f"""Был оформлен новый заказ!\n
 У клинента нет НИКа, вот его номер телефона: {user_link}\n
+Курс юаня на сегодня: <b>{value}</b>\n
 Заказ: {order_info}
 Данные пользователя:
 <b>{addres}
@@ -990,6 +1090,7 @@ async def order_confirmation(callback: CallbackQuery):
 {phone}</b>\n
 Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
 Проверь на отправку денег, если деньги пришли формируй заказ❗\n
+Если сумма пришла меньше или больше, надо сообщить это клиенту!
 <b>Если клиент не отправил денег, удали заказ через админку!</b>
 """,
                     parse_mode="HTML")
@@ -998,6 +1099,7 @@ async def order_confirmation(callback: CallbackQuery):
                     chat_id=6983025115,
                     text=f"""Был оформлен новый заказ!\n
 Вот ссылка на покупателя: {user_link}\n
+Курс юаня на сегодня: <b>{value}</b>\n
 Заказ: 
 {order_info}
 Данные пользователя:
@@ -1006,6 +1108,7 @@ async def order_confirmation(callback: CallbackQuery):
 {phone}</b>\n
 Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
 <b>Проверь на отправку денег, если деньги пришли формируй заказ❗</b>\n
+<b>Если сумма пришла меньше или больше, надо сообщить это клиенту!</b>
 <b>Если клиент не отправил денег, удали заказ через админку!</b>
 """,
                     parse_mode="HTML")

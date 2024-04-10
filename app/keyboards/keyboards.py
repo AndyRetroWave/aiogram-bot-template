@@ -158,9 +158,13 @@ question_client_botton = InlineKeyboardButton(
     text='Есть вопрос по заказу?🚑',
     callback_data='question_client_botton'
 )
+upgrate_botton = InlineKeyboardButton(
+    text='Обновить корзину🔁',
+    callback_data='upgrate_botton'
+)
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
+    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
 )
 # Меню клиента
@@ -224,7 +228,7 @@ mailing_botton = InlineKeyboardMarkup(
 )
 # Выбор доставки
 order_botton = InlineKeyboardMarkup(
-    inline_keyboard=[[payment_botton], [delete_order_botton,
+    inline_keyboard=[[upgrate_botton], [payment_botton], [delete_order_botton,
                                         add_order_botton], [addres_modify_botton], [menu_booton]]
 )
 # Отдельная кнопка заказа

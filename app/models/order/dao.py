@@ -19,7 +19,7 @@ async def add_order(
     username: str,
     order: int,
     user_id: int,
-    shipping_cost: int,
+    shipping_cost: int
 ):
     try:
         async with async_session_maker() as session:
@@ -33,7 +33,7 @@ async def add_order(
                 url=url,
                 order=order,
                 data=datetime.now(),
-                shipping_cost=shipping_cost
+                shipping_cost=shipping_cost,
             )
             session.add(new_order)
             logger.info(f"Пользователь {username} сохранил заказ в базе данных")
@@ -88,7 +88,7 @@ async def order_user_id_all(
                     'url': row['OrderModel'].url,
                     'order': row['OrderModel'].order,
                     'date': row['OrderModel'].data,
-                    'shipping_cost': row['OrderModel'].shipping_cost, } for row in price]
+                    'shipping_cost': row['OrderModel'].shipping_cost } for row in price]
     except Exception as e:
         logger.critical(
             'Ошибка получение заказа по юзеру', exc_info=True)
@@ -201,6 +201,19 @@ async def order_user_id_date(
             f'получение даты заказа по заказу:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
+
+# Изменение даты по карзины для обновления
+async def modify_date_order_id(user_id: int):
+    try:
+        async with async_session_maker() as session:
+            stmt = update(OrderModel).where(OrderModel.user_id == user_id).values({'data': datetime.now()})
+            await session.execute(stmt)
+            await session.commit()
+    except Exception as e:
+        logger.critical(f'Ошибка при изменении даты заказа для пользователя с ID {user_id}', exc_info=True)
+        error_message = LEXICON_RU['Ошибка'] + f'При изменении даты заказа для пользователя с ID {user_id}:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # получение url юзера по заказу
 async def order_user_id_url(
