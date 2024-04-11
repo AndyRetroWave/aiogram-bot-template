@@ -401,7 +401,7 @@ async def phone_order(message: Message, state: FSMContext):
         username = (await state.get_data())['username']
         shipping_cost = (await state.get_data())['shipping_cost']
         order = random.randint(1000000, 9999999)
-        await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost, value)
+        await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
         await add_diven_user(addres, phone, username, user_id)
         order_id = await order_user_id_all(user_id)
 
@@ -446,7 +446,7 @@ async def phone_order(message: Message, state: FSMContext):
 <b>{username}</b>
 <b>{phone}</b>
 Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: </b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
+Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
 ⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
 ❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
 Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
