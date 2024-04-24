@@ -78,4 +78,7 @@ class FSMAdress(StatesGroup):
 class FSMDeleteorder(StatesGroup):
     delete = State()
 
+class FSMConfirmation(StatesGroup):
+    user_id = State()
+
 

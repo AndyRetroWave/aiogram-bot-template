@@ -138,6 +138,10 @@ payment_botton = InlineKeyboardButton(
     text='Подтвердить заказ✔',
     callback_data='payment_botton'
 )
+payment_botton_money = InlineKeyboardButton(
+    text='Подтвердить получение денег',
+    callback_data='payment_botton_money'
+)
 delete_order_botton = InlineKeyboardButton(
     text='Удалить заказ ➖',
     callback_data='delete_order_botton'
@@ -165,6 +169,10 @@ upgrate_botton = InlineKeyboardButton(
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
+                    [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
+)
+meny_admin_order = InlineKeyboardMarkup(
+    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
 )
 # Меню клиента
@@ -204,7 +212,7 @@ menu_rare = InlineKeyboardMarkup(
 )
 # Кнопка андройд
 android_poizon = InlineKeyboardMarkup(
-    inline_keyboard=[[button_android_poizon_botton], [button_next]]
+    inline_keyboard=[[button_android_poizon_botton], [button_next], [menu_booton]]
 )
 # Меню с проскальзыванием
 menu_one = InlineKeyboardMarkup(
@@ -212,7 +220,7 @@ menu_one = InlineKeyboardMarkup(
 )
 # Кнопка дальше
 next = InlineKeyboardMarkup(
-    inline_keyboard=[[button_next]]
+    inline_keyboard=[[button_next], [menu_booton]]
 )
 # Кнопка далее и установить пойзон
 next_and_poizon = InlineKeyboardMarkup(
@@ -235,3 +243,7 @@ order_botton = InlineKeyboardMarkup(
 order_botton_one = InlineKeyboardMarkup(
     inline_keyboard=[[button_orders]]
 )
+# Подтверждение заказа от продавца
+payment_botton = InlineKeyboardMarkup(
+    inline_keyboard=[[payment_botton_money]])
+    

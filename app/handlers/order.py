@@ -1,23 +1,29 @@
 from datetime import timedelta
+import html
 import random
 import re
+import textwrap
 import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import order, order_botton, meny, order_botton_one, meny_order, menu_rare
+from app.keyboards.keyboards import order, order_botton, meny, order_botton_one, meny_order, menu_rare, payment_botton
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
 from app.models.order.dao import *
-from app.states.states import FSMDeleteorder, FSMOrders
+from app.states.states import FSMDeleteorder, FSMOrders, FSMConfirmation
 from aiogram.fsm.state import default_state
 from config.config import settings, bot, logger
 from app.static.images import static
 import calendar
 from app.api.response_rate import months
+import asyncio
 
 router = Router()
+
+max_length = 4096
+wrapper = textwrap.TextWrapper(width=max_length, replace_whitespace=False)
 
 
 # Кнопка заказ
@@ -38,9 +44,8 @@ async def category_botton_order(callback: CallbackQuery):
             f'кнопке заказа:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Кнопка добавить заказ
-
-
 @router.callback_query(F.data == 'add_order_botton')
 async def category_botton_order_new(callback: CallbackQuery):
     try:
@@ -77,9 +82,8 @@ async def category_botton_order(callback: CallbackQuery):
             f'кнопке повторить заказ:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Кнопка кросовка
-
-
 @router.callback_query(F.data == 'button_snecers_order', StateFilter(default_state))
 async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
     try:
@@ -343,7 +347,7 @@ async def phone_order(message: Message, state: FSMContext):
             logger.info(f"Пользователь {user} вписал номер телефона")
             phone = message.text
             if not re.match(r'^7\d{10}$', phone):
-                await message.answer(text=LEXICON_RU["Введите правильно номер"])
+                await message.answer(text=LEXICON_RU["Введите правильно номер"], parse_mode='MarkdownV2')
                 return
             await state.update_data({"phone": phone})
             await message.answer(
@@ -404,7 +408,6 @@ async def phone_order(message: Message, state: FSMContext):
         await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
         await add_diven_user(addres, phone, username, user_id)
         order_id = await order_user_id_all(user_id)
-
         def get_new_date(date, days):
             new_date = date + timedelta(days=days)
             month_name_en = calendar.month_name[new_date.month]
@@ -428,44 +431,47 @@ async def phone_order(message: Message, state: FSMContext):
             color.append(order['color'])
             price.append(order['price'])
             shipping_cost.append(order['shipping_cost'])
+            total_price = round(sum(price)*value + sum(shipping_cost))
             price_rub_round = round(
                 value*order['price'] + order['shipping_cost'])
             price_rub.append(price_rub_round)
             order_info = '\n'.join(
-                [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
-        total_price = round(sum(price)*value + sum(shipping_cost))
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>🇨🇳\n
-<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
-❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-            parse_mode='HTML',
-            reply_markup=order_botton,
-        )
+                [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+            total_price_message = LEXICON_RU['order_message_part1'].format(
+                total_price, 'Пензы')
+            order_message = LEXICON_RU['order_message_part3'].format(
+                value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+            payment_message = LEXICON_RU['order_message_part4'].format(
+                total_price, '79530203476')
+            text = total_price_message + order_info + order_message + payment_message
+        lines = wrapper.wrap(text=text)
+        if len(text) > 4096:
+            line_list = []
+            for line in lines:
+                lines_replace = line.replace(
+                    "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                line_list.append(lines_replace)
+            for line in line_list:
+                await bot.send_message(
+                    chat_id=message.from_user.id,
+                    text=line,
+                    parse_mode='HTML',
+                    reply_markup=order_botton,
+                )
+                await asyncio.sleep(1)
+        else:
+            await bot.send_message(
+                chat_id=message.from_user.id,
+                text=text,
+                parse_mode='HTML',
+                reply_markup=order_botton,
+                )
         await state.clear()
     except Exception as e:
         logger.critical(
             'Ошибка в хендлере по адрусу пензы и итого по первому заказу для клиента', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
-            f'хенедере по адрусу пензы и итого по первому заказу для клиента:\n{traceback.format_exc()}'
+            f'хенедере по адрусу пензы  и итого по первому заказу для клиента:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
@@ -522,35 +528,39 @@ async def color_order(message: Message, state: FSMContext):
                 price_rub_round = round(
                     value*order['price'] + order['shipping_cost'])
                 price_rub.append(price_rub_round)
+                total_price = round(sum(price)*value + sum(shipping_cost))
                 order_info = '\n'.join(
-                    [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
-            total_price = round(sum(price)*value + sum(shipping_cost))
+                    [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                total_price_message = LEXICON_RU['order_message_part1'].format(
+                    total_price, 'Пензы')
+                order_message = LEXICON_RU['order_message_part3'].format(
+                    value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                payment_message = LEXICON_RU['order_message_part4'].format(
+                    total_price, '79530203476')
+                text = total_price_message + order_info + order_message + payment_message
+            lines = wrapper.wrap(text=text)
+            if len(text) > 4096:
+                line_list = []
+                for line in lines:
+                    lines_replace = line.replace(
+                        "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                    line_list.append(lines_replace)
+                for line in line_list:
+                    await bot.send_message(
+                        chat_id=message.from_user.id,
+                        text=line,
+                        parse_mode='HTML',
+                        reply_markup=order_botton,
+                    )
+                    await asyncio.sleep(1)
+            else:
+                await bot.send_message(
+                    chat_id=message.from_user.id,
+                    text=text,
+                    parse_mode='HTML',
+                    reply_markup=order_botton,
+                    )
             await state.clear()
-            await message.answer(
-                text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>🇨🇳\n
-<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
-❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-                parse_mode='HTML',
-                reply_markup=order_botton,
-            )
         else:
             await message.answer(
                 text=LEXICON_RU["Номер телефона"],
@@ -664,7 +674,6 @@ async def phone_order(message: Message, state: FSMContext):
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
         username = await username_user_id_given(user_id)
-
         def get_new_date(date, days):
             new_date = date + timedelta(days=days)
             month_name_en = calendar.month_name[new_date.month]
@@ -673,7 +682,6 @@ async def phone_order(message: Message, state: FSMContext):
                 return f'{new_date.day} {month_name_ru} {new_date.year} года'
             else:
                 return f'{new_date.day} {month_name_ru}'
-
         date = await data_order(user_id)
         new_dates = [get_new_date(date, days) for days in [20, 30]]
         new_date_20_formatted, new_date_30_formatted = new_dates
@@ -692,35 +700,41 @@ async def phone_order(message: Message, state: FSMContext):
             price_rub_round = round(
                 value*order['price'] + order['shipping_cost'])
             price_rub.append(price_rub_round)
+            total_price = round(sum(price)*value + sum(shipping_cost))
             order_info = '\n'.join(
-                [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
-        total_price = round(sum(price)*value + sum(shipping_cost))
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>🇨🇳\n
-<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты.
-❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-            parse_mode='HTML',
-            reply_markup=order_botton,
-        )
+                [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+            total_price_message = LEXICON_RU['order_message_part1'].format(
+                total_price, 'Пензы')
+            order_message = LEXICON_RU['order_message_part3'].format(
+                value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+            payment_message = LEXICON_RU['order_message_part4'].format(
+                total_price, '79530203476')
+            text = total_price_message + order_info + order_message + payment_message
+        lines = wrapper.wrap(text=text)
+        if len(text) > 4096:
+            line_list = []
+            print(line_list)
+            for line in lines:
+                lines_replace = line.replace("</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                line_list.append(lines_replace)
+                await asyncio.sleep(1)
+            for l in line_list:
+                await bot.send_message(
+                    chat_id=message.from_user.id,
+                    text=l,
+                    parse_mode='HTML',
+                    reply_markup=order_botton,
+                )
+                await asyncio.sleep(1)
+            await state.clear()
+        else:
+            await bot.send_message(
+                chat_id=message.from_user.id,
+                text=text,
+                parse_mode='HTML',
+                reply_markup=order_botton,
+                )
+            await state.clear()
         await state.clear()
     except Exception as e:
         logger.critical('Ошибка в кнопе заказ', exc_info=True)
@@ -762,6 +776,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
                 f"Пользователь {user} получил заказ после удаления")
             value = await course_today()
             order_id = await order_user_id_all(user_id)
+            order_save = await add_save_order(user_id)
             addres = await addres_user_id_given(user_id)
             phone = await phone_user_id_given(user_id)
             username = await username_user_id_given(user_id)
@@ -788,48 +803,57 @@ async def delete_order_botton(message: Message, state: FSMContext):
                     url.append(order['url'])
                     color.append(order['color'])
                     price.append(order['price'])
+                    total_price = round(sum(price)*value + sum(shipping_cost))
                     shipping_cost.append(order['shipping_cost'])
                     price_rub_round = round(
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
                     order_info = '\n'.join(
-                        [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
-                total_price = round(sum(price)*value + sum(shipping_cost))
-                await bot.send_message(
-                    chat_id=message.from_user.id,
-                    text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>🇨🇳\n
-<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес доставки</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
-❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-                    parse_mode='HTML',
-                    reply_markup=order_botton,
-                )
-                await state.clear()
+                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                    total_price_message = LEXICON_RU['order_message_part1'].format(
+                        total_price, 'Пензы')
+                    order_message = LEXICON_RU['order_message_part3'].format(
+                        value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                    payment_message = LEXICON_RU['order_message_part4'].format(
+                        total_price, '79530203476')
+                    text = total_price_message + order_info + order_message + payment_message
+                lines = wrapper.wrap(text=text)
+                if len(text) > 4096:
+                    line_list = []
+                    for line in lines:
+                        lines_replace = line.replace(
+                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                        line_list.append(lines_replace)
+                    for line in line_list:
+                        await bot.send_message(
+                            chat_id=message.from_user.id,
+                            text=line,
+                            parse_mode='HTML',
+                            reply_markup=order_botton,
+                        )
+                        await asyncio.sleep(1)
+                else:
+                    await bot.send_message(
+                        chat_id=message.from_user.id,
+                        text=text,
+                        parse_mode='HTML',
+                        reply_markup=order_botton,
+                        )
             else:
-                await bot.send_message(
-                    chat_id=user_id,
-                    text=LEXICON_RU["Привет"],
-                    reply_markup=meny,
-                    parse_mode='MarkdownV2',
-                )
-                await state.clear()
+                if order_save:
+                    await bot.send_message(
+                        chat_id=user_id,
+                        text=LEXICON_RU["Привет"],
+                        reply_markup=meny_order,
+                        parse_mode='MarkdownV2')
+                    await state.clear()
+                else:
+                    await bot.send_message(
+                        chat_id=user_id,
+                        text=LEXICON_RU["Привет"],
+                        reply_markup=meny,
+                        parse_mode='MarkdownV2')
+                    await state.clear()
         except:
             await bot.send_message(
                 chat_id=user_id,
@@ -882,39 +906,43 @@ async def basket(callback: CallbackQuery):
                     color.append(order['color'])
                     price.append(order['price'])
                     shipping_cost.append(order['shipping_cost'])
+                    total_price = round(sum(price)*value + sum(shipping_cost))
                     price_rub_round = round(
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
                     order_info = '\n'.join(
-                        [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
-                total_price = round(sum(price)*value + sum(shipping_cost))
-                await callback.message.edit_text(
-                    text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>🇨🇳\n
-<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты.
-❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-                    parse_mode='HTML',
-                    reply_markup=order_botton,
-                )
+                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                    total_price_message = LEXICON_RU['order_message_part1'].format(
+                        total_price, 'Пензы')
+                    order_message = LEXICON_RU['order_message_part3'].format(
+                        value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                    payment_message = LEXICON_RU['order_message_part4'].format(
+                        total_price, '79530203476')
+                    text = total_price_message + order_info + order_message + payment_message
+                lines = wrapper.wrap(text=text)
+                if len(text) > 4096:
+                    line_list = []
+                    for line in lines:
+                        lines_replace = line.replace(
+                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                        line_list.append(lines_replace)
+                    for line in line_list:
+                        await bot.send_message(
+                            chat_id=callback.from_user.id,
+                            text=line,
+                            parse_mode='HTML',
+                            reply_markup=order_botton,
+                        )
+                        await asyncio.sleep(1)
+                else:
+                    await bot.send_message(
+                        chat_id=callback.from_user.id,
+                        text=text,
+                        parse_mode='HTML',
+                        reply_markup=order_botton,
+                        )
                 callback.answer()
+
         else:
             await callback.answer(
                 text=LEXICON_RU["Корзина"],
@@ -927,6 +955,7 @@ _______________________\n
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке корзины:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
 
 # кнопка обновить корзину
 @router.callback_query(F.data == 'upgrate_botton')
@@ -971,36 +1000,39 @@ async def basket(callback: CallbackQuery):
                     price_rub_round = round(
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
+                    total_price = round(sum(price)*value + sum(shipping_cost))
                     order_info = '\n'.join(
-                        [f'---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽\nСтоимость доставки составило: <b>{s}</b> ₽\nНомер заказа: <code>{o}</code>⚠\n' for o, u, c, p, r, s in zip(orders, url, color, price, price_rub, shipping_cost)])
-                total_price = round(sum(price)*value + sum(shipping_cost))
+                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                    total_price_message = LEXICON_RU['order_message_part1'].format(
+                        total_price, 'Пензы')
+                    order_message = LEXICON_RU['order_message_part3'].format(
+                        value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                    payment_message = LEXICON_RU['order_message_part4'].format(
+                        total_price, '79530203476')
+                    text = total_price_message + order_info + order_message + payment_message
                 await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-                await callback.message.answer(
-                    text=f"""<b>Итоговая цена</b> составит <b>{total_price}</b> руб. с учетом всех сборов и доставки до Пензы. 🇷🇺
-В заказе товары:\n
-{order_info}
-Курс юаня к рублю <b>{value}</b>🇨🇳\n
-<b>Доставка ИЗ Пензы оплачивается отдельно напрямую СДЭКу</b>\n
-🏡 Отправим ваш заказ по адресу:
-<b>{addres}</b>
-<b>{username}</b>
-<b>{phone}</b>
-Если вы хотите изменить данные, нажмите на кнопку <b>Изменить адрес</b>✏️\n
-Приблизительная дата доставки: <b>{new_date_20_formatted} - {new_date_30_formatted}</b>💌\n
-⚠️Мы выкупаем товар в течение 18 часов после оплаты. 
-❗<b>Пожалуйста перед тем как отправлять деньги нажимайте на кнопку Обновить корзину🔁, для получения актуальной цены по курсу юяня в случае изменения❗</b>\n
-Если при выкупе цена изменится, с вами свяжется человек для доплаты или возврата средств.\n\n
-_______________________
-Если Вас устраивает, переведите <b>{total_price}</b> руб. на следующую номер телефона 🏧
-<code>79530203476</code> Тиньков! Рябов П.
-_______________________\n
-Осуществляя перевод, вы подтверждаете что корректно указали товар, его характеристики и согласны со сроками доставки. 
-<b>Мы не несем ответственности за соответствие размеров и брак.</b>\n
-Оплатите и нажмите кнопку <b>Подтвердить оплату</b>✔""",
-                    parse_mode='HTML',
-                    reply_markup=order_botton,
-                )
-                callback.answer()
+                lines = wrapper.wrap(text=text)
+                if len(text) > 4096:
+                    line_list = []
+                    for line in lines:
+                        lines_replace = line.replace(
+                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                        line_list.append(lines_replace)
+                    for line in line_list:
+                        await bot.send_message(
+                            chat_id=callback.from_user.id,
+                            text=line,
+                            parse_mode='HTML',
+                            reply_markup=order_botton,
+                        )
+                        await asyncio.sleep(1)
+                else:
+                    await bot.send_message(
+                        chat_id=callback.from_user.id,
+                        text=text,
+                        parse_mode='HTML',
+                        reply_markup=order_botton,
+                        )
         else:
             await callback.answer(
                 text=LEXICON_RU["Корзина"],
@@ -1017,16 +1049,16 @@ _______________________\n
 
 # Кнопка подверждения заказа
 @router.callback_query(F.data == 'payment_botton')
-async def order_confirmation(callback: CallbackQuery):
+async def order_confirmation(callback: CallbackQuery, state: FSMContext):
     try:
         user = callback.from_user
-        user_id = user.id
-        logger.info(f"Пользователь {user} нажал на подтвердить заказ")
+        user_id = callback.from_user.id
         order_id = await order_user_id_all(user_id)
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
         username = await username_user_id_given(user_id)
         value = await course_today()
+        await state.update_data(user_id=user_id)
         user_link = f"https://t.me/{user.username}" if user.username else f"<code>{phone}</code> "
         price, shipping_cost = [], []
         order_info = []
@@ -1058,7 +1090,6 @@ async def order_confirmation(callback: CallbackQuery):
                 else:
                     await add_order_save(addres, url, color, price_int, phone, name, orders, user_id, shipping_cost_int, user_link, price_rub)
             order_info = '\n'.join(order_info)
-
             def get_new_date(date, days):
                 new_date = date + timedelta(days=days)
                 month_name_en = calendar.month_name[new_date.month]
@@ -1072,51 +1103,94 @@ async def order_confirmation(callback: CallbackQuery):
             new_date_20_formatted, new_date_30_formatted = new_dates
             await delete_order(user_id)
             await callback.message.edit_text(
-                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\n\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nКак только появиться информация по отправке мы вам сообщим\!""",
+                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\n\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nОжидайте подтверждение получения денег от продовца, вам прийдет смс уведомление о том, что мы получили деньги и уже выкупаем товар\!""",
                 parse_mode='MarkdownV2',
                 reply_markup=meny_order,
             )
             callback.answer()
-            if user_link.startswith("<code>7"):
-                await bot.send_message(
-                    chat_id=6983025115,
-                    text=f"""Был оформлен новый заказ!\n
-У клинента нет НИКа, вот его номер телефона: {user_link}\n
-Курс юаня на сегодня: <b>{value}</b>\n
-Заказ: {order_info}
-Данные пользователя:
-<b>{addres}
-{username}
-{phone}</b>\n
-Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
-Проверь на отправку денег, если деньги пришли формируй заказ❗\n
-Если сумма пришла меньше или больше, надо сообщить это клиенту!
-<b>Если клиент не отправил денег, удали заказ через админку!</b>
-""",
-                    parse_mode="HTML")
+            text_phone = LEXICON_RU['Отчет о заказе с телефоном'].format(
+                user_link, user_id, value, order_info, addres, username, phone, total_price)
+            text_url = LEXICON_RU['Отчет о заказе с ссылкой'].format(
+                user_link, user_id, value, order_info, addres, username, phone, total_price)
+            lines_phone = wrapper.wrap(text=text_phone)
+            lines_url = wrapper.wrap(text=text_url)
+            if len(text_phone or text_url)>4096:
+                if user_link.startswith("<code>7"):
+                    line_list = []
+                    for line in lines_phone:
+                        
+                        lines_replace = line.replace(
+                                "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                        line_list.append(lines_replace)
+                    for l in line_list:
+                        await bot.send_message(
+                            chat_id=6983025115,
+                            text=l,
+                            parse_mode="HTML",
+                            reply_markup=payment_botton)
+                        await asyncio.sleep(1)
+                else:
+                    line_list = []
+                    for line in lines_url:
+                        lines_replace = line.replace(
+                                "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                        line_list.append(lines_replace)
+                    for l in line_list:
+                        await bot.send_message(
+                            chat_id=6983025115,
+                            text=l,
+                            parse_mode="HTML",
+                            reply_markup=payment_botton)
+                        await asyncio.sleep(1)
             else:
-                await bot.send_message(
-                    chat_id=6983025115,
-                    text=f"""Был оформлен новый заказ!\n
-Вот ссылка на покупателя: {user_link}\n
-Курс юаня на сегодня: <b>{value}</b>\n
-Заказ: 
-{order_info}
-Данные пользователя:
-<b>{addres}
-{username}
-{phone}</b>\n
-Сумма отплаты от клиента ожидаеться такой суммой: <b>{total_price}</b> рублей!💱\n
-<b>Проверь на отправку денег, если деньги пришли формируй заказ❗</b>\n
-<b>Если сумма пришла меньше или больше, надо сообщить это клиенту!</b>
-<b>Если клиент не отправил денег, удали заказ через админку!</b>
-""",
-                    parse_mode="HTML")
+                if user_link.startswith("<code>7"):
+                    await bot.send_message(
+                            chat_id=6983025115,
+                            text=text_phone,
+                            parse_mode="HTML",
+                            reply_markup=payment_botton)
+                    await asyncio.sleep(1)
+                else:
+                    await bot.send_message(
+                        chat_id=6983025115,
+                        text=text_url,
+                        parse_mode="HTML",
+                        reply_markup=payment_botton)
+                    await asyncio.sleep(1)
     except Exception as e:
         logger.critical('Ошибка в кнопе заказ', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'подтвердить заказ:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# кнопка подтверждение заказа от продавца
+@router.callback_query(F.data == 'payment_botton_money', StateFilter(default_state))
+async def order_confirmation_money(callback: CallbackQuery, state: FSMContext):
+    user_id = callback.from_user.id
+    await bot.send_message(
+        chat_id=user_id,
+        text="Введи id клиента для подтверждения заказа")
+    await state.set_state(FSMConfirmation.user_id)
+
+
+# Отправка подтверждения заказа для клиента
+@router.message(StateFilter(FSMConfirmation.user_id))
+async def message_confirmation_money(message: Message, state: FSMContext):
+    try:
+        try:
+            user_id = int(message.text)
+            await bot.send_message(
+                chat_id=user_id,
+                text="Мы получили деньги и вот уже выкупаем ваш заказ❗ Ожидайте его в установленные сроки🌊")
+            await message.answer(text="Подтверждение успешно отправленно")
+            await state.clear()
+        except:
+            await message.answer(text="Произошла ошибка, смс не отправленно клиенту")
+            await state.clear()
+    except:
+        message.answer(text="Введи id клиента")
+
 
 # Ваш заказ
 @router.callback_query(F.data == 'order_client_botton')
@@ -1127,17 +1201,8 @@ async def order_user(callback: CallbackQuery):
         user_id = user.id
         logger.info(f"Пользователь {user} нажал на свои заказы")
         order_id = await order_user_id_all_save(user_id)
-        addres = []
-        phone = []
-        username = []
-        orders = []
-        url = []
-        color = []
-        price = []
-        price_rub = []
-        shipping_cost = []
-        data_20 = []
-        data_30 = []
+        addres, phone, username, orders, url, color, price, price_rub, shipping_cost, data_20, data_30 = [
+        ], [], [], [], [], [], [], [], [], [], []
         if order_id:
             for order in order_id:
                 orders.append(order['order'])
@@ -1164,11 +1229,37 @@ async def order_user(callback: CallbackQuery):
                 order_info = '\n'.join(
                     [f"""---- Ссылка: {u}\nЦвет и размер: <b>{c}</b> на сумму <b>{p}</b> юаней\nЦена с доставкой: <b>{r}</b> ₽
 Стоимость доставки составило: <b>{s}</b> ₽\nПримерная дата доставки: <b>{d_20} - {d_30}</b>\nДанные получателя:\n<b>{name}\n{ph}\n{adr}</b>\nНомер заказа: <code>{o}</code>⚠\n""" for o, u, c, p, r, s, d_20, d_30, name, ph, adr in zip(orders, url, color, price, price_rub, shipping_cost, data_20, data_30, username, phone, addres)])
-        await callback.message.edit_text(
-            text=f"""Список ваших заказов:\n\n{order_info}""",
-            parse_mode="HTML",
-            reply_markup=menu_rare,
-        )
+        lines = wrapper.wrap(text=order_info)
+        if len(order_info) > 4096:
+            line_list = []
+            for line in lines:
+                lines_replace = line.replace(
+                    "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                line_list.append(lines_replace)
+            for line in line_list:
+                await bot.send_message(
+                    chat_id=user_id,
+                    text=f"""{line}""",
+                    parse_mode="HTML",
+                )
+                await asyncio.sleep(1)
+            await bot.send_message(
+                chat_id=user_id,
+                text="Это список ваших заказов💌\nПри получение товара, позиция будет удалена из истории❗",
+                reply_markup=menu_rare)
+            await asyncio.sleep(1)
+        else:
+            await bot.send_message(
+                chat_id=user_id,
+                text=f"""{order_info}""",
+                parse_mode="HTML",
+            )
+            await asyncio.sleep(1)
+            await bot.send_message(
+                chat_id=user_id,
+                text="Это список ваших заказов💌\nПри получение товара, позиция будет удалена из истории❗",
+                reply_markup=menu_rare)
+            await asyncio.sleep(1)
     except Exception as e:
         logger.critical('Ошибка в подтверждение заказа', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
