@@ -1,3 +1,8 @@
+from config.database import Base, DATABASE_URL
+from app.models.images.models import ImageModel
+from app.models.order.models import OrderModel
+from app.models.course.models import CourseModel
+from app.models.users.models import UserModel
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -9,11 +14,6 @@ from alembic import context
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
-from app.models.users.models import UserModel
-from app.models.course.models import CourseModel
-from app.models.order.models import OrderModel
-
-from config.database import Base, DATABASE_URL
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

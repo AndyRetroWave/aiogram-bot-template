@@ -3,6 +3,7 @@ from aiogram import Router, types, F
 from aiogram.types import CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.filters.filters import my_start_filter
+from app.models.images.dao import get_image
 from app.models.order.dao import add_save_order
 from app.models.users.dao import add_user
 from app.keyboards.keyboards import meny, meny_admin, meny_order, meny_admin_order
@@ -26,39 +27,50 @@ async def start(message: types.Message, state: FSMContext):
         order = await add_save_order(user_id)
         await add_user(first_name, last_name, username, user_id)
         if message.from_user.id == settings.ADMIN_ID or message.from_user.id == settings.ADMIN_ID2:
-            await bot.send_photo(
+            if await get_image() == None:
+                await bot.send_photo(
                     chat_id=message.chat.id,
                     photo=static.photo_url_start,
                     caption=LEXICON_RU["/start"],
                     parse_mode='MarkdownV2'
                 )
+            else:
+                await bot.send_photo(
+                    chat_id=message.chat.id,
+                    photo=await get_image(),
+                    caption=LEXICON_RU["/start"],
+                    parse_mode='MarkdownV2'
+                )
             if order:
                 await message.answer(text=LEXICON_RU["Привет"],
-                    reply_markup=meny_admin_order,
-                    parse_mode='MarkdownV2')
+                                     reply_markup=meny_admin_order,
+                                     parse_mode='MarkdownV2',
+                                     disable_web_page_preview=True)
                 await state.clear()
             else:
                 await message.answer(text=LEXICON_RU["Привет"],
-                    reply_markup=meny_admin,
-                    parse_mode='MarkdownV2')
+                                     reply_markup=meny_admin,
+                                     parse_mode='MarkdownV2',
+                                     disable_web_page_preview=True)
                 await state.clear()
         else:
             await bot.send_photo(
                 chat_id=message.chat.id,
                 photo=static.photo_url_start,
                 caption=LEXICON_RU["/start"],
-                parse_mode='MarkdownV2'
+                parse_mode='MarkdownV2',
             )
-            print(order)
             if order:
                 await message.answer(text=LEXICON_RU["Привет"],
-                                    reply_markup=meny_order,
-                                    parse_mode='MarkdownV2')
+                                     reply_markup=meny_order,
+                                     parse_mode='MarkdownV2',
+                                     disable_web_page_preview=True)
                 await state.clear()
             else:
                 await message.answer(text=LEXICON_RU["Привет"],
-                                    reply_markup=meny,
-                                    parse_mode='MarkdownV2')
+                                     reply_markup=meny,
+                                     parse_mode='MarkdownV2',
+                                     disable_web_page_preview=True)
                 await state.clear()
     except Exception as e:
         logger.critical('Ошибка в старте проекта', exc_info=True)
@@ -70,37 +82,40 @@ async def start(message: types.Message, state: FSMContext):
 # Кнопка меню всплывающая
 @router.callback_query(F.data == 'menu_booton_basic')
 async def start(callback: CallbackQuery, state: FSMContext):
-    try: 
+    try:
         first_name = callback.from_user.first_name
         last_name = callback.from_user.last_name
         username = callback.from_user.username
         user_id = callback.from_user.id
         order = await add_save_order(user_id)
-        logger.info(f'Пользователь {username} нажал на меню')
         await add_user(first_name, last_name, username, user_id)
         if callback.from_user.id == settings.ADMIN_ID or callback.from_user.id == settings.ADMIN_ID2:
             if order:
                 await callback.message.edit_text(
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_admin_order,
-                    parse_mode='MarkdownV2')
+                    parse_mode='MarkdownV2',
+                    disable_web_page_preview=True)
                 await state.clear()
             else:
                 await callback.message.edit_text(
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_admin,
-                    parse_mode='MarkdownV2')
+                    parse_mode='MarkdownV2',
+                    disable_web_page_preview=True)
                 await state.clear()
         else:
             if order:
                 await callback.message.edit_text(text=LEXICON_RU["Привет"],
-                                    reply_markup=meny_order,
-                                    parse_mode='MarkdownV2')
+                                                 reply_markup=meny_order,
+                                                 parse_mode='MarkdownV2',
+                                                 disable_web_page_preview=True)
                 await state.clear()
             else:
                 await callback.message.edit_text(text=LEXICON_RU["Привет"],
-                                    reply_markup=meny,
-                                    parse_mode='MarkdownV2')
+                                                 reply_markup=meny,
+                                                 parse_mode='MarkdownV2',
+                                                 disable_web_page_preview=True)
                 await state.clear()
     except Exception as e:
         logger.critical('Ошибка в кнопке меню всплывающая', exc_info=True)
@@ -118,7 +133,6 @@ async def start(callback: CallbackQuery, state: FSMContext):
         username = callback.from_user.username
         user_id = callback.from_user.id
         order = await add_save_order(user_id)
-        logger.info(f'Пользователь {username} нажал на меню')
         await add_user(first_name, last_name, username, user_id)
         if callback.from_user.id == settings.ADMIN_ID or callback.from_user.id == settings.ADMIN_ID2:
             if order:
@@ -126,14 +140,16 @@ async def start(callback: CallbackQuery, state: FSMContext):
                     chat_id=callback.message.chat.id,
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_admin_order,
-                    parse_mode='MarkdownV2')
+                    parse_mode='MarkdownV2',
+                    disable_web_page_preview=True)
                 await state.clear()
             else:
                 await bot.send_message(
                     chat_id=callback.message.chat.id,
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_admin,
-                    parse_mode='MarkdownV2')
+                    parse_mode='MarkdownV2',
+                    disable_web_page_preview=True)
                 await state.clear()
         else:
             if order:
@@ -141,14 +157,16 @@ async def start(callback: CallbackQuery, state: FSMContext):
                     chat_id=user_id,
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_order,
-                    parse_mode='MarkdownV2')
+                    parse_mode='MarkdownV2',
+                    disable_web_page_preview=True)
                 await state.clear()
             else:
                 await bot.send_message(
                     chat_id=user_id,
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny,
-                    parse_mode='MarkdownV2')
+                    parse_mode='MarkdownV2',
+                    disable_web_page_preview=True)
                 await state.clear()
     except Exception as e:
         logger.critical('Ошибка в кнопке меню основная', exc_info=True)

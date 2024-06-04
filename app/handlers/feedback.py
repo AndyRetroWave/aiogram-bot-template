@@ -1,16 +1,18 @@
+import asyncio
 import traceback
 from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.filters.filters import photo, file
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import calculator_update, meny_admin
-from app.models.course.dao import add_course, course_today
+from app.keyboards.keyboards import calculator_update, menu_one
+from app.models.course.dao import course_today
 from config.config import settings, logger
-from app.states.states import FSMCourse, FSMFile, FSMPhoto
+from app.states.states import FSMFile, FSMPhoto
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from config.config import bot
+from app.static.images import static
 
 router = Router()
 
@@ -19,8 +21,6 @@ router = Router()
 @router.callback_query(F.data == 'button_feedback')
 async def recall(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку отзывы")
         await callback.answer(show_alert=True)
     except Exception as e:
         logger.critical(
@@ -34,16 +34,11 @@ async def recall(callback: CallbackQuery):
 @router.callback_query(F.data == 'instruction')
 async def instruction(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку инструкция")
-        logger.debug('Вошли в инструкцию')
-        await callback.message.edit_text(
-            text=LEXICON_RU["Инструкция"],
-            reply_markup=calculator_update,
-            parse_mode='MarkdownV2'
+        await bot.send_video(
+            chat_id=callback.message.chat.id,
+            video=static.video,
+            reply_markup=menu_one
         )
-        await callback.answer(show_alert=True)
-        logger.debug('Вышли из инструкции')
     except Exception as e:
         logger.critical(
             'Ошибка кнопке инструкция', exc_info=True)
@@ -56,8 +51,6 @@ async def instruction(callback: CallbackQuery):
 @router.callback_query(F.data == 'button_rate')
 async def course_yan(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку курса юаня")
         value = await course_today()
         formatted_num = "{}\\.{}".format(
             int(value), int(value * 100) % 100)
@@ -76,7 +69,8 @@ async def course_yan(callback: CallbackQuery):
 Мы не знаем также как и не знаете вы\. Всем клиентам\(хоть на 100юаней, хоть на 100 000 юане\) мы советуем не ждать завтра, потому что завтра в большинстве случаев хуже\. В таком мире живем\.\n\n
 *Мы готовы купить неограниченное количество юаней по курсу ЦБ*""",
             reply_markup=calculator_update,
-            parse_mode='MarkdownV2'
+            parse_mode='MarkdownV2',
+            disable_web_page_preview=True
         )
         await callback.answer(show_alert=True)
     except Exception as e:
@@ -92,24 +86,25 @@ async def course_yan(callback: CallbackQuery):
 async def create_bot(callback: CallbackQuery):
     try:
         user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку создатель")
         await callback.message.edit_text(
             text=LEXICON_RU["Заказ бота"],
             reply_markup=calculator_update,
             parse_mode='MarkdownV2'
         )
+        await bot.send_message(chat_id=settings.ADMIN_ID2,
+                               text=f"Кобанчик, тобой поинтересовался этот [челик](https://t.me/{user})\!",
+                               parse_mode='MarkdownV2')
     except:
         logger.critical("Ошибка в кнопке создатель", exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке создатель:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Кнопка по вопросу
 @router.callback_query(F.data == 'question_client_botton')
 async def create_bot(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку вопроса")
         await callback.message.edit_text(
             text=LEXICON_RU["Вопрос"],
             reply_markup=calculator_update,
@@ -120,6 +115,7 @@ async def create_bot(callback: CallbackQuery):
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке вопрос:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
 
 # # ехо файл
 @router.message(file, StateFilter(default_state))
@@ -133,11 +129,16 @@ async def echo_file(message: Message, state: FSMContext):
 # файл id
 @router.message(FSMFile.file)
 async def file_id(message: Message, state: FSMContext):
-    logger.debug('Вошли в хендлер добавления курса юаня', exc_info=True)
-    file_id = message.document.file_id
-    await message.answer(
-        text=file_id
-    )
+    try:
+        file_id = message.document.file_id
+        await message.answer(
+            text=file_id
+        )
+    except:
+        file_id = message.video.file_id
+        await message.answer(
+            text=file_id
+        )
 
 
 # # ехо фото

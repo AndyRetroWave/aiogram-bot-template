@@ -20,8 +20,6 @@ router = Router()
 @router.callback_query(F.data == 'big_button_1_pressed')
 async def category_botton(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку Калькулятор цены")
         await callback.message.edit_text(
             text=LEXICON_RU["Категория"],
             reply_markup=calculator_rate,
@@ -39,8 +37,6 @@ async def category_botton(callback: CallbackQuery):
 @router.callback_query(F.data == 'big_button_1_pressed')
 async def repetition_buttons(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку повтора")
         await callback.message.edit_text(
             text=LEXICON_RU["Категория"],
             reply_markup=calculator_rate,
@@ -58,9 +54,6 @@ async def repetition_buttons(callback: CallbackQuery):
 @router.callback_query(F.data == 'button_snecers', StateFilter(default_state))
 async def sneaks_button(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(
-            f"Пользователь {user} нажал на кнопку калькулятора кросовок")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -87,8 +80,6 @@ async def sneaks_button(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMSneakers.rate_sneakers))
 async def calculator_rate_value(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену кросовок")
         try:
             text = float(message.text)
             value = await course_today()
@@ -119,8 +110,6 @@ async def calculator_rate_value(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_down_jacket', StateFilter(default_state))
 async def button_down_jacket(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку пуховиков")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -147,8 +136,6 @@ async def button_down_jacket(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMDownJacket.rate_down_jacket))
 async def calculator_down_jacket(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену пуховиков")
         try:
             text = float(message.text)
             value = await course_today()
@@ -179,8 +166,6 @@ async def calculator_down_jacket(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_clothes', StateFilter(default_state))
 async def button_clothes(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку одежды")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -208,8 +193,6 @@ async def button_clothes(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMClothes.rate_clothes))
 async def calculator_clothes(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену одежды")
         try:
             text = float(message.text)
             value = await course_today()
@@ -239,8 +222,6 @@ async def calculator_clothes(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_care', StateFilter(default_state))
 async def button_care(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку украшений")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -266,8 +247,6 @@ async def button_care(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMCare.rate_сare))
 async def calculator_rate_care(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену украшений")
         try:
             text = float(message.text)
             value = await course_today()
@@ -299,8 +278,7 @@ async def calculator_rate_care(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_jewelry')
 async def button_jewelry(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} зешел в кнопку украшений")
+
         await callback.message.edit_text(
             text=LEXICON_RU["Заказ аксессуаров"],
             parse_mode='MarkdownV2',

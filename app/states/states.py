@@ -1,12 +1,16 @@
-from aiogram.fsm.context import FSMContext
+
 from aiogram.fsm.state import State, StatesGroup
 
 # Create your states here.
 # Состояние кросовок
+
+
 class FSMSneakers(StatesGroup):
     rate_sneakers = State()
 
 # Состояние пуховика
+
+
 class FSMDownJacket(StatesGroup):
     rate_down_jacket = State()
 
@@ -21,14 +25,20 @@ class FSMCare(StatesGroup):
     rate_сare = State()
 
 # Состояние добавления курса юаня
+
+
 class FSMCourse(StatesGroup):
     course = State()
 
 # Состояние файла
+
+
 class FSMFile(StatesGroup):
     file = State()
 
-# Состояние ФОТКИ 
+# Состояние ФОТКИ
+
+
 class FSMPhoto(StatesGroup):
     photo = State()
 
@@ -39,7 +49,7 @@ class FSMMailing(StatesGroup):
     mailing2 = State()
 
 
-# Состояние гайд 
+# Состояние гайд
 class FSMGuide(StatesGroup):
     install_1 = State()
     install_2 = State()
@@ -50,7 +60,7 @@ class FSMGuide(StatesGroup):
     reference = State()
 
 
-# Состояние заказ 
+# Состояние заказ
 class FSMOrders(StatesGroup):
     price_snecers = State()
     price_clothe = State()
@@ -68,7 +78,9 @@ class FSMOrders(StatesGroup):
     adress_modify = State()
     name_modify = State()
 
-# Состояние заказ 
+# Состояние заказ
+
+
 class FSMAdress(StatesGroup):
     adress = State()
     adress2 = State()
@@ -78,7 +90,10 @@ class FSMAdress(StatesGroup):
 class FSMDeleteorder(StatesGroup):
     delete = State()
 
+
 class FSMConfirmation(StatesGroup):
     user_id = State()
 
 
+class FSMImages(StatesGroup):
+    image = State()

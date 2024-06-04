@@ -94,6 +94,10 @@ button_course = InlineKeyboardButton(
     text='Изменить курс юаня 🇨🇳',
     callback_data='add_course_botton'
 )
+button_image = InlineKeyboardButton(
+    text='Изменить приветсвенную картинку',
+    callback_data='add_button_image'
+)
 button_mailing = InlineKeyboardButton(
     text='Сделать рассылку',
     callback_data='mailing_botton'
@@ -154,6 +158,10 @@ cart_botton = InlineKeyboardButton(
     text='Ваша корзина🛒',
     callback_data='cart_botton'
 )
+back_cart = InlineKeyboardButton(
+    text='Назад в корзину🔙',
+    callback_data='cart_botton'
+)
 order_client_botton = InlineKeyboardButton(
     text='Вашы заказы📦',
     callback_data='order_client_botton'
@@ -166,23 +174,31 @@ upgrate_botton = InlineKeyboardButton(
     text='Обновить корзину🔁',
     callback_data='upgrate_botton'
 )
+delete_order = InlineKeyboardButton(
+    text='Очистить корзину☢',
+    callback_data='delete_order'
+)
+delete_order_2 = InlineKeyboardButton(
+    text='Удалить!',
+    callback_data='delete_order_2'
+)
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
-                    [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
+                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
 )
 meny_admin_order = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
-                    [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
+                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
-                    [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
+                     [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
 )
 meny_order = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
-                    [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
+                     [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
 )
 # Список кнопок с калькулятором
 calculator_rate = InlineKeyboardMarkup(
@@ -194,13 +210,19 @@ order = InlineKeyboardMarkup(
     inline_keyboard=[[sneacker_button_order], [button_clothes_order], [
         button_down_jacke_order], [button_care_order], [button_jewelr_order], [menu_booton_basic]]
 )
+# Список выбора категории для добавления товара и возварата в корзину
+orde_cart_back = InlineKeyboardMarkup(
+    inline_keyboard=[[sneacker_button_order], [button_clothes_order], [
+        button_down_jacke_order], [button_care_order], [button_jewelr_order], [back_cart]]
+)
 # Калькулятор
 calculator_update = InlineKeyboardMarkup(
     inline_keyboard=[[button_сalculator], [button_orders], [menu_booton_basic]]
 )
 # Повтор расчета
 update_calculator = InlineKeyboardMarkup(
-    inline_keyboard=[[button_update_count], [button_orders], [menu_booton_basic]]
+    inline_keyboard=[[button_update_count], [
+        button_orders], [menu_booton_basic]]
 )
 # Гайд по poizon
 frequent_questions = InlineKeyboardMarkup(
@@ -212,7 +234,8 @@ menu_rare = InlineKeyboardMarkup(
 )
 # Кнопка андройд
 android_poizon = InlineKeyboardMarkup(
-    inline_keyboard=[[button_android_poizon_botton], [button_next], [menu_booton]]
+    inline_keyboard=[[button_android_poizon_botton],
+                     [button_next], [menu_booton]]
 )
 # Меню с проскальзыванием
 menu_one = InlineKeyboardMarkup(
@@ -228,7 +251,8 @@ next_and_poizon = InlineKeyboardMarkup(
 )
 # Админ панель
 admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_course], [button_mailing], [menu_booton_basic]]
+    inline_keyboard=[[button_course], [button_mailing], [button_image],
+                     [menu_booton_basic]]
 )
 # Рассылка
 mailing_botton = InlineKeyboardMarkup(
@@ -237,7 +261,7 @@ mailing_botton = InlineKeyboardMarkup(
 # Выбор доставки
 order_botton = InlineKeyboardMarkup(
     inline_keyboard=[[upgrate_botton], [payment_botton], [delete_order_botton,
-                                        add_order_botton], [addres_modify_botton], [menu_booton]]
+                                                          add_order_botton], [addres_modify_botton], [delete_order], [menu_booton]]
 )
 # Отдельная кнопка заказа
 order_botton_one = InlineKeyboardMarkup(
@@ -246,4 +270,6 @@ order_botton_one = InlineKeyboardMarkup(
 # Подтверждение заказа от продавца
 payment_botton = InlineKeyboardMarkup(
     inline_keyboard=[[payment_botton_money]])
-    
+# Подтверждение удаления корзины
+delete_cart = InlineKeyboardMarkup(
+    inline_keyboard=[[delete_order_2], [back_cart]])

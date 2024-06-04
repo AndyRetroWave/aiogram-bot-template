@@ -10,6 +10,8 @@ from config.config import settings
 from config.config import logger
 
 # добавление заказа в корзину
+
+
 async def add_order(
     addres: str,
     url: str,
@@ -36,7 +38,6 @@ async def add_order(
                 shipping_cost=shipping_cost,
             )
             session.add(new_order)
-            logger.info(f"Пользователь {username} сохранил заказ в базе данных")
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -71,6 +72,8 @@ async def add_diven_user(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # получение заказа по юзеру
+
+
 async def order_user_id_all(
     user_id: int
 ):
@@ -80,15 +83,15 @@ async def order_user_id_all(
             price = result.mappings().all()
             return [{'id': row['OrderModel'].id,
                     'user_id': row['OrderModel'].user_id,
-                    'price': row['OrderModel'].price,
-                    'addres': row['OrderModel'].addres,
-                    'name': row['OrderModel'].name,
-                    'phone': row['OrderModel'].phone,
-                    'color': row['OrderModel'].color,
-                    'url': row['OrderModel'].url,
-                    'order': row['OrderModel'].order,
-                    'date': row['OrderModel'].data,
-                    'shipping_cost': row['OrderModel'].shipping_cost } for row in price]
+                     'price': row['OrderModel'].price,
+                     'addres': row['OrderModel'].addres,
+                     'name': row['OrderModel'].name,
+                     'phone': row['OrderModel'].phone,
+                     'color': row['OrderModel'].color,
+                     'url': row['OrderModel'].url,
+                     'order': row['OrderModel'].order,
+                     'date': row['OrderModel'].data,
+                     'shipping_cost': row['OrderModel'].shipping_cost} for row in price]
     except Exception as e:
         logger.critical(
             'Ошибка получение заказа по юзеру', exc_info=True)
@@ -97,10 +100,10 @@ async def order_user_id_all(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
-# Получение телефона юзера по таблице given 
+# Получение телефона юзера по таблице given
 async def phone_user_id_given(
         user_id: int,
-        ):
+):
     try:
         async with async_session_maker() as session:
             result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
@@ -139,7 +142,7 @@ async def addres_user_id_given(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
-# получение имени юзера по заказу по таблицу given 
+# получение имени юзера по заказу по таблицу given
 async def username_user_id_given(
     user_id: int
 ):
@@ -181,7 +184,7 @@ async def order_user_id_phone(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
-# получение даты заказа по заказу 
+# получение даты заказа по заказу
 async def order_user_id_date(
     user_id: int
 ):
@@ -202,20 +205,24 @@ async def order_user_id_date(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
-
 # Изменение даты по карзины для обновления
 async def modify_date_order_id(user_id: int):
     try:
         async with async_session_maker() as session:
-            stmt = update(OrderModel).where(OrderModel.user_id == user_id).values({'data': datetime.now()})
+            stmt = update(OrderModel).where(OrderModel.user_id ==
+                                            user_id).values({'data': datetime.now()})
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(f'Ошибка при изменении даты заказа для пользователя с ID {user_id}', exc_info=True)
-        error_message = LEXICON_RU['Ошибка'] + f'При изменении даты заказа для пользователя с ID {user_id}:\n{traceback.format_exc()}'
+        logger.critical(
+            f'Ошибка при изменении даты заказа для пользователя с ID {user_id}', exc_info=True)
+        error_message = LEXICON_RU['Ошибка'] + \
+            f'При изменении даты заказа для пользователя с ID {user_id}:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # получение url юзера по заказу
+
+
 async def order_user_id_url(
     user_id: int
 ):
@@ -257,6 +264,8 @@ async def order_url_id_color(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # получение адреса юзера по заказу
+
+
 async def order_user_id_addres(
     user_id: int
 ):
@@ -319,7 +328,7 @@ async def order_user_id_shipping_cost(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
-# Изменение телефона юзера по заказу по таблице Юзера 
+# Изменение телефона юзера по заказу по таблице Юзера
 async def modify_phone_user_id(
     user_id: int,
     new_phone: str,
@@ -329,7 +338,7 @@ async def modify_phone_user_id(
             new_phone = {'phone': new_phone}
             stmt = update(OrderGivenModel).where(
                 OrderGivenModel.user_id == user_id).values(new_phone)
-            result = await session.execute(stmt)
+            await session.execute(stmt)
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -349,7 +358,7 @@ async def modify_username_user_id(
             new_name = {'name': new_name}
             stmt = update(OrderGivenModel).where(
                 OrderGivenModel.user_id == user_id).values(new_name)
-            result = await session.execute(stmt)
+            await session.execute(stmt)
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -369,7 +378,7 @@ async def modify_addres_user_id(
             new_addres = {'addres': new_addres}
             stmt = update(OrderGivenModel).where(
                 OrderGivenModel.user_id == user_id).values(new_addres)
-            result = await session.execute(stmt)
+            await session.execute(stmt)
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -389,7 +398,7 @@ async def modify_phone_user_id_order(
             new_phone = {'phone': new_phone}
             stmt = update(OrderModel).where(
                 OrderModel.user_id == user_id).values(new_phone)
-            result = await session.execute(stmt)
+            await session.execute(stmt)
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -409,7 +418,7 @@ async def modify_username_user_id_order(
             new_name = {'name': new_name}
             stmt = update(OrderModel).where(
                 OrderModel.user_id == user_id).values(new_name)
-            result = await session.execute(stmt)
+            await session.execute(stmt)
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -429,7 +438,7 @@ async def modify_addres_user_id_order(
             new_addres = {'addres': new_addres}
             stmt = update(OrderModel).where(
                 OrderModel.user_id == user_id).values(new_addres)
-            result = await session.execute(stmt)
+            await session.execute(stmt)
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -489,7 +498,6 @@ async def add_order_save(
                 price_rub=price_rub
             )
             session.add(new_order)
-            logger.info(f"Пользователь {username} сохранил заказ в базе данных")
             await session.commit()
     except Exception as e:
         logger.critical(
@@ -520,7 +528,7 @@ async def delete_order(
 # Получение заказа из сохраненой базы
 async def add_save_order(
         user_id: int
-        ):
+):
     try:
         async with async_session_maker() as session:
             order = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
@@ -548,15 +556,15 @@ async def order_user_id_all_save(
             price = result.mappings().all()
             return [{'id': row['OrderModelSave'].id,
                     'user_id': row['OrderModelSave'].user_id,
-                    'price': row['OrderModelSave'].price,
-                    'addres': row['OrderModelSave'].addres,
-                    'name': row['OrderModelSave'].name,
-                    'phone': row['OrderModelSave'].phone,
-                    'color': row['OrderModelSave'].color,
-                    'url': row['OrderModelSave'].url,
-                    'order': row['OrderModelSave'].order,
-                    'date': row['OrderModelSave'].data,
-                    'shipping_cost': row['OrderModelSave'].shipping_cost, } for row in price]
+                     'price': row['OrderModelSave'].price,
+                     'addres': row['OrderModelSave'].addres,
+                     'name': row['OrderModelSave'].name,
+                     'phone': row['OrderModelSave'].phone,
+                     'color': row['OrderModelSave'].color,
+                     'url': row['OrderModelSave'].url,
+                     'order': row['OrderModelSave'].order,
+                     'date': row['OrderModelSave'].data,
+                     'shipping_cost': row['OrderModelSave'].shipping_cost, } for row in price]
     except Exception as e:
         logger.critical(
             'Ошибка получение заказа по сохраненым заказам', exc_info=True)
@@ -565,9 +573,11 @@ async def order_user_id_all_save(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # получение даты с сохраненных заказов
+
+
 async def data_order_save(
         user_id: int
-        ):
+):
     try:
         async with async_session_maker() as session:
             result = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
@@ -585,9 +595,11 @@ async def data_order_save(
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 # получение даты с корзины
+
+
 async def data_order(
         user_id: int
-        ):
+):
     try:
         async with async_session_maker() as session:
             result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))

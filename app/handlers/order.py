@@ -7,7 +7,7 @@ import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import order, order_botton, meny, order_botton_one, meny_order, menu_rare, payment_botton
+from app.keyboards.keyboards import order, order_botton, meny, order_botton_one, meny_order, menu_rare, payment_botton, delete_cart, orde_cart_back
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today
@@ -30,8 +30,6 @@ wrapper = textwrap.TextWrapper(width=max_length, replace_whitespace=False)
 @router.callback_query(F.data == 'botton_orders')
 async def category_botton_order(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку заказа")
         await callback.message.edit_text(
             text=LEXICON_RU["Категория"],
             reply_markup=order,
@@ -49,11 +47,9 @@ async def category_botton_order(callback: CallbackQuery):
 @router.callback_query(F.data == 'add_order_botton')
 async def category_botton_order_new(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку заказа")
         await callback.message.edit_text(
             text=LEXICON_RU["Категория"],
-            reply_markup=order,
+            reply_markup=orde_cart_back,
             parse_mode='MarkdownV2'
         )
         await callback.answer(show_alert=True)
@@ -68,8 +64,6 @@ async def category_botton_order_new(callback: CallbackQuery):
 @router.callback_query(F.data == 'order_botton')
 async def category_botton_order(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку заказа")
         await callback.message.edit_text(
             text=LEXICON_RU["Категория"],
             reply_markup=order,
@@ -87,9 +81,6 @@ async def category_botton_order(callback: CallbackQuery):
 @router.callback_query(F.data == 'button_snecers_order', StateFilter(default_state))
 async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(
-            f"Пользователь {user} нажал на кнопку калькулятора кросовок в заказе")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -117,8 +108,6 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMOrders.price_snecers))
 async def calculator_rate_value_order(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену кросовок в заказе")
         try:
             text = int(message.text)
             shipping_cost = 1200
@@ -145,9 +134,6 @@ async def calculator_rate_value_order(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_clothe_order', StateFilter(default_state))
 async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(
-            f"Пользователь {user} нажал на кнопку калькулятора одежды в заказе")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -174,8 +160,6 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMOrders.price_clothe))
 async def calculator_rate_value_order_clothed(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену ордежды в заказе")
         try:
             text = int(message.text)
             shipping_cost = 1000
@@ -203,9 +187,6 @@ async def calculator_rate_value_order_clothed(message: Message, state: FSMContex
 @router.callback_query(F.data == 'button_down_jacket_order', StateFilter(default_state))
 async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(
-            f"Пользователь {user} нажал на кнопку калькулятора пуховиков в заказе")
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -232,8 +213,6 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMOrders.price_jacket))
 async def calculator_rate_value_order_jacket(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} посчитал цену пуховиков в заказе")
         try:
             text = int(message.text)
             shipping_cost = 1000
@@ -261,9 +240,7 @@ async def calculator_rate_value_order_jacket(message: Message, state: FSMContext
 @router.callback_query(F.data == 'button_care_order', StateFilter(default_state))
 async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(
-            f"Пользователь {user} нажал на кнопку калькулятора пуховиков в заказе")
+
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             caption=LEXICON_RU["Ввести стоимость"],
@@ -290,8 +267,6 @@ async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'button_jewelr_order')
 async def button_jewelry(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} зешел в кнопку украшений")
         user_id = callback.message.from_user.id
         order = await add_save_order(user_id)
         if order:
@@ -318,8 +293,6 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMOrders.url))
 async def url_order(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} вписал ссылку на товар в заказе")
         text = message.text
         try:
             url = re.search(r'https?://\S+', text).group(0)
@@ -344,7 +317,6 @@ async def phone_order(message: Message, state: FSMContext):
     try:
         try:
             user = message.from_user.username
-            logger.info(f"Пользователь {user} вписал номер телефона")
             phone = message.text
             if not re.match(r'^7\d{10}$', phone):
                 await message.answer(text=LEXICON_RU["Введите правильно номер"], parse_mode='MarkdownV2')
@@ -373,7 +345,6 @@ async def phone_order(message: Message, state: FSMContext):
 async def phone_order(message: Message, state: FSMContext):
     try:
         user = message.from_user.username
-        logger.info(f"Пользователь {user} вписал ФИО")
         username = message.text
         await message.answer(
             text=LEXICON_RU["Адрес"],
@@ -396,7 +367,6 @@ async def phone_order(message: Message, state: FSMContext):
         round_value = round(value)
         user = message.from_user.username
         user_id = message.from_user.id
-        logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
         addres = message.text
         round_value = (await state.get_data())['round_value']
         url = (await state.get_data())['url']
@@ -408,6 +378,7 @@ async def phone_order(message: Message, state: FSMContext):
         await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
         await add_diven_user(addres, phone, username, user_id)
         order_id = await order_user_id_all(user_id)
+
         def get_new_date(date, days):
             new_date = date + timedelta(days=days)
             month_name_en = calendar.month_name[new_date.month]
@@ -457,6 +428,7 @@ async def phone_order(message: Message, state: FSMContext):
                     text=line,
                     parse_mode='HTML',
                     reply_markup=order_botton,
+                    disable_web_page_preview=True
                 )
                 await asyncio.sleep(1)
         else:
@@ -465,7 +437,8 @@ async def phone_order(message: Message, state: FSMContext):
                 text=text,
                 parse_mode='HTML',
                 reply_markup=order_botton,
-                )
+                disable_web_page_preview=True
+            )
         await state.clear()
     except Exception as e:
         logger.critical(
@@ -480,7 +453,6 @@ async def phone_order(message: Message, state: FSMContext):
 async def color_order(message: Message, state: FSMContext):
     try:
         user = message.from_user.username
-        logger.info(f"Пользователь {user} вписал цвет и размер")
         user_id = message.from_user.id
         color = message.text
         await state.update_data({"color": color})
@@ -490,7 +462,7 @@ async def color_order(message: Message, state: FSMContext):
             round_value = round(value)
             user = message.from_user.username
             user_id = message.from_user.id
-            logger.info(f"Пользователь {user} нажал на кнопку адреса пензы")
+
             addres = await addres_user_id_given(user_id)
             round_value = (await state.get_data())['round_value']
             url = (await state.get_data())['url']
@@ -551,6 +523,7 @@ async def color_order(message: Message, state: FSMContext):
                         text=line,
                         parse_mode='HTML',
                         reply_markup=order_botton,
+                        disable_web_page_preview=True
                     )
                     await asyncio.sleep(1)
             else:
@@ -559,7 +532,8 @@ async def color_order(message: Message, state: FSMContext):
                     text=text,
                     parse_mode='HTML',
                     reply_markup=order_botton,
-                    )
+                    disable_web_page_preview=True
+                )
             await state.clear()
         else:
             await message.answer(
@@ -579,9 +553,7 @@ async def color_order(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'addres_modify_botton', StateFilter(default_state))
 async def phone_order(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
         user_id = callback.from_user.id
-        logger.info(f"Пользователь {user} нажал на изменение данных")
         await bot.send_message(
             chat_id=user_id,
             text=LEXICON_RU["Номер телефона"],
@@ -603,8 +575,6 @@ async def phone_order_modify(message: Message, state: FSMContext):
         try:
             user = message.from_user.username
             user_id = message.from_user.id
-            logger.info(
-                f"Пользователь {user} вписал номер телефона в изменение данных")
             phone_old = str(message.text)
             await modify_phone_user_id(user_id, phone_old)
             await modify_phone_user_id_order(user_id, phone_old)
@@ -638,9 +608,7 @@ async def phone_order_modify(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMOrders.name_modify))
 async def phone_order_modify(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
         user_id = message.from_user.id
-        logger.info(f"Пользователь {user} вписал ФИО для изменения данных")
         username_old = str(message.text)
         await modify_username_user_id(user_id, username_old)
         await modify_username_user_id_order(user_id, username_old)
@@ -662,10 +630,7 @@ async def phone_order_modify(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMOrders.adress_modify))
 async def phone_order(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
         user_id = message.from_user.id
-        logger.info(
-            f"Пользователь {user} нажал на кнопку измененного адреса пензы и получил ответ заказа")
         addres_old = str(message.text)
         value = await course_today()
         await modify_addres_user_id(user_id, addres_old)
@@ -674,6 +639,7 @@ async def phone_order(message: Message, state: FSMContext):
         addres = await addres_user_id_given(user_id)
         phone = await phone_user_id_given(user_id)
         username = await username_user_id_given(user_id)
+
         def get_new_date(date, days):
             new_date = date + timedelta(days=days)
             month_name_en = calendar.month_name[new_date.month]
@@ -715,7 +681,8 @@ async def phone_order(message: Message, state: FSMContext):
             line_list = []
             print(line_list)
             for line in lines:
-                lines_replace = line.replace("</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                lines_replace = line.replace(
+                    "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
                 line_list.append(lines_replace)
                 await asyncio.sleep(1)
             for l in line_list:
@@ -724,6 +691,7 @@ async def phone_order(message: Message, state: FSMContext):
                     text=l,
                     parse_mode='HTML',
                     reply_markup=order_botton,
+                    disable_web_page_preview=True
                 )
                 await asyncio.sleep(1)
             await state.clear()
@@ -733,7 +701,8 @@ async def phone_order(message: Message, state: FSMContext):
                 text=text,
                 parse_mode='HTML',
                 reply_markup=order_botton,
-                )
+                disable_web_page_preview=True
+            )
             await state.clear()
         await state.clear()
     except Exception as e:
@@ -747,9 +716,7 @@ async def phone_order(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'delete_order_botton', StateFilter(default_state))
 async def category_botton_order(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
         use_id = callback.from_user.id
-        logger.info(f"Пользователь {user} нажал на кнопку удалить заказ")
         await bot.send_message(
             chat_id=use_id,
             text=LEXICON_RU["Удалить заказ"],
@@ -768,12 +735,9 @@ async def category_botton_order(callback: CallbackQuery, state: FSMContext):
 async def delete_order_botton(message: Message, state: FSMContext):
     try:
         try:
-            user = message.from_user.username
             user_id = message.from_user.id
             order = int(message.text)
             await delete_order_user_id(user_id, order)
-            logger.info(
-                f"Пользователь {user} получил заказ после удаления")
             value = await course_today()
             order_id = await order_user_id_all(user_id)
             order_save = await add_save_order(user_id)
@@ -818,6 +782,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         total_price, '79530203476')
                     text = total_price_message + order_info + order_message + payment_message
                 lines = wrapper.wrap(text=text)
+                await state.clear()
                 if len(text) > 4096:
                     line_list = []
                     for line in lines:
@@ -838,28 +803,29 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         text=text,
                         parse_mode='HTML',
                         reply_markup=order_botton,
-                        )
+                        disable_web_page_preview=True
+                    )
             else:
                 if order_save:
                     await bot.send_message(
                         chat_id=user_id,
                         text=LEXICON_RU["Привет"],
                         reply_markup=meny_order,
-                        parse_mode='MarkdownV2')
+                        parse_mode='MarkdownV2',
+                        disable_web_page_preview=True)
                     await state.clear()
                 else:
                     await bot.send_message(
                         chat_id=user_id,
                         text=LEXICON_RU["Привет"],
                         reply_markup=meny,
-                        parse_mode='MarkdownV2')
-                    await state.clear()
+                        parse_mode='MarkdownV2',
+                        disable_web_page_preview=True)
+
         except:
             await bot.send_message(
                 chat_id=user_id,
                 text="Введите номер заказа числом, а не буквами")
-        logger.info(
-            "Пользователь неправильно ввел номер удаления заказа", exc_info=True)
     except Exception as e:
         logger.critical('Ошибка в хендлере удалить заказ', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
@@ -871,10 +837,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'cart_botton')
 async def basket(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
         user_id = callback.from_user.id
-        logger.info(
-            f"Пользователь {user} нажал на кнопку корзины")
         value = await course_today()
         order_id = await order_user_id_all(user_id)
         addres = await addres_user_id_given(user_id)
@@ -932,6 +895,7 @@ async def basket(callback: CallbackQuery):
                             text=line,
                             parse_mode='HTML',
                             reply_markup=order_botton,
+                            disable_web_page_preview=True
                         )
                         await asyncio.sleep(1)
                 else:
@@ -940,7 +904,8 @@ async def basket(callback: CallbackQuery):
                         text=text,
                         parse_mode='HTML',
                         reply_markup=order_botton,
-                        )
+                        disable_web_page_preview=True
+                    )
                 callback.answer()
 
         else:
@@ -961,10 +926,8 @@ async def basket(callback: CallbackQuery):
 @router.callback_query(F.data == 'upgrate_botton')
 async def basket(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
+
         user_id = callback.from_user.id
-        logger.info(
-            f"Пользователь {user} нажал на кнопку корзины")
         value = await course_today()
         order_id = await order_user_id_all(user_id)
         addres = await addres_user_id_given(user_id)
@@ -1024,6 +987,7 @@ async def basket(callback: CallbackQuery):
                             text=line,
                             parse_mode='HTML',
                             reply_markup=order_botton,
+                            disable_web_page_preview=True
                         )
                         await asyncio.sleep(1)
                 else:
@@ -1032,7 +996,8 @@ async def basket(callback: CallbackQuery):
                         text=text,
                         parse_mode='HTML',
                         reply_markup=order_botton,
-                        )
+                        disable_web_page_preview=True
+                    )
         else:
             await callback.answer(
                 text=LEXICON_RU["Корзина"],
@@ -1090,6 +1055,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                 else:
                     await add_order_save(addres, url, color, price_int, phone, name, orders, user_id, shipping_cost_int, user_link, price_rub)
             order_info = '\n'.join(order_info)
+
             def get_new_date(date, days):
                 new_date = date + timedelta(days=days)
                 month_name_en = calendar.month_name[new_date.month]
@@ -1114,13 +1080,13 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                 user_link, user_id, value, order_info, addres, username, phone, total_price)
             lines_phone = wrapper.wrap(text=text_phone)
             lines_url = wrapper.wrap(text=text_url)
-            if len(text_phone or text_url)>4096:
+            if len(text_phone or text_url) > 4096:
                 if user_link.startswith("<code>7"):
                     line_list = []
                     for line in lines_phone:
-                        
+
                         lines_replace = line.replace(
-                                "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for l in line_list:
                         await bot.send_message(
@@ -1133,29 +1099,32 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                     line_list = []
                     for line in lines_url:
                         lines_replace = line.replace(
-                                "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for l in line_list:
                         await bot.send_message(
                             chat_id=6983025115,
                             text=l,
                             parse_mode="HTML",
-                            reply_markup=payment_botton)
+                            reply_markup=payment_botton,
+                            disable_web_page_preview=True)
                         await asyncio.sleep(1)
             else:
                 if user_link.startswith("<code>7"):
                     await bot.send_message(
-                            chat_id=6983025115,
-                            text=text_phone,
-                            parse_mode="HTML",
-                            reply_markup=payment_botton)
+                        chat_id=6983025115,
+                        text=text_phone,
+                        parse_mode="HTML",
+                        reply_markup=payment_botton,
+                        disable_web_page_preview=True)
                     await asyncio.sleep(1)
                 else:
                     await bot.send_message(
                         chat_id=6983025115,
                         text=text_url,
                         parse_mode="HTML",
-                        reply_markup=payment_botton)
+                        reply_markup=payment_botton,
+                        disable_web_page_preview=True)
                     await asyncio.sleep(1)
     except Exception as e:
         logger.critical('Ошибка в кнопе заказ', exc_info=True)
@@ -1199,7 +1168,6 @@ async def order_user(callback: CallbackQuery):
         value = await course_today()
         user = callback.from_user
         user_id = user.id
-        logger.info(f"Пользователь {user} нажал на свои заказы")
         order_id = await order_user_id_all_save(user_id)
         addres, phone, username, orders, url, color, price, price_rub, shipping_cost, data_20, data_30 = [
         ], [], [], [], [], [], [], [], [], [], []
@@ -1241,12 +1209,14 @@ async def order_user(callback: CallbackQuery):
                     chat_id=user_id,
                     text=f"""{line}""",
                     parse_mode="HTML",
+                    disable_web_page_preview=True
                 )
                 await asyncio.sleep(1)
             await bot.send_message(
                 chat_id=user_id,
                 text="Это список ваших заказов💌\nПри получение товара, позиция будет удалена из истории❗",
-                reply_markup=menu_rare)
+                reply_markup=menu_rare,
+                disable_web_page_preview=True)
             await asyncio.sleep(1)
         else:
             await bot.send_message(
@@ -1258,10 +1228,27 @@ async def order_user(callback: CallbackQuery):
             await bot.send_message(
                 chat_id=user_id,
                 text="Это список ваших заказов💌\nПри получение товара, позиция будет удалена из истории❗",
-                reply_markup=menu_rare)
+                reply_markup=menu_rare,
+                disable_web_page_preview=True)
             await asyncio.sleep(1)
     except Exception as e:
         logger.critical('Ошибка в подтверждение заказа', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'ваш заказ:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+@router.callback_query(F.data == 'delete_order')
+async def order_user(callback: CallbackQuery):
+    await callback.message.edit_text(
+        text=LEXICON_RU["Подтверждения удаления"],
+        reply_markup=delete_cart)
+
+
+@router.callback_query(F.data == 'delete_order_2')
+async def order_user(callback: CallbackQuery):
+    user_id = callback.from_user.id
+    await delete_order(user_id)
+    await callback.message.edit_text(
+        text=LEXICON_RU["Удаление корзины"],
+        reply_markup=menu_rare)

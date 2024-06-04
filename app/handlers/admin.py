@@ -3,10 +3,11 @@ from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import meny_admin, admin, mailing_botton
-from app.models.course.dao import add_course, course_today
+from app.models.course.dao import add_course, course_today, delete_course
+from app.models.images.dao import delete_image, get_image, save_image
 from app.models.users.dao import all_user
 from config.config import settings, logger
-from app.states.states import FSMCourse, FSMMailing
+from app.states.states import FSMCourse, FSMMailing, FSMImages
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
@@ -20,8 +21,6 @@ router = Router()
 @router.callback_query(F.data == 'add_course_admin')
 async def admin_panel(callback: CallbackQuery):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку админ панель")
         await callback.message.edit_text(
             text="Что будем делать?",
             reply_markup=admin
@@ -33,28 +32,24 @@ async def admin_panel(callback: CallbackQuery):
             f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Кнопка добовления курса юаня
-
-
 @router.callback_query(F.data == 'add_course_botton', StateFilter(default_state))
 async def add_course_yan(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(
-            f"Пользователь {user} нажал на кнопку изменения курса юаня")
         try:
             value = await course_today()
             formatted_num = "{}\\.{}".format(
                 int(value), int(value * 100) % 100)
             await callback.message.edit_text(
-                text=f"""Введи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!\n\nКурс на данный момент: *{formatted_num}* """,
+                text=f"""Введи курс на сегодняшний день❗\n\nКурс на данный момент: *{formatted_num}* """,
                 parse_mode='MarkdownV2',
             )
             await callback.answer(show_alert=True)
             await state.set_state(FSMCourse.course)
         except:
             await callback.message.edit_text(
-                text=f"""Введи курс на сегодняшний день\n\n❗*ВНИМАНИЕ* надо добавлять курс с точкой\!""",
+                text=f"""Введи курс на сегодняшний день\n\n""",
                 parse_mode='MarkdownV2',
             )
             await callback.answer(show_alert=True)
@@ -70,15 +65,24 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(FSMCourse.course))
 async def calculator_rate_value(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
-        logger.info(f"Пользователь {user} изменил курс юаня")
         try:
-            course = float(message.text)
-            await add_course(course)
-            await state.clear()
-            await message.answer(
-                text="Курс юаня успешно установлен",
-                reply_markup=meny_admin)
+            if await course_today():
+                course = message.text
+                new_course = float(course.replace(",", "."))
+                await add_course(new_course)
+                await delete_course()
+                await state.clear()
+                await message.answer(
+                    text="Курс юаня успешно установлен",
+                    reply_markup=meny_admin)
+            else:
+                course = message.text
+                new_course = float(course.replace(",", "."))
+                await add_course(new_course)
+                await state.clear()
+                await message.answer(
+                    text="Курс юаня успешно установлен",
+                    reply_markup=meny_admin)
         except ValueError:
             await message.answer(
                 text="Введи пожалуйста курс числом а не словами")
@@ -93,8 +97,6 @@ async def calculator_rate_value(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'mailing_botton', StateFilter(default_state))
 async def botton_mailing(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на кнопку рассылки")
         await callback.message.edit_text(
             text=LEXICON_RU["Рассылка"],
             parse_mode='MarkdownV2',
@@ -107,15 +109,12 @@ async def botton_mailing(callback: CallbackQuery, state: FSMContext):
             f'кнопке рассылки:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Хендлер по рассылки
-
-
 @router.message(StateFilter(FSMMailing.mailing))
 async def handler_mailing(message: Message, state: FSMContext):
     try:
         try:
-            user = message.from_user.username
-            logger.info(f"Пользователь {user} ввел текст рассылки")
             text = message.text
             user = await all_user()
             if message.content_type == 'photo':
@@ -162,8 +161,6 @@ async def handler_mailing(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'button_сonfirm_and_send', StateFilter(FSMMailing.mailing2))
 async def text_mailing(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} отправил рассылку")
         user = await all_user()
         try:
             photo = (await state.get_data())['photo_id']
@@ -193,9 +190,8 @@ async def text_mailing(callback: CallbackQuery, state: FSMContext):
             f'отправки рассылки:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Кнопка изменения текста
-
-
 @router.callback_query(F.data == 'button_modify')
 async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
     try:
@@ -213,5 +209,45 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
             f'кнопке изменения текста:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 async def notification():
     await bot.send_message(chat_id=538383620, text='Доброе утро! Пора обновлять курс юаня!', reply_markup=admin)
+
+
+# Кнопка изменение картинки на превью
+@router.callback_query(F.data == "add_button_image", StateFilter(default_state))
+async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.edit_text(
+            text="Закинь сюда фото которе хотел бы видеть на превьюхе",
+        )
+        await callback.answer(show_alert=True)
+        await state.set_state(FSMImages.image)
+    except:
+        logger.critical("Ошибка в загрузке фото для изменения", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Хендлер по изменению картинки
+@router.message(StateFilter(FSMImages.image))
+async def modify_image(message: Message, state: FSMContext):
+    try:
+        try:
+            file_id = message.photo[-1].file_id
+            if await get_image() == None:
+                await save_image(file_id)
+            else:
+                await save_image(file_id)
+                await delete_image()
+            await message.answer(text="Ты успешно поменял картинку!",
+                                 reply_markup=meny_admin)
+            await state.clear()
+        except:
+            await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
+    except:
+        logger.critical("Ошибка в загрузке фото для изменения", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
