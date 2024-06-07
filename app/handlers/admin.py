@@ -3,11 +3,11 @@ from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import meny_admin, admin, mailing_botton
-from app.models.course.dao import add_course, course_today, delete_course
+from app.models.course.dao import add_bank, add_course, course_today, delete_course, get_bank, get_phone_bank, modify_bank, modify_phone_bank
 from app.models.images.dao import delete_image, get_image, save_image
 from app.models.users.dao import all_user
 from config.config import settings, logger
-from app.states.states import FSMCourse, FSMMailing, FSMImages
+from app.states.states import FSMBank, FSMCourse, FSMMailing, FSMImages, FSMPhone
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
@@ -248,6 +248,82 @@ async def modify_image(message: Message, state: FSMContext):
             await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
     except:
         logger.critical("Ошибка в загрузке фото для изменения", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Кнопка изменения банка получателя
+@router.callback_query(F.data == "add_button_bank", StateFilter(default_state))
+async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.edit_text(
+            text="Введи новый банк для получения денег от клиента\nВ таком формате: Тинькофф! Рябов.П\nОбязательно нужно указывать фамилию получателя",
+        )
+        await callback.answer(show_alert=True)
+        await state.set_state(FSMBank.bank)
+    except:
+        logger.critical("Ошибка в изменение банка получателя", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Хендлер для изменения банка получаетеля
+@router.message(StateFilter(FSMBank.bank))
+async def modify_image(message: Message, state: FSMContext):
+    try:
+        try:
+            bank = message.text
+            if await get_bank() == None:
+                await add_bank(bank)
+            else:
+                await modify_bank(bank)
+                await delete_image()
+            await message.answer(text="Ты успешно поменял банк!",
+                                 reply_markup=meny_admin)
+            await state.clear()
+        except:
+            await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
+    except:
+        logger.critical("Ошибка в изменния банка получателя", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Кнопка изменения номера телефона получателя
+@router.callback_query(F.data == "add_button_bank_phone", StateFilter(default_state))
+async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.edit_text(
+            text="Введи новый номер телефона для получателя",
+        )
+        await callback.answer(show_alert=True)
+        await state.set_state(FSMPhone.phone)
+    except:
+        logger.critical(
+            "Ошибка в изменение телефона  получателя", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Хендлер для изменения номера телефона получателя
+@router.message(StateFilter(FSMPhone.phone))
+async def modify_image(message: Message, state: FSMContext):
+    try:
+        try:
+            phone = str(message.text)
+            await modify_phone_bank(phone)
+            await message.answer(text="Ты успешно поменял номер телефона!",
+                                 reply_markup=meny_admin)
+            await state.clear()
+        except:
+            await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
+    except:
+        logger.critical(
+            "Ошибка в изменния номера телефона получателя", exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)

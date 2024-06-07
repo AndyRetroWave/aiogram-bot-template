@@ -14,5 +14,5 @@ class BankModel(Base):
     __tablename__ = "bank"
 
     id = Column(Integer, primary_key=True)
-    text = Column(String)
-    data = Column(Date)
+    phone = Column(String)
+    bank = Column(String)

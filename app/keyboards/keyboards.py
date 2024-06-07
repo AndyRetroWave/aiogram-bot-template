@@ -98,6 +98,14 @@ button_image = InlineKeyboardButton(
     text='Изменить приветсвенную картинку',
     callback_data='add_button_image'
 )
+button_bank = InlineKeyboardButton(
+    text='Изменить банк',
+    callback_data='add_button_bank'
+)
+button_bank_phone = InlineKeyboardButton(
+    text='Изменить номер телефона получателя',
+    callback_data='add_button_bank_phone'
+)
 button_mailing = InlineKeyboardButton(
     text='Сделать рассылку',
     callback_data='mailing_botton'
@@ -251,7 +259,7 @@ next_and_poizon = InlineKeyboardMarkup(
 )
 # Админ панель
 admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_course], [button_mailing], [button_image],
+    inline_keyboard=[[button_course], [button_mailing], [button_image], [button_bank], [button_bank_phone],
                      [menu_booton_basic]]
 )
 # Рассылка

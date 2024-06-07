@@ -26,6 +26,7 @@ async def start(message: types.Message, state: FSMContext):
         logger.info(f"Пользователь {username} стартовал в боте")
         order = await add_save_order(user_id)
         await add_user(first_name, last_name, username, user_id)
+
         if message.from_user.id == settings.ADMIN_ID or message.from_user.id == settings.ADMIN_ID2:
             if await get_image() == None:
                 await bot.send_photo(

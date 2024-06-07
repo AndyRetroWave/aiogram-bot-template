@@ -97,3 +97,11 @@ class FSMConfirmation(StatesGroup):
 
 class FSMImages(StatesGroup):
     image = State()
+
+
+class FSMBank(StatesGroup):
+    bank = State()
+
+
+class FSMPhone(StatesGroup):
+    phone = State()

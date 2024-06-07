@@ -1,6 +1,7 @@
-from sqlalchemy import delete, desc, select, func
+from asyncio.log import logger
+from sqlalchemy import delete, desc, select, func, update
 from config.database import async_session_maker
-from app.models.course.models import CourseModel
+from app.models.course.models import BankModel, CourseModel
 import datetime
 
 
@@ -28,5 +29,46 @@ async def course_today():
         try:
             price = result.scalar().price
             return price
+        except:
+            return None
+
+
+async def add_bank(bank):
+    async with async_session_maker() as session:
+        new_bank = BankModel(bank=bank)
+        session.add(new_bank)
+        await session.commit()
+
+
+async def modify_bank(bank):
+    async with async_session_maker() as session:
+        stmt = update(BankModel).where(BankModel.id == 1).values(bank=bank)
+        await session.execute(stmt)
+        await session.commit()
+
+
+async def get_bank():
+    async with async_session_maker() as session:
+        result = await session.execute(select(BankModel))
+        try:
+            bank = result.scalar().bank
+            return bank
+        except:
+            return None
+
+
+async def modify_phone_bank(phone):
+    async with async_session_maker() as session:
+        stmt = update(BankModel).where(BankModel.id == 1).values(phone=phone)
+        await session.execute(stmt)
+        await session.commit()
+
+
+async def get_phone_bank():
+    async with async_session_maker() as session:
+        result = await session.execute(select(BankModel))
+        try:
+            phone = result.scalar().phone
+            return phone
         except:
             return None
