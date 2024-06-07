@@ -1101,7 +1101,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                         line_list.append(lines_replace)
                     for l in line_list:
                         await bot.send_message(
-                            chat_id=6983025115,
+                            chat_id=settings.ADMIN_ID2,
                             text=l,
                             parse_mode="HTML",
                             reply_markup=payment_botton)
@@ -1114,7 +1114,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                         line_list.append(lines_replace)
                     for l in line_list:
                         await bot.send_message(
-                            chat_id=6983025115,
+                            chat_id=settings.ADMIN_ID2,
                             text=l,
                             parse_mode="HTML",
                             reply_markup=payment_botton,
@@ -1123,7 +1123,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
             else:
                 if user_link.startswith("<code>7"):
                     await bot.send_message(
-                        chat_id=6983025115,
+                        chat_id=settings.ADMIN_ID2,
                         text=text_phone,
                         parse_mode="HTML",
                         reply_markup=payment_botton,
@@ -1131,7 +1131,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                     await asyncio.sleep(1)
                 else:
                     await bot.send_message(
-                        chat_id=6983025115,
+                        chat_id=settings.ADMIN_ID2,
                         text=text_url,
                         parse_mode="HTML",
                         reply_markup=payment_botton,

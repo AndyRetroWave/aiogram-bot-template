@@ -5,7 +5,7 @@ from app.lexicon.lexicon_ru import LEXICON_RU
 from app.filters.filters import my_start_filter
 from app.models.images.dao import get_image
 from app.models.order.dao import add_save_order
-from app.models.users.dao import add_user
+from app.models.users.dao import add_user, get_user
 from app.keyboards.keyboards import meny, meny_admin, meny_order, meny_admin_order
 from aiogram.fsm.context import FSMContext
 from config.config import bot, logger, settings
@@ -24,9 +24,13 @@ async def start(message: types.Message, state: FSMContext):
         username = message.from_user.username
         user_id = message.from_user.id
         logger.info(f"Пользователь {username} стартовал в боте")
+        if await get_user(user_id) == None:
+            await bot.send_message(
+                chat_id=settings.ADMIN_ID2,
+                text=f"В вашем боте новый [пользователь](https://t.me/{username})\!",
+                parse_mode="MarkdownV2")
         order = await add_save_order(user_id)
         await add_user(first_name, last_name, username, user_id)
-
         if message.from_user.id == settings.ADMIN_ID or message.from_user.id == settings.ADMIN_ID2:
             if await get_image() == None:
                 await bot.send_photo(

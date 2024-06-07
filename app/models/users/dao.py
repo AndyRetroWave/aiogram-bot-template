@@ -25,6 +25,7 @@ async def add_user(first_name, last_name, username, user_id):
             f'добавление данных в таблицу с юзерами:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 async def all_user():
     try:
         async with async_session_maker() as session:
@@ -37,3 +38,13 @@ async def all_user():
         error_message = LEXICON_RU["Ошибка"] + \
             f'получения данных с юзерами:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+async def get_user(id):
+    async with async_session_maker() as session:
+        result = await session.execute(select(UserModel).where(UserModel.user_id == id))
+        try:
+            user = result.scalar().user_id
+            return user
+        except:
+            return None

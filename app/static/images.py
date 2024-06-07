@@ -88,7 +88,7 @@ class StaticFile():
     # Заказ
     url_order = "AgACAgIAAxkBAAIOx2X8FgryrpDMsQqzR1dIS0sOdJagAAJX0TEbe3LhS_mrT9iq2rGQAQADAgADeAADNAQ"
 
-    video = "BAACAgIAAxkBAAIuBGZdnOLeIM9c8YiQ1f2E8bGPeBm3AALKRwACIy7xSlFZdR-2VCRwNQQ"
+    video = "BAACAgIAAxkBAAIkfmZjAsuDvzTgf79ABRw8x7z5x2plAAK0SwACYrYYS5TM6VGyV2vGNQQ"
 
 
 static = StaticFile()
