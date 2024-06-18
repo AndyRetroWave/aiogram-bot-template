@@ -62,6 +62,8 @@ async def main():
     schelduler = AsyncIOScheduler(timezone="Europe/Moscow")
     schelduler.add_job(admin.notification, trigger='cron',
                        hour=8, minute=0, second=0)
+    schelduler.add_job(order.delete_month_order, trigger='cron',
+                       hour=9, minute=0, second=0)
     schelduler.start()
 
     # Удаление вебхука и запуск бота с использованием лонг-поллинга

@@ -46,6 +46,8 @@ button_instruction = InlineKeyboardButton(
     text='Инструкция📃',
     callback_data='instruction'
 )
+
+
 big_button_2 = InlineKeyboardButton(
     text='Кроссовки👟',
     callback_data='button_snecers'
@@ -86,6 +88,8 @@ button_care_order = InlineKeyboardButton(
     text='Украшения/духи/ковры💍',
     callback_data='button_care_order'
 )
+
+
 button_admin = InlineKeyboardButton(
     text='Админ панель',
     callback_data='add_course_admin'
@@ -106,6 +110,26 @@ button_bank_phone = InlineKeyboardButton(
     text='Изменить номер телефона получателя',
     callback_data='add_button_bank_phone'
 )
+
+
+button_set_shipping_cost = InlineKeyboardButton(
+    text='Изменить стоимость доставки для товаров',
+    callback_data='add_set_shipping_cost'
+)
+sneacker_set_button = InlineKeyboardButton(
+    text='Кроссовки',
+    callback_data='button_set_button'
+)
+button_set_clothes = InlineKeyboardButton(
+    text='Одежда',
+    callback_data='button_set_clothes'
+)
+button_set_jacket = InlineKeyboardButton(
+    text='Пуховики',
+    callback_data='button_set_jacket'
+)
+
+
 button_mailing = InlineKeyboardButton(
     text='Сделать рассылку',
     callback_data='mailing_botton'
@@ -259,8 +283,13 @@ next_and_poizon = InlineKeyboardMarkup(
 )
 # Админ панель
 admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_course], [button_mailing], [button_image], [button_bank], [button_bank_phone],
+    inline_keyboard=[[button_course], [button_mailing], [button_image], [button_bank], [button_bank_phone], [button_set_shipping_cost],
                      [menu_booton_basic]]
+)
+# Изменение стоимости доставки
+shiping_cost = InlineKeyboardMarkup(
+    inline_keyboard=[[sneacker_set_button], [
+        button_set_clothes], [button_set_jacket], [menu_booton_basic]]
 )
 # Рассылка
 mailing_botton = InlineKeyboardMarkup(

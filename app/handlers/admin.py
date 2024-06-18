@@ -1,13 +1,20 @@
 import traceback
 from aiogram import F, types, Router
+import aiogram
 from aiogram.types import CallbackQuery, Message
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import meny_admin, admin, mailing_botton
-from app.models.course.dao import add_bank, add_course, course_today, delete_course, get_bank, get_phone_bank, modify_bank, modify_phone_bank
+from app.keyboards.keyboards import meny_admin, admin, mailing_botton, shiping_cost
+from app.models.course.dao import (add_bank, add_course, course_today,
+                                   delete_course, get_bank, get_phone_bank,
+                                   modify_bank, modify_phone_bank
+                                   )
+from app.models.course.models import cost_ships
 from app.models.images.dao import delete_image, get_image, save_image
 from app.models.users.dao import all_user
 from config.config import settings, logger
-from app.states.states import FSMBank, FSMCourse, FSMMailing, FSMImages, FSMPhone
+from app.states.states import (FSMBank, FSMCourse, FSMMailing, FSMImages, FSMPhone,
+                               FSMShippingClother, FSMShippingJacket, FSMShippingSneaker
+                               )
 from aiogram.fsm.state import default_state
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
@@ -42,7 +49,7 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
             formatted_num = "{}\\.{}".format(
                 int(value), int(value * 100) % 100)
             await callback.message.edit_text(
-                text=f"""Введи курс на сегодняшний день❗\n\nКурс на данный момент: *{formatted_num}* """,
+                text=f"""Введи курс на сегодняшний день❗\nКурс на данный момент: *{formatted_num}* """,
                 parse_mode='MarkdownV2',
             )
             await callback.answer(show_alert=True)
@@ -116,9 +123,7 @@ async def handler_mailing(message: Message, state: FSMContext):
     try:
         try:
             text = message.text
-            user = await all_user()
             if message.content_type == 'photo':
-                # если сообщение содержит фото, отправляем фото и текст одним сообщением
                 photo_id = message.photo[-1].file_id
                 caption = message.caption
                 await state.update_data({"photo_id": photo_id})
@@ -134,7 +139,6 @@ async def handler_mailing(message: Message, state: FSMContext):
                 )
                 await state.set_state(FSMMailing.mailing2)
             else:
-                # если сообщение не содержит фото, отправляем только текст
                 text = message.text
                 await state.update_data({"text": text})
                 await bot.send_message(
@@ -148,7 +152,8 @@ async def handler_mailing(message: Message, state: FSMContext):
                 await state.set_state(FSMMailing.mailing2)
         except:
             await message.answer(
-                text="Ты не правильно экранизировал символы или допустил ошибку, повтори еще раз"
+                text="Ты не правильно экранизировал символы или допустил ошибку,"
+                "повтори еще раз"
             )
     except:
         logger.critical('Ошибка написание текста рассылки', exc_info=True)
@@ -158,33 +163,42 @@ async def handler_mailing(message: Message, state: FSMContext):
 
 
 # Хендлер по рассылки
-@router.callback_query(F.data == 'button_сonfirm_and_send', StateFilter(FSMMailing.mailing2))
+@router.callback_query(F.data == 'button_сonfirm_and_send',
+                       StateFilter(FSMMailing.mailing2))
 async def text_mailing(callback: CallbackQuery, state: FSMContext):
     try:
         user = await all_user()
         try:
             photo = (await state.get_data())['photo_id']
             caption = (await state.get_data())['caption']
-            # for users in user:
-            await callback.answer(text="Отправил")
-            await bot.send_photo(
-                chat_id=6983025115,
-                photo=photo,
-                caption=caption,
-                parse_mode='MarkdownV2')
-            await state.clear()
-            await callback.answer(show_alert=True)
-        except:
+            for users in user:
+                try:
+                    await callback.answer(text="Отправил")
+                    await bot.send_photo(
+                        chat_id=users,
+                        photo=photo,
+                        caption=caption,
+                        parse_mode='MarkdownV2')
+                except aiogram.exceptions.TelegramForbiddenError:
+                    print(f"Bot is blocked by user {users}")
+                await state.clear()
+                await callback.answer(show_alert=True)
+        except KeyError as e:
+            print(f"KeyError: {e}")
             caption = (await state.get_data())['text']
-            # for users in user:
-            await callback.answer(text="Отправил")
-            await bot.send_message(
-                chat_id=6983025115,
-                text=caption,
-                parse_mode='MarkdownV2')
-            await callback.answer(show_alert=True)
-            await state.clear()
-    except:
+            for users in user:
+                try:
+                    await callback.answer(text="Отправил")
+                    await bot.send_message(
+                        chat_id=users,
+                        text=caption,
+                        parse_mode='MarkdownV2')
+                except aiogram.exceptions.TelegramForbiddenError:
+                    print(f"Bot is blocked by user {users}")
+                await state.clear()
+                await callback.answer(show_alert=True)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         logger.critical('Ошибка отправки рассылки', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'отправки рассылки:\n{traceback.format_exc()}'
@@ -195,8 +209,6 @@ async def text_mailing(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'button_modify')
 async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
     try:
-        user = callback.from_user.username
-        logger.info(f"Пользователь {user} нажал на изменения текста")
         await callback.message.edit_text(
             text=LEXICON_RU["Рассылка"],
             parse_mode='MarkdownV2',
@@ -211,7 +223,10 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
 
 
 async def notification():
-    await bot.send_message(chat_id=538383620, text='Доброе утро! Пора обновлять курс юаня!', reply_markup=admin)
+    await bot.send_message(chat_id=538383620,
+                           text='Доброе утро! Пора обновлять курс юаня!',
+                           reply_markup=admin
+                           )
 
 
 # Кнопка изменение картинки на превью
@@ -245,7 +260,9 @@ async def modify_image(message: Message, state: FSMContext):
                                  reply_markup=meny_admin)
             await state.clear()
         except:
-            await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
+            await message.answer(
+                text="Ты засунул в меня что то иное друг, повтори попытку"
+            )
     except:
         logger.critical("Ошибка в загрузке фото для изменения", exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
@@ -258,7 +275,8 @@ async def modify_image(message: Message, state: FSMContext):
 async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.edit_text(
-            text="Введи новый банк для получения денег от клиента\nВ таком формате: Тинькофф! Рябов.П\nОбязательно нужно указывать фамилию получателя",
+            text="Введи новый банк для получения денег от клиента\nВ таком"
+            "формате: Тинькофф! Рябов.П\nОбязательно нужно указывать фамилию получателя",
         )
         await callback.answer(show_alert=True)
         await state.set_state(FSMBank.bank)
@@ -284,7 +302,9 @@ async def modify_image(message: Message, state: FSMContext):
                                  reply_markup=meny_admin)
             await state.clear()
         except:
-            await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
+            await message.answer(
+                text="Ты засунул в меня что то иное друг, повтори попытку"
+            )
     except:
         logger.critical("Ошибка в изменния банка получателя", exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
@@ -320,10 +340,156 @@ async def modify_image(message: Message, state: FSMContext):
                                  reply_markup=meny_admin)
             await state.clear()
         except:
-            await message.answer(text="Ты засунул в меня что то иное друг, повтори попытку")
+            await message.answer(
+                text="Ты засунул в меня что то иное друг, повтори попытку"
+            )
     except:
         logger.critical(
             "Ошибка в изменния номера телефона получателя", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Кнопка изменения стоимости доставки для товаров
+@router.callback_query(F.data == 'add_set_shipping_cost')
+async def admin_panel(callback: CallbackQuery):
+    try:
+        await callback.message.edit_text(
+            text="Что будем изменять?",
+            reply_markup=shiping_cost
+        )
+        await callback.answer(show_alert=True)
+    except:
+        logger.critical(
+            "Ошибка в кнопке изменения цены доставки для товаров",
+            exc_info=True
+        )
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Кнопка изменения стоимости доставки для кроссовка
+@router.callback_query(F.data == 'button_set_button', StateFilter(default_state))
+async def admin_panel(callback: CallbackQuery, state: FSMShippingSneaker):
+    try:
+        await callback.message.edit_text(
+            text="Введи новую стоимость доставки"
+        )
+        await callback.answer(show_alert=True)
+        await state.set_state(FSMShippingSneaker.cost)
+    except:
+        logger.critical(
+            "Ошибка в кнопке изменения цены доставки для товаров",
+            exc_info=True
+        )
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Хендлер для изменения стоимости доставки для кроссовка
+@router.message(StateFilter(FSMShippingSneaker.cost))
+async def modify_image(message: Message, state: FSMContext):
+    try:
+        try:
+            cost = int(message.text)
+            cost_ships.sneaker = cost
+            await message.answer(text="Ты успешно поменял стоимость доставки!",
+                                 reply_markup=meny_admin)
+            await state.clear()
+        except:
+            await message.answer(
+                text="Ты засунул в меня что то иное друг, повтори попытку"
+            )
+    except:
+        logger.critical(
+            "Ошибка в изменния стоимости доставки для кроссовок", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Кнопка изменения стоимости доставки для одежды
+@router.callback_query(F.data == 'button_set_clothes',
+                       StateFilter(default_state)
+                       )
+async def admin_panel(callback: CallbackQuery, state: FSMShippingClother):
+    try:
+        await callback.message.edit_text(
+            text="Введи новую стоимость доставки"
+        )
+        await callback.answer(show_alert=True)
+        await state.set_state(FSMShippingClother.cost)
+    except:
+        logger.critical(
+            "Ошибка в кнопке изменения цены доставки для товаров",
+            exc_info=True
+        )
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Хендлер для изменения стоимости доставки для одежды
+@router.message(StateFilter(FSMShippingClother.cost))
+async def modify_image(message: Message, state: FSMContext):
+    try:
+        try:
+            cost = int(message.text)
+            cost_ships.closer = cost
+            await message.answer(text="Ты успешно поменял стоимость доставки!",
+                                 reply_markup=meny_admin)
+            await state.clear()
+        except:
+            await message.answer(
+                text="Ты засунул в меня что то иное друг, повтори попытку"
+            )
+    except:
+        logger.critical(
+            "Ошибка в изменния стоимости доставки для одежды", exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Кнопка изменения стоимости доставки для пуховиков
+@router.callback_query(F.data == 'button_set_jacket',
+                       StateFilter(default_state))
+async def admin_panel(callback: CallbackQuery, state: FSMShippingJacket):
+    try:
+        await callback.message.edit_text(
+            text="Введи новую стоимость доставки"
+        )
+        await callback.answer(show_alert=True)
+        await state.set_state(FSMShippingJacket.cost)
+    except:
+        logger.critical(
+            "Ошибка в кнопке изменения цены доставки для товаров",
+            exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Хендлер для изменения стоимости доставки для одежды
+@router.message(StateFilter(FSMShippingJacket.cost))
+async def modify_image(message: Message, state: FSMContext):
+    try:
+        try:
+            cost = int(message.text)
+            cost_ships.jacket = cost
+            await message.answer(text="Ты успешно поменял стоимость доставки!",
+                                 reply_markup=meny_admin)
+            await state.clear()
+        except:
+            await message.answer(text="Ты засунул в меня что то иное друг,"
+                                      "повтори попытку")
+    except:
+        logger.critical(
+            "Ошибка в изменния стоимости доставки для пуховиков",
+            exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)

@@ -7,10 +7,13 @@ import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from app.lexicon.lexicon_ru import LEXICON_RU
-from app.keyboards.keyboards import order, order_botton, meny, order_botton_one, meny_order, menu_rare, payment_botton, delete_cart, orde_cart_back
+from app.keyboards.keyboards import (order, order_botton, meny, order_botton_one,
+                                     meny_order, menu_rare, payment_botton, 
+                                     delete_cart, orde_cart_back)
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from app.models.course.dao import course_today, get_bank, get_phone_bank
+from app.models.course.models import cost_ships
 from app.models.order.dao import *
 from app.states.states import FSMDeleteorder, FSMOrders, FSMConfirmation
 from aiogram.fsm.state import default_state
@@ -110,7 +113,7 @@ async def calculator_rate_value_order(message: Message, state: FSMContext):
     try:
         try:
             text = int(message.text)
-            shipping_cost = 1200
+            shipping_cost = cost_ships.sneaker
             await state.update_data({"shipping_cost": shipping_cost})
             await state.update_data({"round_value": text})
             await state.set_state(FSMOrders.url)
@@ -162,7 +165,7 @@ async def calculator_rate_value_order_clothed(message: Message, state: FSMContex
     try:
         try:
             text = int(message.text)
-            shipping_cost = 1000
+            shipping_cost = cost_ships.closer
             await state.update_data({"shipping_cost": shipping_cost})
             await state.update_data({"round_value": text})
             await state.set_state(FSMOrders.url)
@@ -214,7 +217,7 @@ async def calculator_rate_value_order_jacket(message: Message, state: FSMContext
     try:
         try:
             text = int(message.text)
-            shipping_cost = 1000
+            shipping_cost = cost_ships.jacket
             await state.update_data({"shipping_cost": shipping_cost})
             await state.update_data({"round_value": text})
             await state.set_state(FSMOrders.url)
@@ -317,7 +320,8 @@ async def phone_order(message: Message, state: FSMContext):
             user = message.from_user.username
             phone = message.text
             if not re.match(r'^7\d{10}$', phone):
-                await message.answer(text=LEXICON_RU["Введите правильно номер"], parse_mode='MarkdownV2')
+                await message.answer(text=LEXICON_RU["Введите правильно номер"], 
+                                     parse_mode='MarkdownV2')
                 return
             await state.update_data({"phone": phone})
             await message.answer(
@@ -375,7 +379,9 @@ async def phone_order(message: Message, state: FSMContext):
         bank_phone = await get_phone_bank()
         bank = await get_bank()
         order = random.randint(1000000, 9999999)
-        await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
+        await add_order(addres, url, color, round_value, phone, username, 
+                        order, user_id, shipping_cost
+                        )
         await add_diven_user(addres, phone, username, user_id)
         order_id = await order_user_id_all(user_id)
 
@@ -407,14 +413,18 @@ async def phone_order(message: Message, state: FSMContext):
                 value*order['price'] + order['shipping_cost'])
             price_rub.append(price_rub_round)
             order_info = '\n'.join(
-                [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                [LEXICON_RU['order_message_part2'].\
+                 format(u, c, p, r, s, o) for u, c, p, r, s, o in \
+                    zip(url, color, price, price_rub, shipping_cost, orders)])
             total_price_message = LEXICON_RU['order_message_part1'].format(
                 total_price, 'Пензы')
             order_message = LEXICON_RU['order_message_part3'].format(
-                value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                value, 'Пензы', addres, username, phone, new_date_20_formatted, 
+                new_date_30_formatted)
             payment_message = LEXICON_RU['order_message_part4'].format(
                 total_price, bank_phone, bank)
-            text = total_price_message + order_info + order_message + payment_message
+            text = total_price_message + order_info + order_message + \
+                payment_message
         lines = wrapper.wrap(text=text)
         if len(text) > 4096:
             line_list = []
@@ -452,7 +462,6 @@ async def phone_order(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMOrders.color))
 async def color_order(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
         user_id = message.from_user.id
         color = message.text
         await state.update_data({"color": color})
@@ -462,9 +471,7 @@ async def color_order(message: Message, state: FSMContext):
         if phone_user_id is not None:
             value = await course_today()
             round_value = round(value)
-            user = message.from_user.username
             user_id = message.from_user.id
-
             addres = await addres_user_id_given(user_id)
             round_value = (await state.get_data())['round_value']
             url = (await state.get_data())['url']
@@ -473,7 +480,9 @@ async def color_order(message: Message, state: FSMContext):
             username = await username_user_id_given(user_id)
             shipping_cost = (await state.get_data())['shipping_cost']
             order = random.randint(1000000, 9999999)
-            await add_order(addres, url, color, round_value, phone, username, order, user_id, shipping_cost)
+            await add_order(addres, url, color, round_value, phone, username, 
+                            order, user_id, shipping_cost
+                            )
             order_id = await order_user_id_all(user_id)
 
             def get_new_date(date, days):
@@ -504,20 +513,25 @@ async def color_order(message: Message, state: FSMContext):
                 price_rub.append(price_rub_round)
                 total_price = round(sum(price)*value + sum(shipping_cost))
                 order_info = '\n'.join(
-                    [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                    [LEXICON_RU['order_message_part2'].
+                     format(u, c, p, r, s, o) for u, c, p, r, s, o in
+                        zip(url, color, price, price_rub, shipping_cost, orders)])
                 total_price_message = LEXICON_RU['order_message_part1'].format(
                     total_price, 'Пензы')
                 order_message = LEXICON_RU['order_message_part3'].format(
-                    value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                    value, 'Пензы', addres, username, phone, new_date_20_formatted,
+                    new_date_30_formatted)
                 payment_message = LEXICON_RU['order_message_part4'].format(
                     total_price, bank_phone, bank)
-                text = total_price_message + order_info + order_message + payment_message
+                text = total_price_message + order_info + order_message + \
+                    payment_message
             lines = wrapper.wrap(text=text)
             if len(text) > 4096:
                 line_list = []
                 for line in lines:
                     lines_replace = line.replace(
-                        "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                        "</b>", "").replace("<b>", "").\
+                        replace("</code>", "").replace("<code>", "")
                     line_list.append(lines_replace)
                 for line in line_list:
                     await bot.send_message(
@@ -672,21 +686,27 @@ async def phone_order(message: Message, state: FSMContext):
             price_rub.append(price_rub_round)
             total_price = round(sum(price)*value + sum(shipping_cost))
             order_info = '\n'.join(
-                [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                [LEXICON_RU['order_message_part2'].
+                 format(u, c, p, r, s, o) for u, c, p, r, s, o in
+                 zip(url, color, price, price_rub, shipping_cost, orders)])
             total_price_message = LEXICON_RU['order_message_part1'].format(
                 total_price, 'Пензы')
             order_message = LEXICON_RU['order_message_part3'].format(
-                value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                value, 'Пензы', addres, username, phone, new_date_20_formatted,
+                new_date_30_formatted
+            )
             payment_message = LEXICON_RU['order_message_part4'].format(
                 total_price, bank_phone, bank)
-            text = total_price_message + order_info + order_message + payment_message
+            text = total_price_message + order_info + \
+                order_message + payment_message
         lines = wrapper.wrap(text=text)
         if len(text) > 4096:
             line_list = []
             print(line_list)
             for line in lines:
                 lines_replace = line.replace(
-                    "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                    "</b>", "").replace("<b>", "").\
+                    replace("</code>", "").replace("<code>", "")
                 line_list.append(lines_replace)
                 await asyncio.sleep(1)
             for l in line_list:
@@ -780,21 +800,27 @@ async def delete_order_botton(message: Message, state: FSMContext):
                     total_price = round(sum(price_rub))
                     print(total_price)
                     order_info = '\n'.join(
-                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                        [LEXICON_RU['order_message_part2'].
+                         format(u, c, p, r, s, o) for u, c, p, r, s, o in
+                         zip(url, color, price, price_rub, shipping_cost, orders)])
                     total_price_message = LEXICON_RU['order_message_part1'].format(
                         total_price, 'Пензы')
                     order_message = LEXICON_RU['order_message_part3'].format(
-                        value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                        value, 'Пензы', addres, username, phone,
+                        new_date_20_formatted, new_date_30_formatted
+                    )
                     payment_message = LEXICON_RU['order_message_part4'].format(
                         total_price, bank_phone, bank)
-                    text = total_price_message + order_info + order_message + payment_message
+                    text = total_price_message + order_info + order_message + \
+                        payment_message
                 lines = wrapper.wrap(text=text)
                 await state.clear()
                 if len(text) > 4096:
                     line_list = []
                     for line in lines:
                         lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "").\
+                            replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for line in line_list:
                         await bot.send_message(
@@ -883,20 +909,26 @@ async def basket(callback: CallbackQuery):
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
                     order_info = '\n'.join(
-                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o)
+                         for u, c, p, r, s, o in zip
+                         (url, color, price, price_rub, shipping_cost, orders)])
                     total_price_message = LEXICON_RU['order_message_part1'].format(
                         total_price, 'Пензы')
                     order_message = LEXICON_RU['order_message_part3'].format(
-                        value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                        value, 'Пензы', addres, username, phone, 
+                        new_date_20_formatted, new_date_30_formatted
+                        )
                     payment_message = LEXICON_RU['order_message_part4'].format(
                         total_price, bank_phone, bank)
-                    text = total_price_message + order_info + order_message + payment_message
+                    text = total_price_message + order_info + order_message + \
+                        payment_message
                 lines = wrapper.wrap(text=text)
                 if len(text) > 4096:
                     line_list = []
                     for line in lines:
                         lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "").\
+                                replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for line in line_list:
                         await bot.send_message(
@@ -976,21 +1008,28 @@ async def basket(callback: CallbackQuery):
                     price_rub.append(price_rub_round)
                     total_price = round(sum(price)*value + sum(shipping_cost))
                     order_info = '\n'.join(
-                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o) for u, c, p, r, s, o in zip(url, color, price, price_rub, shipping_cost, orders)])
+                        [LEXICON_RU['order_message_part2'].
+                         format(u, c, p, r, s, o) for u, c, p, r, s, o in
+                         zip(url, color, price, price_rub, shipping_cost, orders)])
                     total_price_message = LEXICON_RU['order_message_part1'].format(
                         total_price, 'Пензы')
                     order_message = LEXICON_RU['order_message_part3'].format(
-                        value, 'Пензы', addres, username, phone, new_date_20_formatted, new_date_30_formatted)
+                        value, 'Пензы', addres, username, phone,
+                        new_date_20_formatted, new_date_30_formatted
+                    )
                     payment_message = LEXICON_RU['order_message_part4'].format(
                         total_price, bank_phone, bank)
-                    text = total_price_message + order_info + order_message + payment_message
-                await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+                    text = total_price_message + order_info + \
+                        order_message + payment_message
+                await bot.delete_message(chat_id=callback.message.chat.id,
+                                         message_id=callback.message.message_id)
                 lines = wrapper.wrap(text=text)
                 if len(text) > 4096:
                     line_list = []
                     for line in lines:
                         lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "")\
+                            .replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for line in line_list:
                         await bot.send_message(
@@ -1035,7 +1074,8 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
         username = await username_user_id_given(user_id)
         value = await course_today()
         await state.update_data(user_id=user_id)
-        user_link = f"https://t.me/{user.username}" if user.username else f"<code>{phone}</code> "
+        user_link = f"https://t.me/{user.username}" if user.username \
+                    else f"<code>{phone}</code> "
         price, shipping_cost = [], []
         order_info = []
         if order_id:
@@ -1062,9 +1102,13 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                 price_rub = (price_int*value)+shipping_cost_int
                 if user_link.startswith("<code>7"):
                     user_link_phone = phone
-                    await add_order_save(addres, url, color, price_int, phone, name, orders, user_id, shipping_cost_int, user_link_phone, price_rub)
+                    await add_order_save(addres, url, color, price_int, phone,
+                                         name, orders, user_id, shipping_cost_int,
+                                         user_link_phone, price_rub)
                 else:
-                    await add_order_save(addres, url, color, price_int, phone, name, orders, user_id, shipping_cost_int, user_link, price_rub)
+                    await add_order_save(addres, url, color, price_int, phone,
+                                         name, orders, user_id, shipping_cost_int,
+                                         user_link, price_rub)
             order_info = '\n'.join(order_info)
 
             def get_new_date(date, days):
@@ -1080,28 +1124,32 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
             new_date_20_formatted, new_date_30_formatted = new_dates
             await delete_order(user_id)
             await callback.message.edit_text(
-                text=f"""*Спасибо что выбрали нас*\!\nМы оформили ваш заказ и в ближайшее время его выкупим❤\n\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nОжидайте подтверждение получения денег от продовца, вам прийдет смс уведомление о том, что мы получили деньги и уже выкупаем товар\!""",
+                text=f"""*Спасибо что выбрали нас*\!Мы оформили ваш заказ и в ближайшее время его выкупим❤\n\nПриблизительная дата доставки\: *{new_date_20_formatted} \- {new_date_30_formatted}*\nОжидайте подтверждение получения денег от продовца, вам прийдет смс уведомление о том, что мы получили деньги и уже выкупаем товар\!""",
                 parse_mode='MarkdownV2',
                 reply_markup=meny_order,
             )
             callback.answer()
             text_phone = LEXICON_RU['Отчет о заказе с телефоном'].format(
-                user_link, user_id, value, order_info, addres, username, phone, total_price)
+                user_link, user_id, value, order_info, addres, username, phone,
+                total_price
+            )
             text_url = LEXICON_RU['Отчет о заказе с ссылкой'].format(
-                user_link, user_id, value, order_info, addres, username, phone, total_price)
+                user_link, user_id, value, order_info, addres, username, phone,
+                total_price
+            )
             lines_phone = wrapper.wrap(text=text_phone)
             lines_url = wrapper.wrap(text=text_url)
             if len(text_phone or text_url) > 4096:
                 if user_link.startswith("<code>7"):
                     line_list = []
                     for line in lines_phone:
-
                         lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "").\
+                                replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for l in line_list:
                         await bot.send_message(
-                            chat_id=settings.ADMIN_ID2,
+                            chat_id=settings.ADMIN_ID,
                             text=l,
                             parse_mode="HTML",
                             reply_markup=payment_botton)
@@ -1110,11 +1158,12 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                     line_list = []
                     for line in lines_url:
                         lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").replace("</code>", "").replace("<code>", "")
+                            "</b>", "").replace("<b>", "").\
+                                replace("</code>", "").replace("<code>", "")
                         line_list.append(lines_replace)
                     for l in line_list:
                         await bot.send_message(
-                            chat_id=settings.ADMIN_ID2,
+                            chat_id=settings.ADMIN_ID,
                             text=l,
                             parse_mode="HTML",
                             reply_markup=payment_botton,
@@ -1123,7 +1172,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
             else:
                 if user_link.startswith("<code>7"):
                     await bot.send_message(
-                        chat_id=settings.ADMIN_ID2,
+                        chat_id=settings.ADMIN_ID,
                         text=text_phone,
                         parse_mode="HTML",
                         reply_markup=payment_botton,
@@ -1131,7 +1180,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                     await asyncio.sleep(1)
                 else:
                     await bot.send_message(
-                        chat_id=settings.ADMIN_ID2,
+                        chat_id=settings.ADMIN_ID,
                         text=text_url,
                         parse_mode="HTML",
                         reply_markup=payment_botton,
@@ -1180,7 +1229,8 @@ async def order_user(callback: CallbackQuery):
         user = callback.from_user
         user_id = user.id
         order_id = await order_user_id_all_save(user_id)
-        addres, phone, username, orders, url, color, price, price_rub, shipping_cost, data_20, data_30 = [
+        addres, phone, username, orders, url, color, price,\
+            price_rub, shipping_cost, data_20, data_30 = [
         ], [], [], [], [], [], [], [], [], [], []
         if order_id:
             for order in order_id:
@@ -1249,6 +1299,7 @@ async def order_user(callback: CallbackQuery):
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
+# Кнопка очищение корзины
 @router.callback_query(F.data == 'delete_order')
 async def order_user(callback: CallbackQuery):
     await callback.message.edit_text(
@@ -1256,6 +1307,7 @@ async def order_user(callback: CallbackQuery):
         reply_markup=delete_cart)
 
 
+# Очищение корзины
 @router.callback_query(F.data == 'delete_order_2')
 async def order_user(callback: CallbackQuery):
     user_id = callback.from_user.id
@@ -1263,3 +1315,7 @@ async def order_user(callback: CallbackQuery):
     await callback.message.edit_text(
         text=LEXICON_RU["Удаление корзины"],
         reply_markup=menu_rare)
+
+
+async def delete_month_order():
+    await delete_old_order()

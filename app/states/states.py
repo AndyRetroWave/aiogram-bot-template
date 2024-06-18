@@ -105,3 +105,15 @@ class FSMBank(StatesGroup):
 
 class FSMPhone(StatesGroup):
     phone = State()
+
+
+class FSMShippingSneaker(StatesGroup):
+    cost = State()
+
+
+class FSMShippingJacket(StatesGroup):
+    cost = State()
+
+
+class FSMShippingClother(StatesGroup):
+    cost = State()

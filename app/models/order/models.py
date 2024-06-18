@@ -26,6 +26,7 @@ class OrderGivenModel(Base):
     addres = Column(String)
     name = Column(String)
 
+
 class OrderModelSave(Base):
     __tablename__ = "save_order"
     id = Column(Integer, primary_key=True)

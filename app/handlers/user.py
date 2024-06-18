@@ -31,7 +31,8 @@ async def start(message: types.Message, state: FSMContext):
                 parse_mode="MarkdownV2")
         order = await add_save_order(user_id)
         await add_user(first_name, last_name, username, user_id)
-        if message.from_user.id == settings.ADMIN_ID or message.from_user.id == settings.ADMIN_ID2:
+        if message.from_user.id == settings.ADMIN_ID or \
+                message.from_user.id == settings.ADMIN_ID2:
             if await get_image() == None:
                 await bot.send_photo(
                     chat_id=message.chat.id,
@@ -94,7 +95,8 @@ async def start(callback: CallbackQuery, state: FSMContext):
         user_id = callback.from_user.id
         order = await add_save_order(user_id)
         await add_user(first_name, last_name, username, user_id)
-        if callback.from_user.id == settings.ADMIN_ID or callback.from_user.id == settings.ADMIN_ID2:
+        if callback.from_user.id == settings.ADMIN_ID or \
+                callback.from_user.id == settings.ADMIN_ID2:
             if order:
                 await callback.message.edit_text(
                     text=LEXICON_RU["Привет"],
@@ -139,7 +141,8 @@ async def start(callback: CallbackQuery, state: FSMContext):
         user_id = callback.from_user.id
         order = await add_save_order(user_id)
         await add_user(first_name, last_name, username, user_id)
-        if callback.from_user.id == settings.ADMIN_ID or callback.from_user.id == settings.ADMIN_ID2:
+        if callback.from_user.id == settings.ADMIN_ID or\
+                callback.from_user.id == settings.ADMIN_ID2:
             if order:
                 await bot.send_message(
                     chat_id=callback.message.chat.id,

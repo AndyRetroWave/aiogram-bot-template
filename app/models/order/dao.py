@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import traceback
 from sqlalchemy import delete, select, update, and_
 from app.lexicon.lexicon_ru import LEXICON_RU
@@ -79,7 +79,8 @@ async def order_user_id_all(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
             price = result.mappings().all()
             return [{'id': row['OrderModel'].id,
                     'user_id': row['OrderModel'].user_id,
@@ -106,7 +107,8 @@ async def phone_user_id_given(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
+            result = await session.execute(select(OrderGivenModel).
+                                           where(OrderGivenModel.user_id == user_id))
         user_phone = result.scalar()
         if user_phone is not None:
             phone = user_phone.phone
@@ -127,7 +129,8 @@ async def addres_user_id_given(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
+            result = await session.execute(select(OrderGivenModel).
+                                           where(OrderGivenModel.user_id == user_id))
             addres_user = result.scalar()
             if addres_user is not None:
                 addres = addres_user.addres
@@ -148,7 +151,8 @@ async def username_user_id_given(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).where(OrderGivenModel.user_id == user_id))
+            result = await session.execute(select(OrderGivenModel).
+                                           where(OrderGivenModel.user_id == user_id))
             username_user = result.scalar()
             if username_user is not None:
                 username = username_user.name
@@ -169,7 +173,8 @@ async def order_user_id_phone(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
         user_phone = result.scalar()
         if user_phone is not None:
             phone = user_phone.phone
@@ -190,7 +195,8 @@ async def order_user_id_date(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
         user_data = result.scalar()
         if user_data is not None:
             data = user_data.data
@@ -228,7 +234,8 @@ async def order_user_id_url(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
         user_url = result.scalar()
         if user_url is not None:
             url = user_url.url
@@ -249,7 +256,8 @@ async def order_url_id_color(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
         user_color = result.scalar()
         if user_color is not None:
             color = user_color.color
@@ -271,7 +279,8 @@ async def order_user_id_addres(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
             addres_user = result.scalar()
             if addres_user is not None:
                 addres = addres_user.addres
@@ -292,7 +301,8 @@ async def order_user_id_username(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
             username_user = result.scalar()
             if username_user is not None:
                 username = username_user.name
@@ -313,7 +323,8 @@ async def order_user_id_shipping_cost(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
             shipping_cost_user = result.scalar()
             if shipping_cost_user is not None:
                 shipping_cost = shipping_cost_user.shipping_cost
@@ -531,7 +542,8 @@ async def add_save_order(
 ):
     try:
         async with async_session_maker() as session:
-            order = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
+            order = await session.execute(select(OrderModelSave).
+                                          where(OrderModelSave.user_id == user_id))
             stmt = order.scalar()
             if stmt is not None:
                 result = stmt.order
@@ -552,7 +564,8 @@ async def order_user_id_all_save(
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
+            result = await session.execute(select(OrderModelSave).
+                                           where(OrderModelSave.user_id == user_id))
             price = result.mappings().all()
             return [{'id': row['OrderModelSave'].id,
                     'user_id': row['OrderModelSave'].user_id,
@@ -572,15 +585,15 @@ async def order_user_id_all_save(
             f'получение заказа по сохраненым заказам:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # получение даты с сохраненных заказов
-
-
 async def data_order_save(
         user_id: int
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModelSave).where(OrderModelSave.user_id == user_id))
+            result = await session.execute(select(OrderModelSave).
+                                           where(OrderModelSave.user_id == user_id))
             stmt = result.scalar()
             if stmt is not None:
                 result = stmt.data
@@ -594,15 +607,15 @@ async def data_order_save(
             f'получение даты с сохраненных заказов:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # получение даты с корзины
-
-
 async def data_order(
         user_id: int
 ):
     try:
         async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).where(OrderModel.user_id == user_id))
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
             stmt = result.scalar()
             if stmt is not None:
                 result = stmt.data
@@ -615,3 +628,14 @@ async def data_order(
         error_message = LEXICON_RU["Ошибка"] + \
             f'получение даты с корзины:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Удаление месячных заказов
+async def delete_old_order():
+    async with async_session_maker() as session:
+        date_now = datetime.now().date()
+        date_old = date_now - timedelta(days=45)
+        delete_order = delete(OrderModelSave).where(
+            OrderModelSave.data < date_old)
+        await session.execute(delete_order)
+        await session.commit()
