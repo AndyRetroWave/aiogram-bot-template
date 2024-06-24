@@ -1,7 +1,11 @@
+# version: '3.8'
+
 services:
   db:
     image: postgres:16
     container_name: contora_db
+    # volumes:
+    #   - contora_db:/var/lib/postgresql/data
     restart: always
     env_file:
       - .env-copy
@@ -32,3 +36,6 @@ services:
     ports:
       - "8000:8000"
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
+
+# volumes:
+#   contora_db:

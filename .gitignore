@@ -137,3 +137,4 @@ dmypy.json
 
 migrations/versions/*
 /.env-copy
+env-copy
