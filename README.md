@@ -56,3 +56,4 @@ To get started with this bot, follow these steps:
 - Run the bot using `python bot.py`.
 
 Думаешь ты хакер?
+Не я так не думаю
