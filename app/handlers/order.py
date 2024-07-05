@@ -6,6 +6,7 @@ import textwrap
 import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
+from app.dependence.dependence import ReceivingOrderLists, order_date_receipt, random_order_int
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import (order, order_botton, meny, order_botton_one,
                                      meny_order, menu_rare, payment_botton,
@@ -33,6 +34,7 @@ wrapper = textwrap.TextWrapper(width=max_length, replace_whitespace=False)
 @router.callback_query(F.data == 'botton_orders')
 async def category_botton_order(callback: CallbackQuery):
     try:
+        # Отправление сообщения с выбором категори товара
         await callback.message.edit_text(
             text=LEXICON_RU["Категория"],
             reply_markup=order,
@@ -112,10 +114,14 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 async def calculator_rate_value_order(message: Message, state: FSMContext):
     try:
         try:
+            # Получение цены
             text = int(message.text)
+            # Получение актуальной стоимости доставки
             shipping_cost = cost_ships.sneaker
+            # Запись данных с ввода от пользователя
             await state.update_data({"shipping_cost": shipping_cost})
             await state.update_data({"round_value": text})
+            # Передача машиного состояни на ссылку
             await state.set_state(FSMOrders.url)
             await bot.send_photo(
                 chat_id=message.chat.id,
@@ -124,6 +130,7 @@ async def calculator_rate_value_order(message: Message, state: FSMContext):
                 parse_mode='MarkdownV2'
             )
         except ValueError:
+            # Если пользователь ввел не правильный тип данных
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
     except Exception as e:
@@ -164,10 +171,14 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 async def calculator_rate_value_order_clothed(message: Message, state: FSMContext):
     try:
         try:
+            # Получение цены от клиента
             text = int(message.text)
+            # Получение актуально цены доставки для кроссовка
             shipping_cost = cost_ships.closer
+            # Запить данных в машино-состояние
             await state.update_data({"shipping_cost": shipping_cost})
             await state.update_data({"round_value": text})
+            # Передача машиного состояния к ссылке
             await state.set_state(FSMOrders.url)
             await bot.send_photo(
                 chat_id=message.chat.id,
@@ -176,6 +187,7 @@ async def calculator_rate_value_order_clothed(message: Message, state: FSMContex
                 parse_mode='MarkdownV2'
             )
         except ValueError:
+            # Отправка смс если пользователь ввел не тот тип данных
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
     except Exception as e:
@@ -216,10 +228,14 @@ async def sneaks_button_order(callback: CallbackQuery, state: FSMContext):
 async def calculator_rate_value_order_jacket(message: Message, state: FSMContext):
     try:
         try:
+            # Получение цены от клиента
             text = int(message.text)
+            # Получение актуально цены доставки для пуховика
             shipping_cost = cost_ships.jacket
+            # Запить данных в машино-состояние
             await state.update_data({"shipping_cost": shipping_cost})
             await state.update_data({"round_value": text})
+            # Передача машиного состояния к ссылке
             await state.set_state(FSMOrders.url)
             await bot.send_photo(
                 chat_id=message.chat.id,
@@ -228,6 +244,7 @@ async def calculator_rate_value_order_jacket(message: Message, state: FSMContext
                 parse_mode='MarkdownV2'
             )
         except ValueError:
+            # Отправка смс если пользователь ввел не тот тип данных
             await message.answer(text=LEXICON_RU["Стоимость в юанях"],
                                  parse_mode='MarkdownV2')
     except Exception as e:
@@ -266,16 +283,19 @@ async def jacket_button_order(callback: CallbackQuery, state: FSMContext):
 
 # Кнопка аксессуары
 @router.callback_query(F.data == 'button_jewelr_order')
-async def button_jewelry(callback: CallbackQuery, state: FSMContext):
+async def button_jewelry(callback: CallbackQuery):
     try:
         user_id = callback.message.from_user.id
+        # Получение сведения о наличии оформленного заказа у клиента
         order = await add_save_order(user_id)
+        # Если он есть
         if order:
             await callback.message.edit_text(
                 text=LEXICON_RU["Заказ аксессуаров"],
                 parse_mode='MarkdownV2',
                 reply_markup=meny_order,)
             await callback.answer(show_alert=True)
+        # Если его нет
         else:
             await callback.message.edit_text(
                 text=LEXICON_RU["Заказ аксессуаров"],
@@ -295,15 +315,18 @@ async def button_jewelry(callback: CallbackQuery, state: FSMContext):
 async def url_order(message: Message, state: FSMContext):
     try:
         text = message.text
+        # Регулярное выражение поиска url ссылки из текста
         try:
             url = re.search(r'https?://\S+', text).group(0)
             await state.update_data({"url": url})
+        # Если не получилось то просто отдаем этот текст боту
         except:
             await state.update_data({"url": text})
         await message.answer(
             text=LEXICON_RU["Размер товара"],
             parse_mode='MarkdownV2'
         )
+        # Передаем машино-состояние дальше
         await state.set_state(FSMOrders.color)
     except Exception as e:
         logger.critical('Ошибка в кнопе заказ', exc_info=True)
@@ -318,17 +341,21 @@ async def phone_order(message: Message, state: FSMContext):
     try:
         try:
             user = message.from_user.username
+            # Получение данных о номере телефона клиента
             phone = message.text
-            if not re.match(r'^7\d{10}$', phone):
+            # Проверяем правильность ввода номера телефона
+            if re.match(r'^7\d{10}$', phone):
+                # Записываем данные в машино-состояние
+                await state.update_data({"phone": phone})
+                await message.answer(
+                    text=LEXICON_RU["ФИО"],
+                    parse_mode='MarkdownV2'
+                )
+                # Передаем машино-состояние дальше
+                await state.set_state(FSMOrders.name)
+            else:
                 await message.answer(text=LEXICON_RU["Введите правильно номер"],
                                      parse_mode='MarkdownV2')
-                return
-            await state.update_data({"phone": phone})
-            await message.answer(
-                text=LEXICON_RU["ФИО"],
-                parse_mode='MarkdownV2'
-            )
-            await state.set_state(FSMOrders.name)
         except:
             await message.answer(text=LEXICON_RU["Введите правильно номер"],
                                  parse_mode='MarkdownV2')
@@ -346,13 +373,15 @@ async def phone_order(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMOrders.name))
 async def phone_order(message: Message, state: FSMContext):
     try:
-        user = message.from_user.username
+        # Получаем ФИО от клиента
         username = message.text
         await message.answer(
             text=LEXICON_RU["Адрес"],
             parse_mode='MarkdownV2',
         )
+        # Записываем ее в машино состояние
         await state.update_data({"username": username})
+        # Идем дальше
         await state.set_state(FSMOrders.penza)
     except Exception as e:
         logger.critical('Ошибка в кнопе ФИО в заказе', exc_info=True)
@@ -365,91 +394,44 @@ async def phone_order(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMOrders.penza))
 async def phone_order(message: Message, state: FSMContext):
     try:
-        value = await course_today()
-        round_value = round(value)
-        user = message.from_user.username
-        user_id = message.from_user.id
-        addres = message.text
-        round_value = (await state.get_data())['round_value']
-        url = (await state.get_data())['url']
-        color = (await state.get_data())['color']
-        phone = ((await state.get_data())['phone'])
-        username = (await state.get_data())['username']
-        shipping_cost = (await state.get_data())['shipping_cost']
-        bank_phone = await get_phone_bank()
-        bank = await get_bank()
-        order = random.randint(1000000, 9999999)
-        await add_order(addres, url, color, round_value, phone, username,
-                        order, user_id, shipping_cost
-                        )
-        await add_diven_user(addres, phone, username, user_id)
-        order_id = await order_user_id_all(user_id)
-
-        def get_new_date(date, days):
-            new_date = date + timedelta(days=days)
-            month_name_en = calendar.month_name[new_date.month]
-            month_name_ru = months[month_name_en]
-            if days == 30:
-                return f'{new_date.day} {month_name_ru} {new_date.year} года'
-            else:
-                return f'{new_date.day} {month_name_ru}'
-        date = await data_order(user_id)
-        new_dates = [get_new_date(date, days) for days in [20, 30]]
+        user_id = message.from_user.id  # Получение id клиента
+        addres = message.text  # Получение адреса с прошлого смс
+        # Получение данных из машино-состоянии
+        await state.update_data({"addres": addres})
+        data_order = await state.update_data()
+        value = await course_today()  # Получаем курс на данный момент
+        order = await random_order_int()  # Генерация номера заказ
+        # Добавления заказа в корзину (базу данных)
+        await add_order(
+            addres, data_order['url'], data_order['color'],
+            data_order["round_value"], data_order["phone"],
+            data_order["username"], order, user_id,
+            data_order['shipping_cost']
+        )
+        # Добавление данных о клиенте в базу данных
+        await add_diven_user(
+            addres, data_order["phone"], data_order["username"], user_id
+        )
+        # Получение всех данных о корзине клиента
+        order_id = await order_user_id_all_2(user_id)
+        # Формирования ожидаемой прихода товара
+        new_dates = await order_date_receipt()
         new_date_20_formatted, new_date_30_formatted = new_dates
-        color = []
-        orders = []
-        url = []
-        price = []
-        shipping_cost = []
-        price_rub = []
-        for order in order_id:
-            orders.append(order['order'])
-            url.append(order['url'])
-            color.append(order['color'])
-            price.append(order['price'])
-            shipping_cost.append(order['shipping_cost'])
-            total_price = round(sum(price)*value + sum(shipping_cost))
-            price_rub_round = round(
-                value*order['price'] + order['shipping_cost'])
-            price_rub.append(price_rub_round)
-            order_info = '\n'.join(
-                [LEXICON_RU['order_message_part2'].
-                 format(u, c, p, r, s, o) for u, c, p, r, s, o in
-                    zip(url, color, price, price_rub, shipping_cost, orders)])
-            total_price_message = LEXICON_RU['order_message_part1'].format(
-                total_price, 'Пензы')
-            order_message = LEXICON_RU['order_message_part3'].format(
-                value, 'Пензы', addres, username, phone, new_date_20_formatted,
-                new_date_30_formatted)
-            payment_message = LEXICON_RU['order_message_part4'].format(
-                total_price, bank_phone, bank)
-            text = total_price_message + order_info + order_message + \
-                payment_message
-        lines = wrapper.wrap(text=text)
-        if len(text) > 4096:
-            line_list = []
-            for line in lines:
-                lines_replace = line.replace(
-                    "</b>", "").replace("<b>", "").replace("</code>", "").\
-                    replace("<code>", "")
-                line_list.append(lines_replace)
-            for line in line_list:
-                await bot.send_message(
-                    chat_id=message.from_user.id,
-                    text=line,
-                    parse_mode='HTML',
-                    reply_markup=order_botton,
-                    disable_web_page_preview=True
-                )
-                await asyncio.sleep(1)
-        else:
-            await bot.send_message(
-                chat_id=message.from_user.id,
-                text=text,
-                parse_mode='HTML',
-                reply_markup=order_botton,
-                disable_web_page_preview=True
-            )
+        # Создаем экзмепляр ReceivingOrderLists
+        order_list = ReceivingOrderLists()
+        # Добовляем значение для формирование списка
+        order_list.set_data_to_the_list(order_list=order_id, value=value)
+        # Формирование корзины
+        text = await order_list.creating_cart_text(
+            data_order=data_order,
+            new_date_20_formatted=new_date_20_formatted,
+            new_date_30_formatted=new_date_30_formatted,
+            new_client=True
+        )
+        # Отправляем корзину клиенту
+        await bot.send_message(chat_id=user_id, text=text, parse_mode="HTML",
+                               reply_markup=order_botton, disable_web_page_preview=True
+                               )
         await state.clear()
     except Exception as e:
         logger.critical(
@@ -463,69 +445,44 @@ async def phone_order(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMOrders.color))
 async def color_order(message: Message, state: FSMContext):
     try:
+        # Получаем id клиента
         user_id = message.from_user.id
+        # Получаем цвет и размер товара
         color = message.text
+        # Записываем цвет в машиносостояние
         await state.update_data({"color": color})
+        # Получение данных из машинно состояния
+        data_order = await state.update_data()
+        # Номер телефона клиента для проверки делал ли клиент до этого корзину
         phone_user_id = await phone_user_id_given(user_id)
-        bank_phone = await get_phone_bank()
-        bank = await get_bank()
-        if phone_user_id is not None:
-            value = await course_today()
-            round_value = round(value)
-            user_id = message.from_user.id
-            addres = await addres_user_id_given(user_id)
-            round_value = (await state.get_data())['round_value']
-            url = (await state.get_data())['url']
-            color = (await state.get_data())['color']
-            phone = await phone_user_id_given(user_id)
-            username = await username_user_id_given(user_id)
-            shipping_cost = (await state.get_data())['shipping_cost']
-            order = random.randint(1000000, 9999999)
-            await add_order(addres, url, color, round_value, phone, username,
-                            order, user_id, shipping_cost
-                            )
-            order_id = await order_user_id_all(user_id)
-
-            def get_new_date(date, days):
-                new_date = date + timedelta(days=days)
-                month_name_en = calendar.month_name[new_date.month]
-                month_name_ru = months[month_name_en]
-                if days == 30:
-                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
-                else:
-                    return f'{new_date.day} {month_name_ru}'
-            date = await data_order(user_id)
-            new_dates = [get_new_date(date, days) for days in [20, 30]]
+        # Получение актуальных данных клиента
+        client_data = await get_clien_data(user_id)
+        # Если клиент уже формировал корзину не просить его вводить клиенские данные
+        if phone_user_id != None:
+            # получение актуального курса юаня
+            value = round(await course_today())
+            # получение номера заказа
+            order = await random_order_int()
+            # добавление заказа в базу данных для корзины
+            await add_order(
+                round_value=data_order["round_value"],
+                shipping_cost=data_order['shipping_cost'],
+                url=data_order['url'], addres=client_data.addres,
+                phone=client_data.phone, username=client_data.name,
+                order=order, color=color, user_id=user_id,
+            )
+            # получение данных корзины клинета
+            order_all_date = await order_user_id_all_2(user_id)
+            # формирования даты получения
+            new_dates = await order_date_receipt()
             new_date_20_formatted, new_date_30_formatted = new_dates
-            color = []
-            orders = []
-            url = []
-            price = []
-            shipping_cost = []
-            price_rub = []
-            for order in order_id:
-                orders.append(order['order'])
-                url.append(order['url'])
-                color.append(order['color'])
-                price.append(order['price'])
-                shipping_cost.append(order['shipping_cost'])
-                price_rub_round = round(
-                    value*order['price'] + order['shipping_cost'])
-                price_rub.append(price_rub_round)
-                total_price = round(sum(price)*value + sum(shipping_cost))
-                order_info = '\n'.join(
-                    [LEXICON_RU['order_message_part2'].
-                     format(u, c, p, r, s, o) for u, c, p, r, s, o in
-                        zip(url, color, price, price_rub, shipping_cost, orders)])
-                total_price_message = LEXICON_RU['order_message_part1'].format(
-                    total_price, 'Пензы')
-                order_message = LEXICON_RU['order_message_part3'].format(
-                    value, 'Пензы', addres, username, phone, new_date_20_formatted,
-                    new_date_30_formatted)
-                payment_message = LEXICON_RU['order_message_part4'].format(
-                    total_price, bank_phone, bank)
-                text = total_price_message + order_info + order_message + \
-                    payment_message
+            order_list = ReceivingOrderLists()
+            order_list.set_data_to_the_list(
+                order_list=order_all_date, value=value)
+            text = await order_list.creating_cart_text(
+                data_order=client_data, new_date_20_formatted=new_date_20_formatted,
+                new_date_30_formatted=new_date_30_formatted,
+            )
             lines = wrapper.wrap(text=text)
             if len(text) > 4096:
                 line_list = []
@@ -667,7 +624,7 @@ async def phone_order(message: Message, state: FSMContext):
                 return f'{new_date.day} {month_name_ru} {new_date.year} года'
             else:
                 return f'{new_date.day} {month_name_ru}'
-        date = await data_order(user_id)
+        date = await date_order(user_id)
         new_dates = [get_new_date(date, days) for days in [20, 30]]
         new_date_20_formatted, new_date_30_formatted = new_dates
         color = []
@@ -786,7 +743,7 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         return f'{new_date.day} {month_name_ru} {new_date.year} года'
                     else:
                         return f'{new_date.day} {month_name_ru}'
-                date = await data_order(user_id)
+                date = await date_order(user_id)
                 new_dates = [get_new_date(date, days) for days in [20, 30]]
                 new_date_20_formatted, new_date_30_formatted = new_dates
                 for order in order_id:
@@ -799,7 +756,6 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         value*order['price'] + order['shipping_cost'])
                     price_rub.append(price_rub_round)
                     total_price = round(sum(price_rub))
-                    print(total_price)
                     order_info = '\n'.join(
                         [LEXICON_RU['order_message_part2'].
                          format(u, c, p, r, s, o) for u, c, p, r, s, o in
@@ -855,7 +811,6 @@ async def delete_order_botton(message: Message, state: FSMContext):
                         reply_markup=meny,
                         parse_mode='MarkdownV2',
                         disable_web_page_preview=True)
-
         except:
             await bot.send_message(
                 chat_id=user_id,
@@ -889,7 +844,7 @@ async def basket(callback: CallbackQuery):
                     return f'{new_date.day} {month_name_ru} {new_date.year} года'
                 else:
                     return f'{new_date.day} {month_name_ru}'
-            date = await data_order(user_id)
+            date = await date_order(user_id)
             new_dates = [get_new_date(date, days) for days in [20, 30]]
             new_date_20_formatted, new_date_30_formatted = new_dates
             color = []
@@ -968,7 +923,6 @@ async def basket(callback: CallbackQuery):
 @router.callback_query(F.data == 'upgrate_botton')
 async def basket(callback: CallbackQuery):
     try:
-
         user_id = callback.from_user.id
         value = await course_today()
         order_id = await order_user_id_all(user_id)
@@ -988,7 +942,7 @@ async def basket(callback: CallbackQuery):
                     return f'{new_date.day} {month_name_ru} {new_date.year} года'
                 else:
                     return f'{new_date.day} {month_name_ru}'
-            date = await data_order(user_id)
+            date = await date_order(user_id)
             new_dates = [get_new_date(date, days) for days in [20, 30]]
             new_date_20_formatted, new_date_30_formatted = new_dates
             color = []
@@ -1120,7 +1074,7 @@ async def order_confirmation(callback: CallbackQuery, state: FSMContext):
                     return f'{new_date.day} {month_name_ru} {new_date.year} года'
                 else:
                     return f'{new_date.day} {month_name_ru}'
-            date = await data_order_save(user_id)
+            date = await date_order_save(user_id)
             new_dates = [get_new_date(date, days) for days in [20, 30]]
             new_date_20_formatted, new_date_30_formatted = new_dates
             await delete_order(user_id)

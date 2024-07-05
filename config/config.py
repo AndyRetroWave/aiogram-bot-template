@@ -8,23 +8,33 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from aiogram import F, types, Router, Bot
 
 
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
+
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
+
     BOT_TOKEN: str
+
     ADMIN_ID: int
     ADMIN_ID2: int
+
+    MIN_RANDOM_INT: int
+    MAX_RANDOM_INT: int
+
+    DATE_ORDER_TO: int
+    DATE_ORDER_FROM: int
+
 
 settings = Settings()
 
 bot = Bot(token=settings.BOT_TOKEN)
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class TelegramBotConfig:
@@ -41,5 +51,6 @@ def load_config() -> Config:
     load_dotenv()
 
     return Config(tg_bot=TelegramBotConfig(token=getenv("BOT_TOKEN")))
+
 
 print(load_config())

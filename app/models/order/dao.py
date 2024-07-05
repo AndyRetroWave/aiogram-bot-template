@@ -71,9 +71,8 @@ async def add_diven_user(
             f'записи данных человека по адресу:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # получение заказа по юзеру
-
-
 async def order_user_id_all(
     user_id: int
 ):
@@ -98,6 +97,42 @@ async def order_user_id_all(
             'Ошибка получение заказа по юзеру', exc_info=True)
         error_message = LEXICON_RU["Ошибка"] + \
             f'получение заказа по юзеру:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+async def order_user_id_all_2(
+    user_id: int
+):
+    try:
+        async with async_session_maker() as session:
+            result = await session.execute(select(OrderModel).
+                                           where(OrderModel.user_id == user_id))
+            price = result.mappings().all()
+            order_models = [d['OrderModel'] for d in price]
+            return order_models
+    except Exception as e:
+        logger.critical(
+            'Ошибка получение заказа по юзеру', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'получение заказа по юзеру:\n{traceback.format_exc()}'
+        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+
+
+# Получение данных клиента
+async def get_clien_data(
+        user_id: int,
+):
+    try:
+        async with async_session_maker() as session:
+            result = await session.execute(select(OrderGivenModel).
+                                           where(OrderGivenModel.user_id == user_id))
+        user_phone = result.scalar()
+        return user_phone
+    except Exception as e:
+        logger.critical(
+            'Ошибка Получение телефона юзера по таблице given ', exc_info=True)
+        error_message = LEXICON_RU["Ошибка"] + \
+            f'Получение телефона юзера по таблице given:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
@@ -226,9 +261,8 @@ async def modify_date_order_id(user_id: int):
             f'При изменении даты заказа для пользователя с ID {user_id}:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # получение url юзера по заказу
-
-
 async def order_user_id_url(
     user_id: int
 ):
@@ -587,7 +621,7 @@ async def order_user_id_all_save(
 
 
 # получение даты с сохраненных заказов
-async def data_order_save(
+async def date_order_save(
         user_id: int
 ):
     try:
@@ -609,7 +643,7 @@ async def data_order_save(
 
 
 # получение даты с корзины
-async def data_order(
+async def date_order(
         user_id: int
 ):
     try:
