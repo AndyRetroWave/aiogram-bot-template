@@ -6,7 +6,7 @@ import textwrap
 import traceback
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
-from app.dependence.dependence import ReceivingOrderLists, order_date_receipt, random_order_int
+from app.dependence.dependence import ShoppingСartЕextGeneration, order_date_receipt, order_formation, random_order_int
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import (order, order_botton, meny, order_botton_one,
                                      meny_order, menu_rare, payment_botton,
@@ -412,26 +412,12 @@ async def phone_order(message: Message, state: FSMContext):
         await add_diven_user(
             addres, data_order["phone"], data_order["username"], user_id
         )
-        # Получение всех данных о корзине клиента
-        order_id = await order_user_id_all_2(user_id)
-        # Формирования ожидаемой прихода товара
-        new_dates = await order_date_receipt()
-        new_date_20_formatted, new_date_30_formatted = new_dates
-        # Создаем экзмепляр ReceivingOrderLists
-        order_list = ReceivingOrderLists()
-        # Добовляем значение для формирование списка
-        order_list.set_data_to_the_list(order_list=order_id, value=value)
-        # Формирование корзины
-        text = await order_list.creating_cart_text(
-            data_order=data_order,
-            new_date_20_formatted=new_date_20_formatted,
-            new_date_30_formatted=new_date_30_formatted,
-            new_client=True
+        # формирование и отправка смс клиетну
+        await order_formation(
+            bot=bot, client_data=data_order, message=message,
+            order_botton=order_botton, state=state, user_id=user_id,
+            value=value, new_client=True
         )
-        # Отправляем корзину клиенту
-        await bot.send_message(chat_id=user_id, text=text, parse_mode="HTML",
-                               reply_markup=order_botton, disable_web_page_preview=True
-                               )
         await state.clear()
     except Exception as e:
         logger.critical(
@@ -453,12 +439,10 @@ async def color_order(message: Message, state: FSMContext):
         await state.update_data({"color": color})
         # Получение данных из машинно состояния
         data_order = await state.update_data()
-        # Номер телефона клиента для проверки делал ли клиент до этого корзину
-        phone_user_id = await phone_user_id_given(user_id)
         # Получение актуальных данных клиента
         client_data = await get_clien_data(user_id)
         # Если клиент уже формировал корзину не просить его вводить клиенские данные
-        if phone_user_id != None:
+        if client_data.phone != None:
             # получение актуального курса юаня
             value = round(await course_today())
             # получение номера заказа
@@ -471,45 +455,14 @@ async def color_order(message: Message, state: FSMContext):
                 phone=client_data.phone, username=client_data.name,
                 order=order, color=color, user_id=user_id,
             )
-            # получение данных корзины клинета
-            order_all_date = await order_user_id_all_2(user_id)
-            # формирования даты получения
-            new_dates = await order_date_receipt()
-            new_date_20_formatted, new_date_30_formatted = new_dates
-            order_list = ReceivingOrderLists()
-            order_list.set_data_to_the_list(
-                order_list=order_all_date, value=value)
-            text = await order_list.creating_cart_text(
-                data_order=client_data, new_date_20_formatted=new_date_20_formatted,
-                new_date_30_formatted=new_date_30_formatted,
+            # формируем и отправляем смс
+            await order_formation(
+                bot=bot, client_data=client_data, message=message,
+                order_botton=order_botton, state=state, user_id=user_id,
+                value=value
             )
-            lines = wrapper.wrap(text=text)
-            if len(text) > 4096:
-                line_list = []
-                for line in lines:
-                    lines_replace = line.replace(
-                        "</b>", "").replace("<b>", "").\
-                        replace("</code>", "").replace("<code>", "")
-                    line_list.append(lines_replace)
-                for line in line_list:
-                    await bot.send_message(
-                        chat_id=message.from_user.id,
-                        text=line,
-                        parse_mode='HTML',
-                        reply_markup=order_botton,
-                        disable_web_page_preview=True
-                    )
-                    await asyncio.sleep(1)
-            else:
-                await bot.send_message(
-                    chat_id=message.from_user.id,
-                    text=text,
-                    parse_mode='HTML',
-                    reply_markup=order_botton,
-                    disable_web_page_preview=True
-                )
-            await state.clear()
         else:
+            # Если у клиента еще небыло корзины
             await message.answer(
                 text=LEXICON_RU["Номер телефона"],
                 parse_mode='MarkdownV2'
@@ -547,22 +500,28 @@ async def phone_order(callback: CallbackQuery, state: FSMContext):
 async def phone_order_modify(message: Message, state: FSMContext):
     try:
         try:
+            # получение данных
             user = message.from_user.username
             user_id = message.from_user.id
             phone_old = str(message.text)
+            # Изменение данных в базе по корзине и в данных клиента
             await modify_phone_user_id(user_id, phone_old)
             await modify_phone_user_id_order(user_id, phone_old)
+            # если неправильно отправил номер телефона
             if not re.match(r'^7\d{10}$', phone_old):
                 await message.answer(
                     text=LEXICON_RU["Введите правильно номер"],
                     parse_mode='MarkdownV2')
                 return
-            phone = await phone_user_id_given(user_id)
-            await state.update_data({"phone": phone})
+            # Получение номера телефона
+            phone = await get_clien_data(user_id)
+            # записть в машино-состояние
+            await state.update_data({"phone": phone.phone})
             await message.answer(
                 text=LEXICON_RU["ФИО"],
                 parse_mode='MarkdownV2'
             )
+            # передача машино-состояние дальше
             await state.set_state(FSMOrders.name_modify)
             await state.update_data({"phone": phone})
         except:
@@ -609,58 +568,23 @@ async def phone_order(message: Message, state: FSMContext):
         value = await course_today()
         await modify_addres_user_id(user_id, addres_old)
         await modify_addres_user_id_order(user_id, addres_old)
-        order_id = await order_user_id_all(user_id)
-        addres = await addres_user_id_given(user_id)
-        phone = await phone_user_id_given(user_id)
-        username = await username_user_id_given(user_id)
-        bank_phone = await get_phone_bank()
-        bank = await get_bank()
-
-        def get_new_date(date, days):
-            new_date = date + timedelta(days=days)
-            month_name_en = calendar.month_name[new_date.month]
-            month_name_ru = months[month_name_en]
-            if days == 30:
-                return f'{new_date.day} {month_name_ru} {new_date.year} года'
-            else:
-                return f'{new_date.day} {month_name_ru}'
-        date = await date_order(user_id)
-        new_dates = [get_new_date(date, days) for days in [20, 30]]
+        order_data = await order_user_id_all_2(user_id)
+        new_dates = await order_date_receipt()
         new_date_20_formatted, new_date_30_formatted = new_dates
-        color = []
-        orders = []
-        url = []
-        price = []
-        shipping_cost = []
-        price_rub = []
-        for order in order_id:
-            orders.append(order['order'])
-            url.append(order['url'])
-            color.append(order['color'])
-            price.append(order['price'])
-            shipping_cost.append(order['shipping_cost'])
-            price_rub_round = round(
-                value*order['price'] + order['shipping_cost'])
-            price_rub.append(price_rub_round)
-            total_price = round(sum(price)*value + sum(shipping_cost))
-            order_info = '\n'.join(
-                [LEXICON_RU['order_message_part2'].
-                 format(u, c, p, r, s, o) for u, c, p, r, s, o in
-                 zip(url, color, price, price_rub, shipping_cost, orders)])
-            total_price_message = LEXICON_RU['order_message_part1'].format(
-                total_price, 'Пензы')
-            order_message = LEXICON_RU['order_message_part3'].format(
-                value, 'Пензы', addres, username, phone, new_date_20_formatted,
-                new_date_30_formatted
-            )
-            payment_message = LEXICON_RU['order_message_part4'].format(
-                total_price, bank_phone, bank)
-            text = total_price_message + order_info + \
-                order_message + payment_message
+        client_data = await get_clien_data(user_id)
+        new_date_20_formatted, new_date_30_formatted = new_dates
+        order_list = ShoppingСartЕextGeneration()
+        # формирования списков для корзины
+        order_list.set_data_to_the_list(
+            order_list=order_data, value=value)
+        # получение текста для корзины
+        text = await order_list.creating_cart_text(
+            data_order=client_data, new_date_20_formatted=new_date_20_formatted,
+            new_date_30_formatted=new_date_30_formatted,
+        )
         lines = wrapper.wrap(text=text)
         if len(text) > 4096:
             line_list = []
-            print(line_list)
             for line in lines:
                 lines_replace = line.replace(
                     "</b>", "").replace("<b>", "").\

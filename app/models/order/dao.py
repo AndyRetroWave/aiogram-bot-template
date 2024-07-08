@@ -122,12 +122,21 @@ async def order_user_id_all_2(
 async def get_clien_data(
         user_id: int,
 ):
+    """
+    Получает данные клиента из базы данных по его идентификатору.
+
+    Аргументы:
+    user_id (int): Идентификатор пользователя.
+
+    Возвращает:
+    user: Объект пользователя, содержащий данные о клиенте.
+    """
     try:
         async with async_session_maker() as session:
             result = await session.execute(select(OrderGivenModel).
                                            where(OrderGivenModel.user_id == user_id))
-        user_phone = result.scalar()
-        return user_phone
+        user = result.scalar()
+        return user
     except Exception as e:
         logger.critical(
             'Ошибка Получение телефона юзера по таблице given ', exc_info=True)
