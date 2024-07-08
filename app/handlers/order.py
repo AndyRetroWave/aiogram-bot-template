@@ -568,48 +568,12 @@ async def phone_order(message: Message, state: FSMContext):
         value = await course_today()
         await modify_addres_user_id(user_id, addres_old)
         await modify_addres_user_id_order(user_id, addres_old)
-        order_data = await order_user_id_all_2(user_id)
-        new_dates = await order_date_receipt()
-        new_date_20_formatted, new_date_30_formatted = new_dates
         client_data = await get_clien_data(user_id)
-        new_date_20_formatted, new_date_30_formatted = new_dates
-        order_list = ShoppingСartЕextGeneration()
-        # формирования списков для корзины
-        order_list.set_data_to_the_list(
-            order_list=order_data, value=value)
-        # получение текста для корзины
-        text = await order_list.creating_cart_text(
-            data_order=client_data, new_date_20_formatted=new_date_20_formatted,
-            new_date_30_formatted=new_date_30_formatted,
+        await order_formation(
+            bot=bot, client_data=client_data, message=message,
+            order_botton=order_botton, state=state, user_id=user_id,
+            value=value
         )
-        lines = wrapper.wrap(text=text)
-        if len(text) > 4096:
-            line_list = []
-            for line in lines:
-                lines_replace = line.replace(
-                    "</b>", "").replace("<b>", "").\
-                    replace("</code>", "").replace("<code>", "")
-                line_list.append(lines_replace)
-                await asyncio.sleep(1)
-            for l in line_list:
-                await bot.send_message(
-                    chat_id=message.from_user.id,
-                    text=l,
-                    parse_mode='HTML',
-                    reply_markup=order_botton,
-                    disable_web_page_preview=True
-                )
-                await asyncio.sleep(1)
-            await state.clear()
-        else:
-            await bot.send_message(
-                chat_id=message.from_user.id,
-                text=text,
-                parse_mode='HTML',
-                reply_markup=order_botton,
-                disable_web_page_preview=True
-            )
-            await state.clear()
         await state.clear()
     except Exception as e:
         logger.critical('Ошибка в кнопе заказ', exc_info=True)
@@ -645,82 +609,16 @@ async def delete_order_botton(message: Message, state: FSMContext):
             order = int(message.text)
             await delete_order_user_id(user_id, order)
             value = await course_today()
-            order_id = await order_user_id_all(user_id)
-            order_save = await add_save_order(user_id)
-            addres = await addres_user_id_given(user_id)
-            phone = await phone_user_id_given(user_id)
-            username = await username_user_id_given(user_id)
-            bank_phone = await get_phone_bank()
-            bank = await get_bank()
-            color = []
-            orders = []
-            url = []
-            price = []
-            shipping_cost = []
-            price_rub = []
-            if order_id:
-                def get_new_date(date, days):
-                    new_date = date + timedelta(days=days)
-                    month_name_en = calendar.month_name[new_date.month]
-                    month_name_ru = months[month_name_en]
-                    if days == 30:
-                        return f'{new_date.day} {month_name_ru} {new_date.year} года'
-                    else:
-                        return f'{new_date.day} {month_name_ru}'
-                date = await date_order(user_id)
-                new_dates = [get_new_date(date, days) for days in [20, 30]]
-                new_date_20_formatted, new_date_30_formatted = new_dates
-                for order in order_id:
-                    orders.append(order['order'])
-                    url.append(order['url'])
-                    color.append(order['color'])
-                    price.append(order['price'])
-                    shipping_cost.append(order['shipping_cost'])
-                    price_rub_round = round(
-                        value*order['price'] + order['shipping_cost'])
-                    price_rub.append(price_rub_round)
-                    total_price = round(sum(price_rub))
-                    order_info = '\n'.join(
-                        [LEXICON_RU['order_message_part2'].
-                         format(u, c, p, r, s, o) for u, c, p, r, s, o in
-                         zip(url, color, price, price_rub, shipping_cost, orders)])
-                    total_price_message = LEXICON_RU['order_message_part1'].format(
-                        total_price, 'Пензы')
-                    order_message = LEXICON_RU['order_message_part3'].format(
-                        value, 'Пензы', addres, username, phone,
-                        new_date_20_formatted, new_date_30_formatted
-                    )
-                    payment_message = LEXICON_RU['order_message_part4'].format(
-                        total_price, bank_phone, bank)
-                    text = total_price_message + order_info + order_message + \
-                        payment_message
-                lines = wrapper.wrap(text=text)
-                await state.clear()
-                if len(text) > 4096:
-                    line_list = []
-                    for line in lines:
-                        lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").\
-                            replace("</code>", "").replace("<code>", "")
-                        line_list.append(lines_replace)
-                    for line in line_list:
-                        await bot.send_message(
-                            chat_id=message.from_user.id,
-                            text=line,
-                            parse_mode='HTML',
-                            reply_markup=order_botton,
-                        )
-                        await asyncio.sleep(1)
-                else:
-                    await bot.send_message(
-                        chat_id=message.from_user.id,
-                        text=text,
-                        parse_mode='HTML',
-                        reply_markup=order_botton,
-                        disable_web_page_preview=True
-                    )
+            order_id = await order_user_id_all_2(user_id)
+            client_data = await get_clien_data(user_id)
+            if order_id != []:
+                await order_formation(
+                    bot=bot, client_data=client_data, message=message,
+                    order_botton=order_botton, state=state, user_id=user_id,
+                    value=value
+                )
             else:
-                if order_save:
+                if order_id != []:
                     await bot.send_message(
                         chat_id=user_id,
                         text=LEXICON_RU["Привет"],
@@ -752,83 +650,15 @@ async def basket(callback: CallbackQuery):
     try:
         user_id = callback.from_user.id
         value = await course_today()
-        order_id = await order_user_id_all(user_id)
-        addres = await addres_user_id_given(user_id)
-        phone = await phone_user_id_given(user_id)
-        username = await username_user_id_given(user_id)
-        date = await order_user_id_date(user_id)
-        bank_phone = await get_phone_bank()
-        bank = await get_bank()
-        if date:
-            def get_new_date(date, days):
-                new_date = date + timedelta(days=days)
-                month_name_en = calendar.month_name[new_date.month]
-                month_name_ru = months[month_name_en]
-                if days == 30:
-                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
-                else:
-                    return f'{new_date.day} {month_name_ru}'
-            date = await date_order(user_id)
-            new_dates = [get_new_date(date, days) for days in [20, 30]]
-            new_date_20_formatted, new_date_30_formatted = new_dates
-            color = []
-            orders = []
-            url = []
-            price = []
-            shipping_cost = []
-            price_rub = []
-            if order_id:
-                for order in order_id:
-                    orders.append(order['order'])
-                    url.append(order['url'])
-                    color.append(order['color'])
-                    price.append(order['price'])
-                    shipping_cost.append(order['shipping_cost'])
-                    total_price = round(sum(price)*value + sum(shipping_cost))
-                    price_rub_round = round(
-                        value*order['price'] + order['shipping_cost'])
-                    price_rub.append(price_rub_round)
-                    order_info = '\n'.join(
-                        [LEXICON_RU['order_message_part2'].format(u, c, p, r, s, o)
-                         for u, c, p, r, s, o in zip
-                         (url, color, price, price_rub, shipping_cost, orders)])
-                    total_price_message = LEXICON_RU['order_message_part1'].format(
-                        total_price, 'Пензы')
-                    order_message = LEXICON_RU['order_message_part3'].format(
-                        value, 'Пензы', addres, username, phone,
-                        new_date_20_formatted, new_date_30_formatted
-                    )
-                    payment_message = LEXICON_RU['order_message_part4'].format(
-                        total_price, bank_phone, bank)
-                    text = total_price_message + order_info + order_message + \
-                        payment_message
-                lines = wrapper.wrap(text=text)
-                if len(text) > 4096:
-                    line_list = []
-                    for line in lines:
-                        lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "").\
-                            replace("</code>", "").replace("<code>", "")
-                        line_list.append(lines_replace)
-                    for line in line_list:
-                        await bot.send_message(
-                            chat_id=callback.from_user.id,
-                            text=line,
-                            parse_mode='HTML',
-                            reply_markup=order_botton,
-                            disable_web_page_preview=True
-                        )
-                        await asyncio.sleep(1)
-                else:
-                    await bot.send_message(
-                        chat_id=callback.from_user.id,
-                        text=text,
-                        parse_mode='HTML',
-                        reply_markup=order_botton,
-                        disable_web_page_preview=True
-                    )
-                callback.answer()
-
+        order_id = await order_user_id_all_2(user_id)
+        client_data = await get_clien_data(user_id)
+        if order_id != []:
+            await order_formation(
+                bot=bot, client_data=client_data, message=callback,
+                order_botton=order_botton, user_id=user_id,
+                value=value, callback=True
+            )
+            callback.answer()
         else:
             await callback.answer(
                 text=LEXICON_RU["Корзина"],
@@ -849,84 +679,18 @@ async def basket(callback: CallbackQuery):
     try:
         user_id = callback.from_user.id
         value = await course_today()
-        order_id = await order_user_id_all(user_id)
-        addres = await addres_user_id_given(user_id)
-        phone = await phone_user_id_given(user_id)
-        username = await username_user_id_given(user_id)
-        await modify_date_order_id(user_id)
-        date = await order_user_id_date(user_id)
-        bank_phone = await get_phone_bank()
-        bank = await get_bank()
-        if date:
-            def get_new_date(date, days):
-                new_date = date + timedelta(days=days)
-                month_name_en = calendar.month_name[new_date.month]
-                month_name_ru = months[month_name_en]
-                if days == 30:
-                    return f'{new_date.day} {month_name_ru} {new_date.year} года'
-                else:
-                    return f'{new_date.day} {month_name_ru}'
-            date = await date_order(user_id)
-            new_dates = [get_new_date(date, days) for days in [20, 30]]
-            new_date_20_formatted, new_date_30_formatted = new_dates
-            color = []
-            orders = []
-            url = []
-            price = []
-            shipping_cost = []
-            price_rub = []
-            if order_id:
-                for order in order_id:
-                    orders.append(order['order'])
-                    url.append(order['url'])
-                    color.append(order['color'])
-                    price.append(order['price'])
-                    shipping_cost.append(order['shipping_cost'])
-                    price_rub_round = round(
-                        value*order['price'] + order['shipping_cost'])
-                    price_rub.append(price_rub_round)
-                    total_price = round(sum(price)*value + sum(shipping_cost))
-                    order_info = '\n'.join(
-                        [LEXICON_RU['order_message_part2'].
-                         format(u, c, p, r, s, o) for u, c, p, r, s, o in
-                         zip(url, color, price, price_rub, shipping_cost, orders)])
-                    total_price_message = LEXICON_RU['order_message_part1'].format(
-                        total_price, 'Пензы')
-                    order_message = LEXICON_RU['order_message_part3'].format(
-                        value, 'Пензы', addres, username, phone,
-                        new_date_20_formatted, new_date_30_formatted
-                    )
-                    payment_message = LEXICON_RU['order_message_part4'].format(
-                        total_price, bank_phone, bank)
-                    text = total_price_message + order_info + \
-                        order_message + payment_message
-                await bot.delete_message(chat_id=callback.message.chat.id,
-                                         message_id=callback.message.message_id)
-                lines = wrapper.wrap(text=text)
-                if len(text) > 4096:
-                    line_list = []
-                    for line in lines:
-                        lines_replace = line.replace(
-                            "</b>", "").replace("<b>", "")\
-                            .replace("</code>", "").replace("<code>", "")
-                        line_list.append(lines_replace)
-                    for line in line_list:
-                        await bot.send_message(
-                            chat_id=callback.from_user.id,
-                            text=line,
-                            parse_mode='HTML',
-                            reply_markup=order_botton,
-                            disable_web_page_preview=True
-                        )
-                        await asyncio.sleep(1)
-                else:
-                    await bot.send_message(
-                        chat_id=callback.from_user.id,
-                        text=text,
-                        parse_mode='HTML',
-                        reply_markup=order_botton,
-                        disable_web_page_preview=True
-                    )
+        client_data = await get_clien_data(user_id)
+        order_id = await order_user_id_all_2(user_id)
+        await bot.delete_message(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id
+        )
+        if order_id != []:
+            await order_formation(
+                bot=bot, client_data=client_data, message=callback,
+                order_botton=order_botton, user_id=user_id,
+                value=value, callback=True
+            )
         else:
             await callback.answer(
                 text=LEXICON_RU["Корзина"],

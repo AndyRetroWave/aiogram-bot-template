@@ -134,7 +134,7 @@ class ShoppingСartЕextGeneration:
         return text
 
     async def send_messange_bot_client_line(
-            self, text: str, message, reply_markup, bot, state):
+            self, text: str, message, reply_markup, bot, state=None):
         """
         Отправляет сообщение клиенту с разбиением на несколько сообщений, если длина текста превышает 4096 символов.
 
@@ -175,7 +175,8 @@ class ShoppingСartЕextGeneration:
                 reply_markup=reply_markup,
                 disable_web_page_preview=True
             )
-        await state.clear()
+        if state != None:
+            await state.clear()
 
 
 async def random_order_int():
@@ -187,8 +188,8 @@ async def random_order_int():
 
 
 async def order_formation(
-    user_id: int, value: int, client_data, bot, message, order_botton, state,
-    new_client: bool = False
+    user_id: int, value: int, client_data, bot, message, order_botton, state=None,
+    new_client: bool = False, callback: bool = False
 ):
     """
     Формирует заказ для клиента и отправляет ему сообщение с информацией о заказе.
@@ -202,6 +203,7 @@ async def order_formation(
     order_botton: Клавиатура для ответа на сообщение.
     state: Объект состояния машины состояний.
     new_client (bool): Флаг, указывающий, является ли клиент новым. По умолчанию False.
+    callback (bool): Флаг, указывающий, являеться ли отправка сообщение message или callback.
 
     Возвращает:
     None
@@ -226,8 +228,13 @@ async def order_formation(
             data_order=client_data, new_date_20_formatted=new_date_20_formatted,
             new_date_30_formatted=new_date_30_formatted,
         )
+    if callback == False:
         # проверка длины текста если оно больше 4096, то делить его на разные смс
-    await order_list.send_messange_bot_client_line(
-        bot=bot, message=message, reply_markup=order_botton,
-        state=state, text=text
-    )
+        await order_list.send_messange_bot_client_line(
+            bot=bot, message=message, reply_markup=order_botton,
+            state=state, text=text
+        )
+    else:
+        await order_list.send_messange_bot_client_line(
+            bot=bot, message=message, reply_markup=order_botton, text=text
+        )
