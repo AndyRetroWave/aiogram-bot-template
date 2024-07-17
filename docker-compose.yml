@@ -22,18 +22,18 @@ services:
       - "90:90"
     command: sh -c "alembic upgrade head && python bot.py "
 
-  # admin:
-  #   image: admincontora
-  #   container_name: adminbot
-  #   build: .
-  #   env_file:
-  #     - .env-copy
-  #   restart: always
-  #   depends_on:
-  #     - db
-  #   ports:
-  #     - "8000:8000"
-  #   command: sh -c "python manage.py runserver 0.0.0.0:8000"
+  admin:
+    image: admincontora
+    container_name: adminbot
+    build: .
+    env_file:
+      - .env-copy
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
 
   webserver:
     image: nginx:alpine
