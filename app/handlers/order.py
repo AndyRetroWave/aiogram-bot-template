@@ -378,7 +378,7 @@ async def color_order(message: Message, state: FSMContext):
         # Получение актуальных данных клиента
         client_data = await get_clien_data(user_id)
         # Если клиент уже формировал корзину не просить его вводить клиенские данные
-        if client_data.phone != None:
+        if client_data != None:
             # получение актуального курса юаня
             value = round(await course_today())
             # получение номера заказа
