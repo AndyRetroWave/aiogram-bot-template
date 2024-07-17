@@ -3,9 +3,13 @@ import calendar
 import textwrap
 from datetime import datetime, timedelta
 import random
+
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+from aiogram import Bot
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.models.course.dao import course_today, get_bank, get_phone_bank
-from app.models.order.dao import add_order, order_user_id_all_2
+from app.models.order.dao import add_order_save, order_user_id_all
 from config.config import settings
 
 max_length = 4096
@@ -88,7 +92,7 @@ class ShoppingСartЕextGeneration:
     async def creating_cart_text(self, data_order,
                                  new_date_20_formatted: str,
                                  new_date_30_formatted: str,
-                                 new_client: bool = False):
+                                 new_client: bool = False) -> str:
         """
         Формирует текст корзины для заказа.
 
@@ -97,6 +101,8 @@ class ShoppingСartЕextGeneration:
         new_date_20_formatted: строка, представляющий ожидаемую дату доставки заказа через 20 дней.
         new_date_30_formatted: строка, представляющий ожидаемую дату доставки заказа через 30 дней.
         new_client: Флаг, указывающий, является ли клиент новым. По умолчанию False.
+
+        Возвращает text: str.
         """
         bank_phone = await get_phone_bank()  # Получает нормер телефона продавца
         value = await course_today()  # Получаем курс на данный момент
@@ -178,15 +184,88 @@ class ShoppingСartЕextGeneration:
         if state != None:
             await state.clear()
 
+    async def send_messange_bot_seller_line(self,
+                                            bot, chat_id: int, text: str, parse_mode: str,
+                                            reply_markup: InlineKeyboardMarkup,
+                                            disable_web_page_preview: bool = False
+                                            ) -> None:
+        """
+        Отправляет сообщение в чат с разбиением на несколько сообщений, если длина текста превышает 4096 символов.
 
-async def random_order_int():
+        Аргументы:
+        bot (Bot): Объект бота.
+        chat_id (int): Идентификатор чата.
+        text (str): Текст сообщения.
+        parse_mode (str): Тип разметки текста.
+        reply_markup (InlineKeyboardMarkup): Клавиатура для ответа на сообщение.
+        disable_web_page_preview (bool): Флаг, указывающий, нужно ли отключить предварительный просмотр ссылок. По умолчанию False.
+
+        Возвращает:
+        None
+        """
+        lines = wrapper.wrap(text=text)
+        line_list = []
+        for line in lines:
+            lines_replace = line.replace("</b>", "").\
+                replace("<b>", "").replace("</code>", "").replace("<code>", "")
+            line_list.append(lines_replace)
+        for l in line_list:
+            await bot.send_message(
+                chat_id=chat_id,
+                text=l,
+                parse_mode=parse_mode,
+                reply_markup=reply_markup,
+                disable_web_page_preview=disable_web_page_preview
+            )
+            await asyncio.sleep(1)
+
+    async def send_finish_message_order(self,
+                                        bot, chat_id: int, text: str, parse_mode: str,
+                                        reply_markup: InlineKeyboardMarkup,
+                                        disable_web_page_preview: bool = True
+                                        ) -> None:
+        """
+        Отправляет финальное сообщение о заказе в чат с разбиением на несколько сообщений, если длина текста превышает 4096 символов.
+
+        Аргументы:
+        bot (Bot): Объект бота.
+        chat_id (int): Идентификатор чата.
+        text (str): Текст сообщения.
+        parse_mode (str): Тип разметки текста.
+        reply_markup (InlineKeyboardMarkup): Клавиатура для ответа на сообщение.
+        disable_web_page_preview (bool): Флаг, указывающий, нужно ли отключить предварительный просмотр ссылок. По умолчанию False.
+
+        Возвращает:
+        None
+        """
+        order_list = ShoppingСartЕextGeneration()
+
+        if len(text) > 4096:
+            await order_list.send_messange_bot_seller_line(
+                bot=bot, chat_id=chat_id, text=text, parse_mode=parse_mode,
+                reply_markup=reply_markup,
+                disable_web_page_preview=disable_web_page_preview
+            )
+        else:
+            await bot.send_message(
+                chat_id=chat_id, text=text, parse_mode=parse_mode,
+                reply_markup=reply_markup,
+                disable_web_page_preview=disable_web_page_preview
+            )
+
+
+async def random_order_int() -> int:
+    """Создает рандомное число в радиусе MIN_RANDOM_INT до MAX_RANDOM_INT
+
+    Returns:
+        int: order
+    """
     order = random.randint(settings.MIN_RANDOM_INT,
                            settings.MAX_RANDOM_INT)
     return order
 
+
 # Формирование отправки сообщения для клиента
-
-
 async def order_formation(
     user_id: int, value: int, client_data, bot, message, order_botton, state=None,
     new_client: bool = False, callback: bool = False
@@ -209,7 +288,7 @@ async def order_formation(
     None
     """
     # получение данных корзины клинета
-    order_all_date = await order_user_id_all_2(user_id)
+    order_all_date = await order_user_id_all(user_id)
     # формирования даты получения
     new_dates = await order_date_receipt()
     new_date_20_formatted, new_date_30_formatted = new_dates
@@ -238,3 +317,118 @@ async def order_formation(
         await order_list.send_messange_bot_client_line(
             bot=bot, message=message, reply_markup=order_botton, text=text
         )
+
+
+async def get_order_list_data(order_id: int, value: int, user_link: str) -> tuple:
+    """
+    Получает информацию о заказах и общую стоимость для списка заказов.
+
+    Аргументы:
+        order_id (list): Список объектов заказов.
+        value (int): Значение, используемое в расчете цены.
+        user_link (str): Ссылка пользователя, используемая в информации о заказе.
+
+    Возвращает:
+        tuple: Кортеж, содержащий информацию о заказе в виде строки и общую стоимость в виде целого числа.
+    """
+    price = []
+    shipping_cost = []
+    order_info = []
+    for order in order_id:
+        price.append(order.price)
+        shipping_cost_int = order.shipping_cost
+        shipping_cost.append(order.shipping_cost)
+        price_rub_round = int(
+            value*order.price + order.shipping_cost)
+        addres = order.addres
+        url = order.url
+        color = order.color
+        price_int = order.price
+        phone = order.phone
+        name = order.name
+        orders = order.order
+        user_id = order.user_id
+        order_info.append(LEXICON_RU['Форма заказа'].format(
+            url, color, price_int, price_rub_round, shipping_cost_int, orders
+        )
+        )
+        total_price = round(sum(price)*value + sum(shipping_cost))
+        price_rub = (price_int*value)+shipping_cost_int
+        user_link_phone = phone
+        if user_link.startswith("<code>7"):
+            await add_order_save(addres, url, color, price_int, phone,
+                                 name, orders, user_id, shipping_cost_int,
+                                 user_link_phone, price_rub)
+        else:
+            await add_order_save(addres, url, color, price_int, phone,
+                                 name, orders, user_id, shipping_cost_int,
+                                 user_link, price_rub)
+    order_info = '\n'.join(order_info)
+    return order_info, total_price
+
+
+async def send_messages(
+    bot, lines, chat_id, parse_mode, reply_markup,
+    disable_web_page_preview=None
+):
+    line_list = []
+    for line in lines:
+        lines_replace = line.replace(
+            "</b>", "").replace("<b>", "").replace("</code>", "").\
+            replace("<code>", "")
+        line_list.append(lines_replace)
+    for l in line_list:
+        await bot.send_message(
+            chat_id=chat_id,
+            text=l,
+            parse_mode=parse_mode,
+            reply_markup=reply_markup,
+            disable_web_page_preview=disable_web_page_preview
+        )
+        await asyncio.sleep(1)
+
+
+async def shipping_costing(
+        message, cost_ships, reply_markup, state, category
+):
+    text = float(message.text)
+    value = await course_today()
+    if value is not None:
+        value_markup = text * value + cost_ships
+        round_value = round(value_markup)
+        formatted_num = "{}\\.{}".format(
+            int(value), int(value * 100) % 100)
+        await message.answer(text=LEXICON_RU['Калькулятор цен'].format(
+            round_value, cost_ships, formatted_num, category),
+            parse_mode='MarkdownV2',
+            reply_markup=reply_markup
+        )
+        await state.clear()
+    else:
+        await message.reply(text=LEXICON_RU["Данные о валюте"])
+
+
+async def send_photo_calculator(bot, callback, static):
+    await bot.send_photo(
+        chat_id=callback.message.chat.id,
+        caption=LEXICON_RU["Ввести стоимость"],
+        photo=static.photo_url_rate_1,
+        parse_mode='MarkdownV2'
+    )
+    await bot.send_photo(
+        chat_id=callback.message.chat.id,
+        caption=LEXICON_RU["Выкуп"],
+        photo=static.photo_url_rate_2,
+        parse_mode='MarkdownV2',
+        allow_sending_without_reply=True
+    )
+    await callback.answer(show_alert=True)
+
+
+async def logger_error_critical_send_message_admin(logger, traceback, bot):
+    logger.critical(msg="Где-то ошибенка", exc_info=True)
+    error_message = str({traceback.format_exc()})
+    await bot.send_message(
+        chat_id=settings.ADMIN_ID2,
+        text="Эй герой, произошел пиздец, иди решай его\n\n" + error_message
+    )

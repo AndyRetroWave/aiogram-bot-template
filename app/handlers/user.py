@@ -1,6 +1,7 @@
 import traceback
 from aiogram import Router, types, F
 from aiogram.types import CallbackQuery
+from app.dependence.dependence import logger_error_critical_send_message_admin
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.filters.filters import my_start_filter
 from app.models.images.dao import get_image
@@ -60,12 +61,20 @@ async def start(message: types.Message, state: FSMContext):
                                      disable_web_page_preview=True)
                 await state.clear()
         else:
-            await bot.send_photo(
-                chat_id=message.chat.id,
-                photo=static.photo_url_start,
-                caption=LEXICON_RU["/start"],
-                parse_mode='MarkdownV2',
-            )
+            if await get_image() == None:
+                await bot.send_photo(
+                    chat_id=message.chat.id,
+                    photo=static.photo_url_start,
+                    caption=LEXICON_RU["/start"],
+                    parse_mode='MarkdownV2'
+                )
+            else:
+                await bot.send_photo(
+                    chat_id=message.chat.id,
+                    photo=await get_image(),
+                    caption=LEXICON_RU["/start"],
+                    parse_mode='MarkdownV2'
+                )
             if order:
                 await message.answer(text=LEXICON_RU["Привет"],
                                      reply_markup=meny_order,
@@ -79,10 +88,9 @@ async def start(message: types.Message, state: FSMContext):
                                      disable_web_page_preview=True)
                 await state.clear()
     except Exception as e:
-        logger.critical('Ошибка в старте проекта', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'старта проекта:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка меню всплывающая
@@ -125,10 +133,9 @@ async def start(callback: CallbackQuery, state: FSMContext):
                                                  disable_web_page_preview=True)
                 await state.clear()
     except Exception as e:
-        logger.critical('Ошибка в кнопке меню всплывающая', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке меню всплывающая:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка меню оснв
@@ -145,7 +152,7 @@ async def start(callback: CallbackQuery, state: FSMContext):
                 callback.from_user.id == settings.ADMIN_ID2:
             if order:
                 await bot.send_message(
-                    chat_id=callback.message.chat.id,
+                    chat_id=user_id,
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_admin_order,
                     parse_mode='MarkdownV2',
@@ -153,7 +160,7 @@ async def start(callback: CallbackQuery, state: FSMContext):
                 await state.clear()
             else:
                 await bot.send_message(
-                    chat_id=callback.message.chat.id,
+                    chat_id=user_id,
                     text=LEXICON_RU["Привет"],
                     reply_markup=meny_admin,
                     parse_mode='MarkdownV2',
@@ -177,7 +184,6 @@ async def start(callback: CallbackQuery, state: FSMContext):
                     disable_web_page_preview=True)
                 await state.clear()
     except Exception as e:
-        logger.critical('Ошибка в кнопке меню основная', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке меню основная:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )

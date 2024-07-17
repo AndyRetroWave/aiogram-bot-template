@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import traceback
 from sqlalchemy import delete, select, update, and_
+from app.dependence.dependence import *
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.models.order.models import OrderGivenModel, OrderModel, OrderModelSave
 from config.database import async_session_maker
@@ -9,9 +10,8 @@ from config.config import settings
 
 from config.config import logger
 
+
 # добавление заказа в корзину
-
-
 async def add_order(
     addres: str,
     url: str,
@@ -23,6 +23,27 @@ async def add_order(
     user_id: int,
     shipping_cost: int
 ):
+    """
+    Эта функция используется для добавления нового заказа в базу данных.
+
+    Параметры:
+    addres (str): Адрес для доставки.
+    url (str): URL продукта.
+    color (str): Цвет продукта.
+    round_value (int): Округленная цена продукта.
+    phone (str): Номер телефона клиента.
+    username (str): Имя пользователя клиента.
+    order (int): Номер заказа.
+    user_id (int): Идентификатор пользователя клиента.
+    shipping_cost (int): Стоимость доставки.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    INSERT INTO OrderModel (user_id, price, addres, name, phone, color, url, order, data, shipping_cost)
+    VALUES (:user_id, :round_value, :addres, :username, :phone, :color, :url, :order, :data, :shipping_cost);
+    """
     try:
         async with async_session_maker() as session:
             new_order = OrderModel(
@@ -40,11 +61,9 @@ async def add_order(
             session.add(new_order)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка в dao добавление заказа в корзину', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'dao добавление заказа в корзину:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Запись данных человека
@@ -54,6 +73,22 @@ async def add_diven_user(
     username: str,
     user_id: int,
 ):
+    """
+    Эта функция используется для добавления нового пользователя в базу данных.
+
+    Параметры:
+    addres (str): Адрес пользователя.
+    phone (str): Номер телефона пользователя.
+    username (str): Имя пользователя.
+    user_id (int): Идентификатор пользователя.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    INSERT INTO OrderGivenModel (user_id, addres, name, phone)
+    VALUES (:user_id, :addres, :username, :phone);
+    """
     try:
         async with async_session_maker() as session:
             new_user = OrderGivenModel(
@@ -65,44 +100,26 @@ async def add_diven_user(
             session.add(new_user)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка в записи данных человека по адресу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'записи данных человека по адресу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
-# получение заказа по юзеру
 async def order_user_id_all(
     user_id: int
 ):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-            price = result.mappings().all()
-            return [{'id': row['OrderModel'].id,
-                    'user_id': row['OrderModel'].user_id,
-                     'price': row['OrderModel'].price,
-                     'addres': row['OrderModel'].addres,
-                     'name': row['OrderModel'].name,
-                     'phone': row['OrderModel'].phone,
-                     'color': row['OrderModel'].color,
-                     'url': row['OrderModel'].url,
-                     'order': row['OrderModel'].order,
-                     'date': row['OrderModel'].data,
-                     'shipping_cost': row['OrderModel'].shipping_cost} for row in price]
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение заказа по юзеру', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение заказа по юзеру:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+    """
+    Эта функция используется для извлечения всех заказов для заданного идентификатора пользователя из базы данных.
 
+    Параметры:
+    user_id (int): Идентификатор пользователя.
 
-async def order_user_id_all_2(
-    user_id: int
-):
+    Возвращает:
+    List[OrderModel]: Список объектов OrderModel, представляющих заказы для указанного идентификатора пользователя.
+
+    SQL запрос:
+    SELECT * FROM OrderModel WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             result = await session.execute(select(OrderModel).
@@ -111,11 +128,9 @@ async def order_user_id_all_2(
             order_models = [d['OrderModel'] for d in price]
             return order_models
     except Exception as e:
-        logger.critical(
-            'Ошибка получение заказа по юзеру', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение заказа по юзеру:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Получение данных клиента
@@ -130,6 +145,9 @@ async def get_clien_data(
 
     Возвращает:
     user: Объект пользователя, содержащий данные о клиенте.
+
+    SQL запрос:
+    SELECT * FROM OrderGivenModel WHERE user_id = :user_id;
     """
     try:
         async with async_session_maker() as session:
@@ -138,248 +156,9 @@ async def get_clien_data(
         user = result.scalar()
         return user
     except Exception as e:
-        logger.critical(
-            'Ошибка Получение телефона юзера по таблице given ', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Получение телефона юзера по таблице given:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# Получение телефона юзера по таблице given
-async def phone_user_id_given(
-        user_id: int,
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).
-                                           where(OrderGivenModel.user_id == user_id))
-        user_phone = result.scalar()
-        if user_phone is not None:
-            phone = user_phone.phone
-            return phone
-        else:
-            pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка Получение телефона юзера по таблице given ', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Получение телефона юзера по таблице given:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение адреса юзера по таблице given
-async def addres_user_id_given(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).
-                                           where(OrderGivenModel.user_id == user_id))
-            addres_user = result.scalar()
-            if addres_user is not None:
-                addres = addres_user.addres
-                return addres
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение адреса юзера по таблице given ', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение адреса юзера по таблице given:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение имени юзера по заказу по таблицу given
-async def username_user_id_given(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).
-                                           where(OrderGivenModel.user_id == user_id))
-            username_user = result.scalar()
-            if username_user is not None:
-                username = username_user.name
-                return username
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение имени юзера по заказу по таблицу given', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение имени юзера по заказу по таблицу given:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение телефона юзера по заказу
-async def order_user_id_phone(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-        user_phone = result.scalar()
-        if user_phone is not None:
-            phone = user_phone.phone
-            return phone
-        else:
-            pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение телефона юзера по заказу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение телефона юзера по заказу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение даты заказа по заказу
-async def order_user_id_date(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-        user_data = result.scalar()
-        if user_data is not None:
-            data = user_data.data
-            return data
-        else:
-            pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение даты заказа по заказу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение даты заказа по заказу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# Изменение даты по карзины для обновления
-async def modify_date_order_id(user_id: int):
-    try:
-        async with async_session_maker() as session:
-            stmt = update(OrderModel).where(OrderModel.user_id ==
-                                            user_id).values({'data': datetime.now()})
-            await session.execute(stmt)
-            await session.commit()
-    except Exception as e:
-        logger.critical(
-            f'Ошибка при изменении даты заказа для пользователя с ID {user_id}', exc_info=True)
-        error_message = LEXICON_RU['Ошибка'] + \
-            f'При изменении даты заказа для пользователя с ID {user_id}:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение url юзера по заказу
-async def order_user_id_url(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-        user_url = result.scalar()
-        if user_url is not None:
-            url = user_url.url
-            return url
-        else:
-            pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение url юзера по заказу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение url юзера по заказу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение color юзера по заказу
-async def order_url_id_color(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-        user_color = result.scalar()
-        if user_color is not None:
-            color = user_color.color
-            return color
-        else:
-            pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение color юзера по заказу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение color юзера по заказу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-# получение адреса юзера по заказу
-
-
-async def order_user_id_addres(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-            addres_user = result.scalar()
-            if addres_user is not None:
-                addres = addres_user.addres
-                return addres
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение адреса юзера по заказу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение адреса юзера по заказу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение имени юзера по заказу
-async def order_user_id_username(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-            username_user = result.scalar()
-            if username_user is not None:
-                username = username_user.name
-                return username
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение имени юзера по заказу', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение имени юзера по заказу:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение стоимости доставки заказа
-async def order_user_id_shipping_cost(
-    user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-            shipping_cost_user = result.scalar()
-            if shipping_cost_user is not None:
-                shipping_cost = shipping_cost_user.shipping_cost
-                return shipping_cost
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение стоимости доставки заказа', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение стоимости доставки заказа:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Изменение телефона юзера по заказу по таблице Юзера
@@ -387,6 +166,21 @@ async def modify_phone_user_id(
     user_id: int,
     new_phone: str,
 ):
+    """
+    Эта функция используется для изменения номера телефона заданного идентификатора пользователя в базе данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    new_phone (str): Новый номер телефона для обновления.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    UPDATE OrderGivenModel
+    SET phone = :new_phone
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             new_phone = {'phone': new_phone}
@@ -395,11 +189,9 @@ async def modify_phone_user_id(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Изменение телефона юзера по заказу по таблице Юзера', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Изменение телефона юзера по заказу по таблице Юзера:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Изменение Имени юзера по заказу по таблице Юзера
@@ -407,6 +199,21 @@ async def modify_username_user_id(
     user_id: int,
     new_name: str,
 ):
+    """
+    Эта функция используется для изменения имени пользователя для заданного идентификатора пользователя в базе данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    new_name (str): Новое имя пользователя для обновления.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    UPDATE OrderGivenModel
+    SET name = :new_name
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             new_name = {'name': new_name}
@@ -415,11 +222,9 @@ async def modify_username_user_id(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Изменение Имени юзера по заказу по таблице Юзера', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Изменение Имени юзера по заказу по таблице Юзера:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Изменение адреса юзера по заказу по таблице Юзера
@@ -427,6 +232,21 @@ async def modify_addres_user_id(
     user_id: int,
     new_addres: str,
 ):
+    """
+    Эта функция используется для изменения адреса для заданного идентификатора пользователя в базе данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    new_addres (str): Новый адрес для обновления.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    UPDATE OrderGivenModel
+    SET addres = :new_addres
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             new_addres = {'addres': new_addres}
@@ -435,11 +255,9 @@ async def modify_addres_user_id(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Изменение адреса юзера по заказу по таблице Юзера', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Изменение Изменение адреса юзера по заказу по таблице Юзера:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Изменение телефона юзера по заказу по таблице Заказа
@@ -447,6 +265,21 @@ async def modify_phone_user_id_order(
     user_id: int,
     new_phone: str,
 ):
+    """
+    Эта функция используется для изменения номера телефона заказа для заданного идентификатора пользователя в базе данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    new_phone (str): Новый номер телефона для обновления.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    UPDATE OrderModel
+    SET phone = :new_phone
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             new_phone = {'phone': new_phone}
@@ -455,11 +288,9 @@ async def modify_phone_user_id_order(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Изменение телефона юзера по заказу по таблице Заказа', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Изменение телефона юзера по заказу по таблице Заказа:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Изменение Имени юзера по заказу по таблице Заказа
@@ -467,6 +298,21 @@ async def modify_username_user_id_order(
     user_id: int,
     new_name: str,
 ):
+    """
+    Эта функция используется для изменения имени пользователя заказа для заданного идентификатора пользователя в базе данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    new_name (str): Новое имя пользователя для обновления.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    UPDATE OrderModel
+    SET name = :new_name
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             new_name = {'name': new_name}
@@ -475,11 +321,9 @@ async def modify_username_user_id_order(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Изменение Имени юзера по заказу по таблице Заказаа', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Изменение Имени юзера по заказу по таблице Заказа:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Изменение адреса юзера по заказу по таблице Заказа
@@ -487,6 +331,21 @@ async def modify_addres_user_id_order(
     user_id: int,
     new_addres: str,
 ):
+    """
+    Эта функция используется для изменения адреса заказа для заданного идентификатора пользователя в базе данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    new_addres (str): Новый адрес для обновления.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    UPDATE OrderModel
+    SET addres = :new_addres
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             new_addres = {'addres': new_addres}
@@ -495,11 +354,9 @@ async def modify_addres_user_id_order(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Изменение адреса юзера по заказу по таблице Заказа', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Изменение адреса юзера по заказу по таблице Заказа:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Удалить заказ
@@ -507,6 +364,20 @@ async def delete_order_user_id(
     user_id: int,
     order: int
 ):
+    """
+    Эта функция используется для удаления заказа для заданного идентификатора пользователя и номера заказа из базы данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+    order (int): Номер заказа.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    DELETE FROM OrderModel
+    WHERE user_id = :user_id AND order = :order;
+    """
     try:
         async with async_session_maker() as session:
             stmt = delete(OrderModel).where(
@@ -514,11 +385,9 @@ async def delete_order_user_id(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Удалить заказ', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Удалить заказ:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Сохранение заказа по номеру заказа
@@ -535,6 +404,29 @@ async def add_order_save(
     user_link: int,
     price_rub: int,
 ):
+    """
+    Эта функция используется для добавления нового сохраненного заказа в базу данных.
+
+    Параметры:
+    addres (str): Адрес для доставки.
+    url (str): URL продукта.
+    color (str): Цвет продукта.
+    round_value (int): Округленная цена продукта.
+    phone (str): Номер телефона клиента.
+    username (str): Имя пользователя клиента.
+    order (int): Номер заказа.
+    user_id (int): Идентификатор пользователя клиента.
+    shipping_cost (int): Стоимость доставки.
+    user_link (int): Ссылка на пользователя.
+    price_rub (int): Цена в рублях.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    INSERT INTO OrderModelSave (user_id, price, addres, name, phone, color, url, order, data, shipping_cost, user_link, price_rub)
+    VALUES (:user_id, :round_value, :addres, :username, :phone, :color, :url, :order, :data, :shipping_cost, :user_link, :price_rub);
+    """
     try:
         async with async_session_maker() as session:
             new_order = OrderModelSave(
@@ -554,17 +446,28 @@ async def add_order_save(
             session.add(new_order)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Сохранение заказа по номеру заказа', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Сохранение заказа по номеру заказа:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Удалить заказ после формирования заказа
 async def delete_order(
     user_id: int
 ):
+    """
+    Эта функция используется для удаления всех заказов для заданного идентификатора пользователя из базы данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    DELETE FROM OrderModel
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             stmt = delete(OrderModel).where(
@@ -572,17 +475,29 @@ async def delete_order(
             await session.execute(stmt)
             await session.commit()
     except Exception as e:
-        logger.critical(
-            'Ошибка Удалить заказ после формирования заказа', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Удалить заказ после формирования заказа:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Получение заказа из сохраненой базы
 async def add_save_order(
         user_id: int
 ):
+    """
+    Эта функция используется для получения сохраненного заказа для заданного идентификатора пользователя из базы данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+
+    Возвращает:
+    result (int): Номер сохраненного заказа, если он существует.
+    None: Если сохраненный заказ не найден.
+
+    SQL запрос:
+    SELECT * FROM OrderModelSave
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             order = await session.execute(select(OrderModelSave).
@@ -594,87 +509,56 @@ async def add_save_order(
             else:
                 pass
     except Exception as e:
-        logger.critical(
-            'Ошибка Получение заказа из сохраненой базы', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Получение заказа из сохраненой базы:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # получение заказа по сохраненым заказам
-async def order_user_id_all_save(
+async def get_user_id_all_save(
     user_id: int
 ):
+    """
+    Эта функция используется для удаления всех заказов для заданного идентификатора пользователя из базы данных.
+
+    Параметры:
+    user_id (int): Идентификатор пользователя.
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    DELETE FROM OrderModel
+    WHERE user_id = :user_id;
+    """
     try:
         async with async_session_maker() as session:
             result = await session.execute(select(OrderModelSave).
                                            where(OrderModelSave.user_id == user_id))
-            price = result.mappings().all()
-            return [{'id': row['OrderModelSave'].id,
-                    'user_id': row['OrderModelSave'].user_id,
-                     'price': row['OrderModelSave'].price,
-                     'addres': row['OrderModelSave'].addres,
-                     'name': row['OrderModelSave'].name,
-                     'phone': row['OrderModelSave'].phone,
-                     'color': row['OrderModelSave'].color,
-                     'url': row['OrderModelSave'].url,
-                     'order': row['OrderModelSave'].order,
-                     'date': row['OrderModelSave'].data,
-                     'shipping_cost': row['OrderModelSave'].shipping_cost, } for row in price]
+            data = result.mappings().all()
+            order_models = [d['OrderModelSave'] for d in data]
+            return order_models
     except Exception as e:
-        logger.critical(
-            'Ошибка получение заказа по сохраненым заказам', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение заказа по сохраненым заказам:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение даты с сохраненных заказов
-async def date_order_save(
-        user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModelSave).
-                                           where(OrderModelSave.user_id == user_id))
-            stmt = result.scalar()
-            if stmt is not None:
-                result = stmt.data
-                return result
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение даты с сохраненных заказов', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение даты с сохраненных заказов:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
-
-
-# получение даты с корзины
-async def date_order(
-        user_id: int
-):
-    try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderModel).
-                                           where(OrderModel.user_id == user_id))
-            stmt = result.scalar()
-            if stmt is not None:
-                result = stmt.data
-                return result
-            else:
-                pass
-    except Exception as e:
-        logger.critical(
-            'Ошибка получение даты с корзины', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'получение даты с корзины:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Удаление месячных заказов
 async def delete_old_order():
+    """
+    Эта функция используется для удаления всех сохраненных заказов, которые старше 45 дней, из базы данных.
+
+    Параметры:
+    None
+
+    Возвращает:
+    None
+
+    SQL запрос:
+    DELETE FROM OrderModelSave
+    WHERE data < :date_old;
+    """
     async with async_session_maker() as session:
         date_now = datetime.now().date()
         date_old = date_now - timedelta(days=45)

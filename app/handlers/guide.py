@@ -63,9 +63,8 @@ async def poizon(callback: CallbackQuery, state: FSMContext):
             f'гайде по скачиванию приложения:\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Хендлер по файлу POIZON
-
-
 @router.callback_query(F.data == 'android_poizon_botton')
 async def calculator_rate_value(callback: CallbackQuery):
     try:
@@ -80,9 +79,8 @@ async def calculator_rate_value(callback: CallbackQuery):
             f'кнопке далее(Регистрация в пойзон):\n{traceback.format_exc()}'
         await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
+
 # Кнопка далее(Регистрация в пойзон)
-
-
 @router.callback_query(F.data == 'button_next', StateFilter(FSMGuide.install_2))
 async def guide_poizon_1(callback: CallbackQuery, state: FSMContext):
     try:

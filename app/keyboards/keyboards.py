@@ -46,8 +46,6 @@ button_instruction = InlineKeyboardButton(
     text='Инструкция📃',
     callback_data='instruction'
 )
-
-
 big_button_2 = InlineKeyboardButton(
     text='Кроссовки👟',
     callback_data='button_snecers'
@@ -88,8 +86,6 @@ button_care_order = InlineKeyboardButton(
     text='Украшения/духи/ковры💍',
     callback_data='button_care_order'
 )
-
-
 button_admin = InlineKeyboardButton(
     text='Админ панель',
     callback_data='add_course_admin'
@@ -110,8 +106,6 @@ button_bank_phone = InlineKeyboardButton(
     text='Изменить номер телефона получателя',
     callback_data='add_button_bank_phone'
 )
-
-
 button_set_shipping_cost = InlineKeyboardButton(
     text='Изменить стоимость доставки для товаров',
     callback_data='add_set_shipping_cost'
@@ -128,8 +122,6 @@ button_set_jacket = InlineKeyboardButton(
     text='Пуховики',
     callback_data='button_set_jacket'
 )
-
-
 button_mailing = InlineKeyboardButton(
     text='Сделать рассылку',
     callback_data='mailing_botton'
@@ -216,21 +208,31 @@ delete_order_2 = InlineKeyboardButton(
 )
 # Меню админа
 meny_admin = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
-                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
+    inline_keyboard=[
+        [button_сalculator], [button_orders], [cart_botton],
+        [button_guide, button_rate], [button_feedback, button_instruction],
+        [question_client_botton], [bot_botton], [button_admin]]
 )
 meny_admin_order = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
-                     [button_feedback, button_instruction], [question_client_botton], [bot_botton], [button_admin]]
+    inline_keyboard=[
+        [button_сalculator], [button_orders], [
+            cart_botton, order_client_botton],
+        [button_guide, button_rate], [button_feedback, button_instruction],
+        [question_client_botton], [bot_botton], [button_admin]]
 )
 # Меню клиента
 meny = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton], [button_guide, button_rate],
-                     [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
+    inline_keyboard=[
+        [button_сalculator], [button_orders], [
+            cart_botton], [button_guide, button_rate],
+        [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
 )
 meny_order = InlineKeyboardMarkup(
-    inline_keyboard=[[button_сalculator], [button_orders], [cart_botton, order_client_botton], [button_guide, button_rate],
-                     [button_feedback, button_instruction], [question_client_botton], [bot_botton]]
+    inline_keyboard=[
+        [button_сalculator], [button_orders], [
+            cart_botton, order_client_botton],
+        [button_guide, button_rate], [button_feedback, button_instruction],
+        [question_client_botton], [bot_botton]]
 )
 # Список кнопок с калькулятором
 calculator_rate = InlineKeyboardMarkup(
@@ -239,13 +241,17 @@ calculator_rate = InlineKeyboardMarkup(
 )
 # Список кнопок с заказом
 order = InlineKeyboardMarkup(
-    inline_keyboard=[[sneacker_button_order], [button_clothes_order], [
-        button_down_jacke_order], [button_care_order], [button_jewelr_order], [menu_booton_basic]]
+    inline_keyboard=[
+        [sneacker_button_order], [button_clothes_order],
+        [button_down_jacke_order], [button_care_order], [button_jewelr_order],
+        [menu_booton_basic]]
 )
 # Список выбора категории для добавления товара и возварата в корзину
 orde_cart_back = InlineKeyboardMarkup(
-    inline_keyboard=[[sneacker_button_order], [button_clothes_order], [
-        button_down_jacke_order], [button_care_order], [button_jewelr_order], [back_cart]]
+    inline_keyboard=[
+        [sneacker_button_order], [button_clothes_order], [
+            button_down_jacke_order], [button_care_order], [button_jewelr_order],
+        [back_cart]]
 )
 # Калькулятор
 calculator_update = InlineKeyboardMarkup(

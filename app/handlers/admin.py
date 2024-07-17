@@ -2,6 +2,7 @@ import traceback
 from aiogram import F, types, Router
 import aiogram
 from aiogram.types import CallbackQuery, Message
+from app.dependence.dependence import logger_error_critical_send_message_admin
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import meny_admin, admin, mailing_botton, shiping_cost
 from app.models.course.dao import (add_bank, add_course, course_today,
@@ -34,10 +35,9 @@ async def admin_panel(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical("Ошибка в кнопке админ панель", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка добовления курса юаня
@@ -62,10 +62,9 @@ async def add_course_yan(callback: CallbackQuery, state: FSMContext):
             await callback.answer(show_alert=True)
             await state.set_state(FSMCourse.course)
     except:
-        logger.critical("Ошибка в кнопке изменения курса юаня", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке изменения курса юаня:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер по добавлению курса юаня
@@ -94,10 +93,9 @@ async def calculator_rate_value(message: Message, state: FSMContext):
             await message.answer(
                 text="Введи пожалуйста курс числом а не словами")
     except:
-        logger.critical('Не получилось добавить курс', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'Не получилось добавить курс:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка рассылки
@@ -111,10 +109,9 @@ async def botton_mailing(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMMailing.mailing)
     except:
-        logger.critical('Ошибка в кнопке рассылки', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке рассылки:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер по рассылки
@@ -156,10 +153,9 @@ async def handler_mailing(message: Message, state: FSMContext):
                 "повтори еще раз"
             )
     except:
-        logger.critical('Ошибка написание текста рассылки', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке рассылки:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер по рассылки
@@ -198,11 +194,9 @@ async def text_mailing(callback: CallbackQuery, state: FSMContext):
                 await state.clear()
                 await callback.answer(show_alert=True)
     except Exception as e:
-        print(f"Unexpected error: {e}")
-        logger.critical('Ошибка отправки рассылки', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'отправки рассылки:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка изменения текста
@@ -216,10 +210,9 @@ async def botton_mailing_changes(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMMailing.mailing)
     except:
-        logger.critical('Ошибка в кнопке изменения текста', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке изменения текста:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 async def notification():
@@ -239,10 +232,9 @@ async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMImages.image)
     except:
-        logger.critical("Ошибка в загрузке фото для изменения", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер по изменению картинки
@@ -264,10 +256,9 @@ async def modify_image(message: Message, state: FSMContext):
                 text="Ты засунул в меня что то иное друг, повтори попытку"
             )
     except:
-        logger.critical("Ошибка в загрузке фото для изменения", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка изменения банка получателя
@@ -281,10 +272,9 @@ async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMBank.bank)
     except:
-        logger.critical("Ошибка в изменение банка получателя", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер для изменения банка получаетеля
@@ -306,10 +296,9 @@ async def modify_image(message: Message, state: FSMContext):
                 text="Ты засунул в меня что то иное друг, повтори попытку"
             )
     except:
-        logger.critical("Ошибка в изменния банка получателя", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка изменения номера телефона получателя
@@ -322,11 +311,9 @@ async def modify_image_botton(callback: CallbackQuery, state: FSMContext):
         await callback.answer(show_alert=True)
         await state.set_state(FSMPhone.phone)
     except:
-        logger.critical(
-            "Ошибка в изменение телефона  получателя", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер для изменения номера телефона получателя
@@ -344,11 +331,9 @@ async def modify_image(message: Message, state: FSMContext):
                 text="Ты засунул в меня что то иное друг, повтори попытку"
             )
     except:
-        logger.critical(
-            "Ошибка в изменния номера телефона получателя", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка изменения стоимости доставки для товаров
@@ -361,13 +346,9 @@ async def admin_panel(callback: CallbackQuery):
         )
         await callback.answer(show_alert=True)
     except:
-        logger.critical(
-            "Ошибка в кнопке изменения цены доставки для товаров",
-            exc_info=True
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
         )
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Кнопка изменения стоимости доставки для кроссовка
@@ -380,13 +361,9 @@ async def admin_panel(callback: CallbackQuery, state: FSMShippingSneaker):
         await callback.answer(show_alert=True)
         await state.set_state(FSMShippingSneaker.cost)
     except:
-        logger.critical(
-            "Ошибка в кнопке изменения цены доставки для товаров",
-            exc_info=True
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
         )
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер для изменения стоимости доставки для кроссовка
@@ -404,11 +381,9 @@ async def modify_image(message: Message, state: FSMContext):
                 text="Ты засунул в меня что то иное друг, повтори попытку"
             )
     except:
-        logger.critical(
-            "Ошибка в изменния стоимости доставки для кроссовок", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка изменения стоимости доставки для одежды
@@ -423,13 +398,9 @@ async def admin_panel(callback: CallbackQuery, state: FSMShippingClother):
         await callback.answer(show_alert=True)
         await state.set_state(FSMShippingClother.cost)
     except:
-        logger.critical(
-            "Ошибка в кнопке изменения цены доставки для товаров",
-            exc_info=True
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
         )
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
 
 
 # Хендлер для изменения стоимости доставки для одежды
@@ -447,11 +418,9 @@ async def modify_image(message: Message, state: FSMContext):
                 text="Ты засунул в меня что то иное друг, повтори попытку"
             )
     except:
-        logger.critical(
-            "Ошибка в изменния стоимости доставки для одежды", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка изменения стоимости доставки для пуховиков
@@ -465,12 +434,9 @@ async def admin_panel(callback: CallbackQuery, state: FSMShippingJacket):
         await callback.answer(show_alert=True)
         await state.set_state(FSMShippingJacket.cost)
     except:
-        logger.critical(
-            "Ошибка в кнопке изменения цены доставки для товаров",
-            exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке кнопке админ панель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Хендлер для изменения стоимости доставки для одежды

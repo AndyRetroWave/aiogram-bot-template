@@ -2,6 +2,7 @@ import asyncio
 import traceback
 from aiogram import F, types, Router
 from aiogram.types import CallbackQuery, Message
+from app.dependence.dependence import logger_error_critical_send_message_admin
 from app.filters.filters import photo, file
 from app.lexicon.lexicon_ru import LEXICON_RU
 from app.keyboards.keyboards import calculator_update, menu_one
@@ -23,11 +24,9 @@ async def recall(callback: CallbackQuery):
     try:
         await callback.answer(show_alert=True)
     except Exception as e:
-        logger.critical(
-            'Ошибка кнопке отзывы', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке далее(Регистрация в пойзон):\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка инструкция
@@ -40,11 +39,9 @@ async def instruction(callback: CallbackQuery):
             reply_markup=menu_one
         )
     except Exception as e:
-        logger.critical(
-            'Ошибка кнопке инструкция', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке инструкция:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка курска юаня
@@ -56,29 +53,16 @@ async def course_yan(callback: CallbackQuery):
             int(value), int(value * 100) % 100)
         logger.debug('Вошли в курс юаня')
         await callback.message.edit_text(
-            text=f"""Курс юаня к рублю на сегодня : *{formatted_num}*\n\n
-*Почему у нас такой большой курс юаня?*🇨🇳 Если вы задались таким вопросом, значит вы зашли на сайт [Центробанка РФ](http://cbr.ru/) и справа снизу посмотрели официальный курс и увидели, что он отличается от нашего примерно на 2 рубля\(специально не приводим точных цифр, т\.к\. ситуация меняется каждый день\)\n\n
-Самый простой ответ на вопрос о высоком курсе:\n
-❗️В текущих реалиях нельзя купить валюту даже близко к курсу ЦБ Например, можно посмотреть по какой цене [Сбербанк](http://www.sberbank.ru/ru/quotes/currencies?currency=CNY) продает *юань*\n\n
-Обычно это плюс 3,5 рубля к официальному курсу ЦБ\n\n
-Но даже если предположить, что у вас есть юань в физическом\(фиатном\) виде \-дальше его нужно отправить в Китай\.Тут также в игру вступают посредники и курс сильно вырастет\. 💴\n\n
-Если у вас есть юань на брокерском счете \(например, тинькоф\) \- попробуйте их вывести без потери хотябы 20%\.📈\n\n
-Мы совершаем деньги с валютой *"день в день"* \- вы перевели нам рубли, мы сразу оплатили заказ в юанях "из своих", сразу же поменяли ваши рубли на юань\. Мы не занимаемся накоплением рублей в ожидании падения курса, чтобы на этом заработать\- это не наш бизнес\. \(темболее, чаще всего происходит обратное\)\n\n
-Мы стараемся закупать валюту максимально дешево и оперативно\.Сверьте наш курс с курсом у конкурентов и вы поймете, что мы молодцы, даже без учета комиссий\n\n
-*Какой будет курс завтра?*💴🇨🇳💴
-Мы не знаем также как и не знаете вы\. Всем клиентам\(хоть на 100юаней, хоть на 100 000 юане\) мы советуем не ждать завтра, потому что завтра в большинстве случаев хуже\. В таком мире живем\.\n\n
-*Мы готовы купить неограниченное количество юаней по курсу ЦБ*""",
+            text=LEXICON_RU['Курс юаня'].format(formatted_num),
             reply_markup=calculator_update,
             parse_mode='MarkdownV2',
             disable_web_page_preview=True
         )
         await callback.answer(show_alert=True)
     except Exception as e:
-        logger.critical(
-            'Ошибка кнопке курса юаня', exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке курса юаня:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка по создателю
@@ -91,14 +75,14 @@ async def create_bot(callback: CallbackQuery):
             reply_markup=calculator_update,
             parse_mode='MarkdownV2'
         )
-        await bot.send_message(chat_id=settings.ADMIN_ID2,
-                               text=f"Кобанчик, тобой поинтересовался этот [челик](https://t.me/{user})\!",
-                               parse_mode='MarkdownV2')
+        await bot.send_message(
+            chat_id=settings.ADMIN_ID2,
+            text=f"Кобанчик, тобой поинтересовался этот [челик](https://t.me/{user})\!",
+            parse_mode='MarkdownV2')
     except:
-        logger.critical("Ошибка в кнопке создатель", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке создатель:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # Кнопка по вопросу
@@ -111,10 +95,9 @@ async def create_bot(callback: CallbackQuery):
             parse_mode='MarkdownV2'
         )
     except:
-        logger.critical("Ошибка в кнопке вопрос", exc_info=True)
-        error_message = LEXICON_RU["Ошибка"] + \
-            f'кнопке вопрос:\n{traceback.format_exc()}'
-        await bot.send_message(chat_id=settings.ADMIN_ID2, text=error_message)
+        await logger_error_critical_send_message_admin(
+            bot=bot, logger=logger, traceback=traceback
+        )
 
 
 # # ехо файл
