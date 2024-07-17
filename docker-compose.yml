@@ -7,6 +7,8 @@ services:
     restart: always
     env_file:
       - .env-copy
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
   bot-app:
     image: contora
@@ -53,3 +55,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  db_data:
