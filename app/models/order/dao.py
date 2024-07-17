@@ -150,11 +150,14 @@ async def get_clien_data(
     SELECT * FROM OrderGivenModel WHERE user_id = :user_id;
     """
     try:
-        async with async_session_maker() as session:
-            result = await session.execute(select(OrderGivenModel).
-                                           where(OrderGivenModel.user_id == user_id))
-        user = result.scalar()
-        return user
+        try:
+            async with async_session_maker() as session:
+                result = await session.execute(select(OrderGivenModel).
+                                               where(OrderGivenModel.user_id == user_id))
+            user = result.scalar()
+            return user
+        except:
+            return None
     except Exception as e:
         await logger_error_critical_send_message_admin(
             bot=bot, logger=logger, traceback=traceback
